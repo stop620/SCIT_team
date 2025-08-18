@@ -21,6 +21,7 @@ configurations {
 }
 
 repositories {
+    google()
     mavenCentral()
 }
 
@@ -34,6 +35,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // jave
+    implementation 'ws.schild:jave-core:3.5.0'
+    implementation 'ws.schild:jave-nativebin-win64:3.5.0'
+
+    // google ai
+    implementation "com.google.genai:google-genai:1.4.1"
 }
 
 tasks.named('test') {

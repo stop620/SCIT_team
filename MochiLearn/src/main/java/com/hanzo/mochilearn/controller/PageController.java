@@ -27,4 +27,9 @@ public class PageController {
     public String myPage() {
         return "page/myPage";
     }
+
+    @GetMapping("write")
+    public String writePage() {
+        return "page/writePage";
+    }
 }

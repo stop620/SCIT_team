@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html xmlns:th="thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,5 +9,9 @@
     <div th:replace="~{navigation::navigation}"></div>
 
     study
+
+    <div>
+        <input type="button" th:onclick="|location.href=`@{write}`|" value="추가하기" id="writeBtn">
+    </div>
 </body>
 </html>
