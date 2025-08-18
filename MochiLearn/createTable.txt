@@ -1,0 +1,113 @@
+- CREATE TABLE member (
+member_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '회원 고유 ID',
+user_id VARCHAR(50) NOT NULL UNIQUE COMMENT '로그인 아이디',
+password VARCHAR(100) NOT NULL COMMENT '비밀번호 (Bcrypt 등으로 해싱 필수)',
+name VARCHAR(50) NOT NULL COMMENT '이름',
+birth DATE COMMENT '생년월일',
+gender VARCHAR(10) CHECK (gender IN ('여자', '남자')) COMMENT '성별',
+email VARCHAR(50) NOT NULL UNIQUE COMMENT '이메일',
+phone VARCHAR(50) UNIQUE COMMENT '전화번호',
+nickname VARCHAR(50) NOT NULL UNIQUE COMMENT '닉네임',
+join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '가입일자',
+update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '정보수정일자',
+last_login_date TIMESTAMP COMMENT '최근접속일',
+role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER' COMMENT '역할'
+);
+- - ======== 2. 단어장 테이블 (Book) ========
+CREATE TABLE book (
+book_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '단어장 고유 ID',
+title VARCHAR(20) NOT NULL COMMENT '단어장 제목',
+contents VARCHAR(255) COMMENT '단어장 설명',
+is_share BOOLEAN NOT NULL DEFAULT FALSE COMMENT '공유여부',
+member_id BIGINT NOT NULL COMMENT '소유자 ID',
+FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
+);
+- - ======== 3. 단어 테이블 (Word) ========
+CREATE TABLE word (
+word_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '단어 고유 ID',
+word VARCHAR(50) NOT NULL COMMENT '단어',
+meaning VARCHAR(50) NOT NULL COMMENT '의미',
+description VARCHAR(255) COMMENT '설명',
+word_voice VARCHAR(255) COMMENT '음성 파일 경로'
+);
+- - ======== 4. 단어와 단어장 연결 테이블 (WordBookMap) ========
+CREATE TABLE word_book_map (
+word_id BIGINT,
+book_id BIGINT,
+PRIMARY KEY (word_id, book_id),
+FOREIGN KEY (word_id) REFERENCES word(word_id) ON DELETE CASCADE,
+FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
+);
+- - ======== 5. 학습카드 테이블 (Card) ========
+CREATE TABLE card (
+card_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '학습카드 고유 ID',
+japanese VARCHAR(255) NOT NULL COMMENT '일본어 내용',
+korean VARCHAR(255) NOT NULL COMMENT '한국어 해석',
+url VARCHAR(255) COMMENT '관련 미디어 URL',
+timeline INT COMMENT '미디어 타임라인 (초)',
+level INT COMMENT '난이도',
+genre VARCHAR(50) COMMENT '장르',
+created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
+like INT DEFAULT 0 COMMENT '좋아요 수',
+member_id BIGINT COMMENT '작성자 ID',
+FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
+);
+- - ======== 6. 퀴즈 테이블 (Quiz) ========
+CREATE TABLE quiz (
+quiz_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '퀴즈 고유 ID',
+japanese VARCHAR(255) COMMENT '일본어 문제 (카드 내용과 다를 수 있음)',
+korean VARCHAR(255) COMMENT '한국어 문제 (카드 내용과 다를 수 있음)',
+-- 퀴즈는 특정 학습카드를 기반으로 생성됩니다.
+card_id BIGINT NOT NULL COMMENT '원본 학습카드 ID',
+FOREIGN KEY (card_id) REFERENCES card(card_id) ON DELETE CASCADE
+);
+- - ======== 7. 시험 테이블 (Exam) ========
+CREATE TABLE exam (
+exam_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '시험 고유 ID',
+title VARCHAR(50) NOT NULL COMMENT '시험 제목',
+description VARCHAR(255) COMMENT '시험 설명',
+level INT COMMENT '시험 난이도'
+);
+- - ======== 8. 시험과 퀴즈 연결 테이블 (ExamQuizMap) ========
+CREATE TABLE exam_quiz_map (
+exam_id BIGINT,
+quiz_id BIGINT,
+quiz_order INT COMMENT '시험 내 문제 순서',
+PRIMARY KEY (exam_id, quiz_id),
+FOREIGN KEY (exam_id) REFERENCES exam(exam_id) ON DELETE CASCADE,
+FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id) ON DELETE CASCADE
+);
+- - ======== 9. 성적 테이블 (Grade) ========
+CREATE TABLE grade (
+grade_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '성적 고유 ID',
+exam_id BIGINT NOT NULL COMMENT '응시한 시험 ID',
+member_id BIGINT NOT NULL COMMENT '응시자 ID',
+score INT NOT NULL COMMENT '점수',
+test_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '시험 응시일',
+FOREIGN KEY (exam_id) REFERENCES exam(exam_id) ON DELETE CASCADE,
+FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE
+);
+- - ======== 10. 제출 답안 테이블 (Submission) ========
+CREATE TABLE submission (
+submission_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+grade_id BIGINT NOT NULL COMMENT '성적 ID',
+quiz_id BIGINT NOT NULL COMMENT '제출한 퀴즈 ID',
+submitted_answer VARCHAR(255) COMMENT '제출한 답안',
+is_correct BOOLEAN COMMENT '정답 여부',
+FOREIGN KEY (grade_id) REFERENCES grade(grade_id) ON DELETE CASCADE,
+FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id) ON DELETE CASCADE
+);
+- - ======== 11. 학습 내역 테이블 (Enroll) ========
+CREATE TABLE enroll (
+enroll_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '학습내역 고유 ID',
+completed BOOLEAN NOT NULL DEFAULT FALSE COMMENT '완료여부',
+start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '학습시작일',
+end_date TIMESTAMP COMMENT '학습종료일',
+count INT NOT NULL DEFAULT 0 COMMENT '학습횟수',
+bookmarked BOOLEAN NOT NULL DEFAULT FALSE COMMENT '즐겨찾기 여부',
+member_id BIGINT NOT NULL COMMENT '학습자 ID',
+-- 학습의 기본 단위를 '학습카드'로 설정했습니다.
+card_id BIGINT NOT NULL COMMENT '학습한 카드 ID',
+FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE CASCADE,
+FOREIGN KEY (card_id) REFERENCES card(card_id) ON DELETE CASCADE
+);
