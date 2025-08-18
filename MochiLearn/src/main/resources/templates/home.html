@@ -23,27 +23,11 @@
     <title>もちLearn</title>
 </head>
 
-<!-- 추후에 Fragment 이용-->
-<!-- <nav class="navbar">
-    <div class="navbar_logo">
-        <a href="index.html">
-            動画べん
-            <img src="">
-        </a>
-    </div>
-    <ul class="navbar_menu">
-        <li><a href="study.html">학습</a></li>
-        <li><a href="quiz.html">퀴즈</a></li>
-        <li><a href="word.html">단어장</a></li>
-        <li><a href="mypage.html">마이페이지</a></li>
-    </ul>
-    <div class="navbar_btn">
-        <a href="#">로그인</a>
-        <button style="display:none">로그아웃</button>
-    </div>
-</nav> -->
 <div th:replace="~{navigation::navigation}"></div>
 
+<!-- cardlist 내부의 객체는 동적으로 그려줄것
+    현 시점에는 그냥 레이아웃 용으로 하드코딩 했음
+-->
 <body>
     <div class="fav_cardlist">
         <div class="list_title">

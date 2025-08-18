@@ -1,13 +1,77 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko" xmlns:th="thymeleaf.org">
+
+<!-- css -->
+<link rel="stylesheet" href="../css/main.css">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>study</title>
+    <title>Study Page</title>
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
+   	<div class="studyHeader">
+        <div class="searchBox">
+            <input type="text" placeholder="Search...">
+            <button type="submit">검색</button>
+        </div>
+        <div class="addBtn">
+            <a href="#">추가</a>
+        </div>
+   	</div>
 
-    study
+    <div class="category">
+        <select>
+            <option value="category1">Category 1</option>
+            <option value="category2">Category 2</option>
+            <option value="category3">Category 3</option>
+        </select>
+    </div>
+
+    <div class="cardlist">
+            <div class="card">
+                <div class="card_img">
+                    <img src="../img/ddd.jpg" alt="Video Thumbnail">
+                </div>
+                <div class="card_info">
+                    <h3>비디오 제목</h3>
+                    <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
+                    <button>시청하기</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card_img">
+                    <img src="../img/ddd.jpg" alt="Video Thumbnail">
+                </div>
+                <div class="card_info">
+                    <h3>비디오 제목</h3>
+                    <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
+                    <button>시청하기</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card_img">
+                    <img src="../img/ddd.jpg" alt="Video Thumbnail">
+                </div>
+                <div class="card_info">
+                    <h3>비디오 제목</h3>
+                    <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
+                    <button>시청하기</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card_img">
+                    <img src="../img/ddd.jpg" alt="Video Thumbnail">
+                </div>
+                <div class="card_info">
+                    <h3>비디오 제목</h3>
+                    <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
+                    <button>시청하기</button>
+                </div>
+            </div>
+
+        </div>
+
 </body>
 </html>
