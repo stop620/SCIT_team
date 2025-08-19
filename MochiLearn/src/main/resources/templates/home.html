@@ -17,6 +17,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        //에러 무시해도 됩니다. 
+        var wordPageUrl = [[@{/page/word}]];
+        window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl,"aa", "_self", "width=400,height=600");
+        }
+        /*]]>*/
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,7 +43,7 @@
 <div th:replace="~{navigation::navigation}"></div>
 
 <!-- cardlist 내부의 객체는 동적으로 그려줄것
-    현 시점에는 그냥 레이아웃 용으로 하드코딩 했음
+    현 시점에는 그냥 레이아웃 용으로
 -->
 <body>
     <div class="fav_cardlist">
@@ -126,5 +143,8 @@
             </div>
         </div>
     </div>
+
+    </div>
+
 </body>
 </html>

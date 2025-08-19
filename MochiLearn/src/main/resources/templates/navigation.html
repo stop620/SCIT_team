@@ -1,5 +1,6 @@
 <html xmlns:th="http://thymeleaf.org">
 <body>
+
 <header th:fragment="navigation">
     <nav class="navbar">
         <div class="navbar_logo">
@@ -11,12 +12,17 @@
         <ul class="navbar_menu">
             <li><a th:href="@{/page/study}">학습</a></li>
             <li><a th:href="@{/page/quiz}">퀴즈</a></li>
-            <li><a th:href="@{/page/word}">단어장</a></li>
             <li><a th:href="@{/page/mypage}">마이페이지</a></li>
         </ul>
-        <div class="navbar_btn">
-            <a href="#">로그인</a>
-            <button style="display:none">로그아웃</button>
+        <div class="navbar_btnContainer">
+            <!-- 단어장 페이지는 Modal로 이동 -->
+            <div class="navbar_btn" id="wordPageBtn">
+                <a>단어장</a>
+            </div>
+            <div class="navbar_btn" id="loginBtn">
+                <a th:href="@{/page/login}">로그인</a>
+                <button style="display:none">로그아웃</button>
+            </div>
         </div>
     </nav>
 </header>

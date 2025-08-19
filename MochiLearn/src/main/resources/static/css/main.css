@@ -51,8 +51,13 @@ nav{
     font-weight: bold;
     font-family: 'Noto Sans JP', sans-serif;
 }   
+.navbar_btnContainer{
+    display: flex;
+    align-items: right;
+}
 .navbar_btn{
     display: inline-block;
+    margin-right: 5px;
     padding: 10px 20px;
     background-color: #007bff;
     border-radius: 5px;
