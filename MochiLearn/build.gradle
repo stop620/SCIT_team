@@ -41,7 +41,7 @@ dependencies {
     implementation 'ws.schild:jave-nativebin-win64:3.5.0'
 
     // google ai
-    implementation "com.google.genai:google-genai:1.4.1"
+    implementation 'com.google.genai:google-genai:1.13.0'
 }
 
 tasks.named('test') {
