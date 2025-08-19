@@ -134,3 +134,35 @@ nav{
     color: white;
     text-decoration: none;
 }
+
+.searchBox input[type="text"]{
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.searchBox button{
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.category{
+    margin:10px 0;
+    height: 20px;
+}
+
+.category select{
+	float:right;
+}
+
+.studyContent{
+    width: 70%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFE8CD;
+}
