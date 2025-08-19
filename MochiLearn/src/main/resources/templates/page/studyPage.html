@@ -1,7 +1,5 @@
 <!doctype html>
-<<<<<<< HEAD
 <html xmlns:th="thymeleaf.org">
-=======
 <html lang="ko" xmlns:th="thymeleaf.org">
 
 <!-- css -->
@@ -19,7 +17,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 
->>>>>>> develop
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,7 +30,7 @@
             <button type="submit">검색</button>
         </div>
         <div class="addBtn">
-            <a href="#">추가</a>
+            <a th:href="@{write}">추가</a>
         </div>
    	</div>
 
@@ -129,14 +126,8 @@
             </div>
         </div>
     </div>
-
-<<<<<<< HEAD
-    study
-
     <div>
         <input type="button" th:onclick="|location.href=`@{write}`|" value="추가하기" id="writeBtn">
     </div>
-=======
->>>>>>> develop
 </body>
 </html>

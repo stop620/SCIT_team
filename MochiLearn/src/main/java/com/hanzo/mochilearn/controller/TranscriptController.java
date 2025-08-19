@@ -1,9 +1,15 @@
 package com.hanzo.mochilearn.controller;
 
-/*import com.google.genai.generativeai.GenerativeModel;
-import com.google.genai.type.Content;
-import com.google.genai.type.GenerateContentResponse;
-import com.google.genai.type.Part;*/
+import com.google.genai.Client;
+import com.google.genai.types.Content;
+import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.Part;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.hanzo.mochilearn.dto.TranscriptRequestDTO;
+import com.hanzo.mochilearn.dto.TranscriptResponseDTO;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,62 +17,52 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import ws.schild.jave.Encoder;
-import ws.schild.jave.EncoderException;
-import ws.schild.jave.MultimediaObject;
-import ws.schild.jave.encode.AudioAttributes;
-import ws.schild.jave.encode.EncodingAttributes;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @RestController
 public class TranscriptController {
 
-/*    @Value("${gemini.api.key}")
-    private String apiKey;*/
+    @Value("${gemini.api.key}")
+    private String apiKey;
+
+    // JSON 구조에 맞춰 파싱할 데이터를 담을 클래스 (내부 정적 클래스로 선언)
+    @Getter
+    private static class TranslationResponse {
+        private String japanese;
+        private String korean;
+
+    }
 
     /**
-     * 비동기적으로 유튜브 음성을 텍스트로 변환합니다.
-     * 이 코드는 실행 환경(서버)에 yt-dlp와 ffmpeg가 설치되고
-     * 시스템 PATH에 등록되어 있는 것을 전제로 합니다.
+     * yt-dlp를 최적화하여 필요한 구간만 다운로드하고, AI를 통해 텍스트로 변환합니다.
+     * 실행 환경에 yt-dlp와 ffmpeg가 설치되고 시스템 PATH에 등록되어 있어야 합니다.
      */
     @PostMapping("/api/transcribe")
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, String>>> getTranscript(@RequestBody Map<String, Object> requestBody) {
-        String youtubeUrl = (String) requestBody.get("url");
-        Number startTimeNum = (Number) requestBody.get("start");
-        Number endTimeNum = (Number) requestBody.get("end");
-        float startTime = startTimeNum.floatValue();
-        float endTime = endTimeNum.floatValue();
-
+    public CompletableFuture<ResponseEntity<?>> getTranscript(@RequestBody TranscriptRequestDTO requestDTO) {
+        log.debug("getTranscript requestDTO: {}", requestDTO);
         return CompletableFuture.supplyAsync(() -> {
             Path tempDir = null;
             try {
-                // 1. 작업을 위한 임시 디렉토리 생성
                 tempDir = Files.createTempDirectory("youtube-audio-");
+                File slicedAudioFile = downloadAndSliceAudioStream(tempDir, requestDTO.getUrl(), requestDTO.getStart(), requestDTO.getEnd());
 
-                // 2. 오디오 다운로드 및 mp3 변환 (yt-dlp가 PATH의 ffmpeg 사용)
-                File fullAudioFile = downloadAudioStream(tempDir, youtubeUrl);
+                // AI 호출 결과로 자막 리스트(DTO)를 받음
+                List<TranscriptResponseDTO> transcription = callGeminiApi(slicedAudioFile);
 
-                // 3. 오디오 파일 자르기 (JAVE가 PATH의 ffmpeg 사용)
-                File slicedAudioFile = sliceAudioFile(tempDir, fullAudioFile, startTime, endTime);
-
-                // 4. Gemini API로 텍스트 변환
-                //String transcription = callGeminiApi(slicedAudioFile);
-
-                Map<String, String> result = new HashMap<>();
-                //result.put("transcript", transcription);
-                return ResponseEntity.ok(result);
+                // 성공 시 자막 리스트를 그대로 응답
+                return ResponseEntity.ok(transcription);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -74,7 +70,6 @@ public class TranscriptController {
                 error.put("error", "스크립트 변환 중 오류 발생: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
             } finally {
-                // 5. 작업 완료 후 임시 디렉토리 정리
                 if (tempDir != null) {
                     try {
                         Files.walk(tempDir)
@@ -90,18 +85,24 @@ public class TranscriptController {
     }
 
     /**
-     * yt-dlp를 실행하여 오디오를 다운로드하고 mp3로 변환합니다.
-     * 시스템 PATH에 등록된 ffmpeg을 자동으로 사용합니다.
+     * yt-dlp와 ffmpeg를 함께 사용하여 지정된 시간 구간의 오디오만 mp3 파일로 다운로드합니다.
      */
-    private File downloadAudioStream(Path tempDir, String url) throws IOException, InterruptedException {
-        File downloadedFile = tempDir.resolve("audio.mp3").toFile();
+    private File downloadAndSliceAudioStream(Path tempDir, String url, float startTime, float endTime) throws IOException, InterruptedException {
+        File outputFile = tempDir.resolve("sliced_audio.mp3").toFile();
+        float duration = endTime - startTime;
+
+        // ffmpeg에 전달할 인자 설정: "-ss [시작시간] -t [지속시간]"
+        String ffmpegArgs = String.format("-ss %.3f -t %.3f", startTime, duration);
+
         ProcessBuilder pb = new ProcessBuilder(
                 "yt-dlp",
-                "-f", "bestaudio[ext=m4a]",
-                "--extract-audio",
+                "-f", "bestaudio", // bestaudio를 선택하고 ffmpeg이 변환하도록 맡김
+                "-x", // --extract-audio의 단축 옵션
                 "--audio-format", "mp3",
-                "--output", downloadedFile.getAbsolutePath(),
+                "--postprocessor-args", ffmpegArgs, // ffmpeg에 자르기 옵션 전달
+                "-o", outputFile.getAbsolutePath(), // --output의 단축 옵션
                 url);
+
         pb.redirectErrorStream(true);
         Process process = pb.start();
 
@@ -109,6 +110,7 @@ public class TranscriptController {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
+                System.out.println("yt-dlp: " + line);
                 output.append(line).append("\n");
             }
         }
@@ -117,39 +119,14 @@ public class TranscriptController {
         if (exitCode != 0) {
             throw new IOException("yt-dlp 프로세스 실행 실패 (종료 코드: " + exitCode + "). 출력:\n" + output.toString());
         }
-        return downloadedFile;
-    }
-
-    /**
-     * JAVE를 사용하여 오디오 파일을 자릅니다.
-     * 시스템 PATH에 등록된 ffmpeg을 자동으로 감지하여 사용합니다.
-     */
-    private File sliceAudioFile(Path tempDir, File sourceFile, float startTime, float endTime) throws EncoderException {
-        File slicedFile = tempDir.resolve("sliced.mp3").toFile();
-
-        AudioAttributes audio = new AudioAttributes();
-        audio.setCodec("libmp3lame");
-        audio.setBitRate(128000);
-        audio.setChannels(1);
-        audio.setSamplingRate(16000);
-
-        EncodingAttributes attrs = new EncodingAttributes();
-        attrs.setOutputFormat("mp3");
-        attrs.setAudioAttributes(audio);
-        attrs.setDuration(endTime - startTime);
-        attrs.setOffset(startTime);
-
-        Encoder encoder = new Encoder(); // 기본 생성자로 시스템 PATH의 ffmpeg 사용
-        MultimediaObject input = new MultimediaObject(sourceFile);
-        encoder.encode(input, slicedFile, attrs);
-        return slicedFile;
+        return outputFile;
     }
 
     /**
      * Gemini API를 호출하여 오디오 파일을 텍스트로 변환합니다.
      */
-    /*private String callGeminiApi(File audioFile) throws IOException {
-        GenerativeModel model = new GenerativeModel("gemini-1.5-flash", apiKey);
+    private List<TranscriptResponseDTO> callGeminiApi(File audioFile) throws IOException {
+        /*GenerativeModel model = new GenerativeModel("gemini-1.5-flash", apiKey);
         byte[] audioBytes = Files.readAllBytes(audioFile.toPath());
 
         Content content = new Content.Builder()
@@ -158,6 +135,51 @@ public class TranscriptController {
                 .build();
 
         GenerateContentResponse response = model.generateContent(content);
-        return response.getText();
-    }*/
+        return response.getText();*/
+
+        log.debug("call gemini api...");
+
+        Client client = Client.builder().apiKey(apiKey).build();
+        byte[] audioBytes = Files.readAllBytes(audioFile.toPath());
+
+        Content content =Content.fromParts(
+                Part.fromText("Transcribe this audio file into Japanese and Korean. " +
+                        "If multiple lines appear in the file, short lines such as oh and ah may be omitted. " +
+                        "All answers, whether one or more, are in JSON format " +
+                        "{index: order, time: time from start time (seconds to 3 decimal places only), japanese: Japanese, korean: Korean}."),
+                Part.fromBytes(audioBytes, "audio/mp3")
+        );
+
+        log.debug("[send to Gemini] contents: {}", content);
+
+
+
+
+        GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", content, null);
+
+        String jsonResponse = response.text();
+
+        if (jsonResponse.startsWith("```json")) {
+            jsonResponse = jsonResponse.substring(7, jsonResponse.length() - 3).trim();
+        } else if (jsonResponse.startsWith("```")) {
+            jsonResponse = jsonResponse.substring(3, jsonResponse.length() - 3).trim();
+        }
+
+        log.debug("[Gemini response] response: {}", jsonResponse);
+
+        Gson gson = new Gson();
+
+        // JSON 배열을 List<TranscriptItemDto> 타입으로 변환하기 위한 설정
+        Type listType = new TypeToken<ArrayList<TranscriptResponseDTO>>() {}.getType();
+
+        log.debug("[Gemini response] response: {}", listType);
+
+        List<TranscriptResponseDTO> list = gson.fromJson(jsonResponse, listType);
+
+        log.debug("[Gemini response] response: {}", list);
+
+        // JSON 문자열을 DTO 리스트 객체로 파싱하여 반환
+        return list;
+
+    }
 }

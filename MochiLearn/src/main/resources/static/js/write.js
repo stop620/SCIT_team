@@ -1,0 +1,264 @@
+
+    // 전역 변수 선언
+    let player;
+    let timelineTimeout; // setTimeout을 관리할 변수
+    const timelines = [];
+    let isSeeking = false; // 진행 바 드래그 중인지 여부
+    let selectedTimelineIndex = null; // 선택된 타임라인 인덱스
+
+    // '분:초' 형식을 초 단위 숫자로 변환하는 헬퍼 함수
+    const parseTime = (timeString) => {
+    const parts = timeString.split(':');
+    if (parts.length === 2) {
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+}
+    return 0;
+};
+
+    // 초 단위 시간을 '분:초' 형식으로 포맷하는 헬퍼 함수
+    const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+    return `${formattedMinutes}:${formattedSeconds}`;
+};
+
+    // URL에서 Video ID를 추출하는 함수
+    const extractVideoId = (url) => {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+};
+
+    // YouTube IFrame API가 로드되면 호출되는 함수 (필수)
+    function onYouTubeIframeAPIReady() {
+    // 이 함수는 API 스크립트가 로드될 때 자동으로 호출됩니다.
+}
+
+    // 플레이어를 생성하고 비디오를 로드하는 함수
+    const createPlayer = (videoId) => {
+    // 기존 플레이어가 있다면 제거합니다.
+    if (player) {
+    player.destroy();
+}
+
+    player = new YT.Player('player', {
+    height: '390',
+    width: '640',
+    videoId: videoId,
+    playerVars: {
+    'playsinline': 1
+},
+    events: {
+    'onStateChange': onPlayerStateChange,
+    'onReady': onPlayerReady
+}
+});
+};
+
+    // 플레이어 준비가 완료되면 호출되는 함수
+    const onPlayerReady = (event) => {
+    const progressBar = document.getElementById('progress-bar');
+    const totalTimeDisplay = document.getElementById('total-time');
+    progressBar.max = event.target.getDuration();
+    totalTimeDisplay.textContent = formatTime(event.target.getDuration());
+};
+
+    // 플레이어 상태 변경 시 호출되는 함수
+    const onPlayerStateChange = (event) => {
+    // 이 버전에서는 setInterval을 사용하지 않습니다.
+};
+
+    // 대사 표시 영역을 업데이트하는 함수
+    const updateTranscriptDisplay = (transcriptData) => {
+    console.log(transcriptData);
+    alert(transcriptData);
+
+    const transcriptDisplay = document.getElementById('transcript-display');
+    if (transcriptData) {
+    transcriptDisplay.classList.remove('hidden');
+
+    let contentHTML = '<h3 class="font-bold text-lg text-gray-800">대사 정보</h3>';
+
+    // 데이터가 배열인 경우 (여러 개의 대사)
+    if (Array.isArray(transcriptData)) {
+    transcriptData.forEach((item, index) => {
+    contentHTML += `
+                            <div class="mt-4 border-t border-gray-300 pt-4">
+                                <p class="font-semibold text-gray-800">원본 ${index + 1}:</p>
+                                <p class="text-gray-700">${item.japanese}</p>
+                                <p class="font-semibold text-gray-800 mt-2">해석 ${index + 1}:</p>
+                                <p class="text-gray-700">${item.korean}</p>
+                            </div>
+                        `;
+});
+}
+    // 데이터가 단일 객체인 경우
+    else {
+    contentHTML += `
+                        <p class="font-semibold text-gray-800 mt-2">원본:</p>
+                        <p class="text-gray-700">${transcriptData.japanese}</p>
+                        <p class="font-semibold text-gray-800 mt-2">해석:</p>
+                        <p class="text-gray-700">${transcriptData.korean}</p>
+                    `;
+}
+
+    transcriptDisplay.innerHTML = contentHTML;
+} else {
+    transcriptDisplay.classList.add('hidden');
+}
+};
+
+    // 타임라인 버튼을 UI에 렌더링하는 함수
+    const renderTimelines = () => {
+    const timelineContainer = document.getElementById('timeline-container');
+    timelineContainer.innerHTML = '';
+    timelines.forEach((timeline, index) => {
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.className = 'relative group';
+
+    const button = document.createElement('button');
+    button.className = 'bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2';
+    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>${timeline.label}</span>`;
+    button.onclick = () => {
+    if (player) {
+    player.seekTo(timeline.start, true);
+    player.playVideo(); // 버튼 클릭 시 자동 재생
+    // 기존의 정지 타이머가 있으면 취소
+    clearTimeout(timelineTimeout);
+    // 새로운 정지 타이머 설정
+    timelineTimeout = setTimeout(() => {
+    player.pauseVideo();
+}, (timeline.end - timeline.start) * 1000);
+}
+    updateTranscriptDisplay(timeline.transcript); // 버튼 클릭 시 대사 업데이트
+};
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300';
+    deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
+    deleteButton.onclick = () => handleDeleteTimeline(index);
+
+    buttonWrapper.appendChild(button);
+    buttonWrapper.appendChild(deleteButton);
+    timelineContainer.appendChild(buttonWrapper);
+});
+
+    // 타임라인 제목 가시성 관리
+    const timelineHeader = document.getElementById('timeline-header');
+    if (timelines.length > 0) {
+    timelineHeader.classList.remove('hidden');
+} else {
+    timelineHeader.classList.add('hidden');
+}
+};
+
+    // 타임라인 버튼 삭제
+    const handleDeleteTimeline = (index) => {
+    timelines.splice(index, 1);
+    renderTimelines(); // UI 업데이트
+};
+
+    // 페이지 로드 후 실행될 함수
+    window.onload = () => {
+    const urlInput = document.getElementById('url-input');
+    const addTimelineBtn = document.getElementById('add-timeline-btn');
+    const startInput = document.getElementById('start-input');
+    const endInput = document.getElementById('end-input');
+    const progressBar = document.getElementById('progress-bar');
+
+    // URL 입력 시 즉시 영상 로드
+    urlInput.addEventListener('input', () => {
+    const url = urlInput.value;
+    const videoId = extractVideoId(url);
+    const playerWrapper = document.getElementById('player-wrapper');
+    const invalidUrlBlock = document.getElementById('invalid-url-block');
+    const playerContainer = document.getElementById('player');
+
+    if (videoId) {
+    // 유효한 URL이면 플레이어 생성
+    playerWrapper.classList.remove('hidden');
+    invalidUrlBlock.classList.add('hidden');
+    createPlayer(videoId);
+} else {
+    // 유효하지 않은 URL이면 알림 표시
+    playerWrapper.classList.remove('hidden');
+    invalidUrlBlock.classList.remove('hidden');
+    // 기존 플레이어 제거
+    if (player) {
+    player.destroy();
+    player = null;
+}
+}
+});
+
+    // 타임라인 추가 버튼 클릭 이벤트
+    addTimelineBtn.addEventListener('click', () => {
+    const url = urlInput.value;
+    const start = parseTime(startInput.value);
+    const end = parseTime(endInput.value);
+
+    if (url && start >= 0 && end > start) {
+    // 서버로 보낼 데이터 객체
+    const data = {
+    url: url,
+    start: start,
+    end: end
+};
+
+    // 서버 API 호출
+    fetch('/mochilearn/api/transcribe', {
+    method: 'POST',
+    headers: {
+    'Content-Type': 'application/json'
+},
+    body: JSON.stringify(data)
+})
+    .then(response => {
+    if (!response.ok) {
+    throw new Error('서버 응답 오류: ' + response.statusText);
+}
+    return response.json();
+})
+    .then(result => {
+    const newTimelineItem = {
+    start,
+    end,
+    label: `${startInput.value}~${endInput.value}`,
+    transcript: result // 서버에서 받은 대사 전체를 저장
+};
+    timelines.push(newTimelineItem);
+    startInput.value = '';
+    endInput.value = '';
+    renderTimelines(); // UI 업데이트
+    updateTranscriptDisplay(result); // 대사 표시 영역 업데이트
+})
+    .catch(error => {
+    alert('대사 추출 중 오류가 발생했습니다: ' + error.message);
+    console.error('Error:', error);
+});
+} else {
+    alert('유효한 유튜브 URL과 타임라인 구간(시작 시간 < 종료 시간)을 입력해주세요.');
+}
+});
+
+    // 진행 바 드래그 시작
+    progressBar.addEventListener('mousedown', () => {
+    isSeeking = true;
+});
+
+    // 진행 바 드래그 중 시간 이동
+    progressBar.addEventListener('input', (e) => {
+    const newTime = parseFloat(e.target.value);
+    document.getElementById('current-time').textContent = formatTime(newTime);
+    if (player) {
+    player.seekTo(newTime, true);
+}
+});
+
+    // 진행 바 드래그 종료
+    progressBar.addEventListener('mouseup', () => {
+    isSeeking = false;
+});
+};

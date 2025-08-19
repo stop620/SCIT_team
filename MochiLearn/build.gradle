@@ -21,7 +21,6 @@ configurations {
 }
 
 repositories {
-    google()
     mavenCentral()
 }
 
@@ -35,6 +34,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Google Gson for parsing JSON
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     // jave
     implementation 'ws.schild:jave-core:3.5.0'

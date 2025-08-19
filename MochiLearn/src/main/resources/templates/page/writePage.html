@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MochiLearn</title>
+
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+
     <!-- Tailwind CSS를 사용하기 위한 CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- YouTube IFrame Player API 스크립트 -->
@@ -82,6 +85,9 @@
 
         // 대사 표시 영역을 업데이트하는 함수
         const updateTranscriptDisplay = (transcriptData) => {
+            console.log(transcriptData);
+            alert(transcriptData);
+
             const transcriptDisplay = document.getElementById('transcript-display');
             if (transcriptData) {
                 transcriptDisplay.classList.remove('hidden');
@@ -94,7 +100,7 @@
                         contentHTML += `
                             <div class="mt-4 border-t border-gray-300 pt-4">
                                 <p class="font-semibold text-gray-800">원본 ${index + 1}:</p>
-                                <p class="text-gray-700">${item.original}</p>
+                                <p class="text-gray-700">${item.japanese}</p>
                                 <p class="font-semibold text-gray-800 mt-2">해석 ${index + 1}:</p>
                                 <p class="text-gray-700">${item.korean}</p>
                             </div>
@@ -105,7 +111,7 @@
                 else {
                     contentHTML += `
                         <p class="font-semibold text-gray-800 mt-2">원본:</p>
-                        <p class="text-gray-700">${transcriptData.original}</p>
+                        <p class="text-gray-700">${transcriptData.japanese}</p>
                         <p class="font-semibold text-gray-800 mt-2">해석:</p>
                         <p class="text-gray-700">${transcriptData.korean}</p>
                     `;
@@ -215,7 +221,7 @@
                     };
 
                     // 서버 API 호출
-                    fetch('../api/transcribe', {
+                    fetch('/mochilearn/api/transcribe', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
