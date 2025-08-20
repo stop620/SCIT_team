@@ -1,5 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/main.css}">
+
+<!-- 나눔바른고딕 
+    font-family: 'NanumBarunGothicUltraLight';
+    font-family: 'NanumBarunGothicLight';
+    font-family: 'NanumBarunGothic';
+    font-family: 'NanumBarunGothicBold';
+-->
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+
+<!-- noto sans jpn-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,7 +22,26 @@
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
+    <div class="container">
+        <h1>단어장</h1>
+        <div class="wordContainer">
+            <div class="wordList">
+                <div class="wordCard">
+                    <h2>JLPT N2</h2>
+                </div>
+            </div>
 
-    word
+            <div class="wordList">
+                <div class="wordCard">
+                    <h2>JLPT N1</h2>
+                </div>
+            </div>
+        
+            <div class="addWordList">
+                <h2>단어장 추가</h2>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
