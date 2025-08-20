@@ -1,13 +1,191 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
     <title>study</title>
+    <link rel="stylesheet" th:href="@{/css/nav.css}" />
+    <style>
+        /* 간단한 카드 스타일 */
+        #cardGrid {
+		    display: grid;
+		    grid-template-columns: repeat(4, 220px);
+		    justify-content: center;       /* 전체 카드를 컨테이너 중앙에 배치 */
+		    gap: 30px  /* 행과 열 간격 */;
+		    padding: 20px;
+		    max-width: calc(220px * 4 + 30px * 3 + 40px);
+		    margin: 0 auto;
+		}
+		
+		.card {
+		    flex: 0 0 220px;               /* 너비 220px 고정 */
+		    max-width: 220px;
+		    border: 1px solid #ddd;
+		    border-radius: 8px;
+		    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
+		    cursor: pointer;
+		    overflow: hidden;
+		    background: #fff;
+		    text-align: center;
+		    transition: box-shadow 0.3s ease;
+		    margin-bottom: 20px;           /* 카드를 감싸는 행 간격 */
+		}
+        .card:hover {
+            box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.2);
+        }
+        .card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+        .card h3 {
+            margin: 10px 0 6px;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .card p {
+            margin: 0 10px 10px;
+            font-size: 0.95em;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
 
-    study
+    <label for="sortBox">정렬 기준:</label>
+    <select id="sortBox" name="sortBox">
+        <option value="popular">인기순</option>
+        <option value="latest">최신순</option>
+    </select>
+
+    <div id="cardGrid" th:fragment="cards">
+        <div th:each="card : ${cards}" 
+             class="card" 
+             th:onclick="'location.href=\'/study/detail/' + ${card.cardId} + '\';'">
+            <img th:src="${card.url} ?: @{/images/default-thumbnail.png}" alt="썸네일 이미지" />
+            <h3 th:text="${card.japanese}">일본어 내용</h3>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    function getYoutubeThumbnail(youtubeUrl) {
+        let videoId = '';
+        if (!youtubeUrl) {
+            return '/images/default-thumbnail.png';  // URL이 없으면 기본 이미지 반환
+        }
+
+        // youtu.be 단축 URL
+        if (youtubeUrl.includes('youtu.be/')) {
+            videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
+        } 
+        // 일반적인 v= 파라미터 형태
+        else if (youtubeUrl.includes('v=')) {
+            videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
+        }
+        if (videoId) {
+            return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        }
+
+        // 유효한 ID가 없으면 기본 이미지
+        return '/images/default-thumbnail.png';
+    }
+
+
+    let page = 0;
+    const size = 12;
+    let sort = 'popular';
+    let loading = false;
+    let endReached = false;
+
+    function renderCards(cards, reset = false) {
+        if (reset) {
+            $('#cardGrid').empty(); // 정렬 변경 시 기존 목록 제거
+        }
+
+        cards.forEach(card => {
+            const thumbUrl = getYoutubeThumbnail(card.url);
+            const cardHtml = `
+                <div class="card" onclick="location.href='/study/detail/${card.cardId}'">
+                    <img src="${thumbUrl}" alt="썸네일 이미지" />
+                    <h3>${card.japanese}</h3>
+                </div>
+            `;
+            $('#cardGrid').append(cardHtml);
+        });
+    }
+
+    function loadCards(reset = false) {
+        if (reset) {
+            page = 0;
+            endReached = false;
+        }
+        
+        // 이전에 호출된 요청이 있거나 모든 카드를 불러왔을 경우, 함수를 종료합니다.
+        if (loading || endReached) return;
+        
+        loading = true;
+
+        if (reset) {
+            page = 0;
+            endReached = false;
+        }
+
+        $.get('/mochilearn/api/study/cards', { sort: sort, page: page, size: size })
+            .done(function(data) {
+                if (!data || data.length === 0) {
+                    endReached = true;
+                    $('#loadMoreBtn').hide();
+                    return;
+                }
+
+                if (data.length < size) {
+                    endReached = true;
+                    $('#loadMoreBtn').hide();
+                } else {
+                    $('#loadMoreBtn').show();
+                }
+
+                renderCards(data, reset);
+                page++;
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("AJAX 요청 실패:", textStatus, errorThrown);
+                console.error("상세 정보:", jqXHR); // jqXHR 객체 전체를 출력하여 상세 정보 확인
+            })
+            .always(function() {
+                loading = false;
+            });
+    }
+
+    $(document).ready(function() {
+        // 초기 로드
+        loadCards(true);
+
+        // 정렬 변경
+        $('#sortBox').change(function() {
+            console.log("드롭다운 변경 이벤트 발생!");
+            sort = $(this).val();
+            loadCards(true);
+        });
+
+        $(document).ready(function() {
+            loadCards(true);
+
+            $('#sortBox').change(function() {
+                sort = $(this).val();
+                loadCards(true);
+            });
+
+            $(window).scroll(function() {
+                if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+                    loadCards(false);
+                }
+            });
+        });
+
+    });
+    </script>
 </body>
 </html>

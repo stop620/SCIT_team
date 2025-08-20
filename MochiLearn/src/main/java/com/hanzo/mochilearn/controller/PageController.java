@@ -8,10 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("page")
 public class PageController {
 
-    @GetMapping("study")
-    public String studyPage() {
-        return "page/studyPage";
-    }
 
     @GetMapping("quiz")
     public String quizPage() {
