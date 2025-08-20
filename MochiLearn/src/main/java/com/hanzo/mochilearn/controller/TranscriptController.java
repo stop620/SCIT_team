@@ -14,27 +14,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RestController
 public class TranscriptController {
 
-    @Value("${gemini.api.key}")
-    private String apiKey;
+    // application.properties에서 쉼표로 구분된 키 목록을 List<String>으로 주입받습니다.
+    @Value("#{'${gemini.api.keys}'.split(',')}")
+    private List<String> apiKeys;
+
+    // 진행 중인 작업의 상태와 결과를 저장하는 스레드 안전한 Map
+    private final Map<String, JobStatusDto> jobStatuses = new ConcurrentHashMap<>();
 
     // JSON 구조에 맞춰 파싱할 데이터를 담을 클래스 (내부 정적 클래스로 선언)
     @Getter
@@ -44,102 +43,169 @@ public class TranscriptController {
 
     }
 
-    /**
-     * yt-dlp를 최적화하여 필요한 구간만 다운로드하고, AI를 통해 텍스트로 변환합니다.
-     * 실행 환경에 yt-dlp와 ffmpeg가 설치되고 시스템 PATH에 등록되어 있어야 합니다.
-     */
-    @PostMapping("/api/transcribe")
-    @Async
-    public CompletableFuture<ResponseEntity<?>> getTranscript(@RequestBody TranscriptRequestDTO requestDTO) {
-        log.debug("getTranscript requestDTO: {}", requestDTO);
-        return CompletableFuture.supplyAsync(() -> {
-            Path tempDir = null;
-            try {
-                tempDir = Files.createTempDirectory("youtube-audio-");
-                File slicedAudioFile = downloadAndSliceAudioStream(tempDir, requestDTO.getUrl(), requestDTO.getStart(), requestDTO.getEnd());
+    /** 작업의 상태와 결과(또는 에러)를 담는 DTO */
+    public static class JobStatusDto {
+        private String status; // "PROCESSING", "COMPLETED", "FAILED"
+        private List<TranscriptResponseDTO> result;
+        private String error;
 
-                // AI 호출 결과로 자막 리스트(DTO)를 받음
-                List<TranscriptResponseDTO> transcription = callGeminiApi(slicedAudioFile);
-
-                // 성공 시 자막 리스트를 그대로 응답
-                return ResponseEntity.ok(transcription);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "스크립트 변환 중 오류 발생: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-            } finally {
-                if (tempDir != null) {
-                    try {
-                        Files.walk(tempDir)
-                                .sorted(Comparator.reverseOrder())
-                                .map(Path::toFile)
-                                .forEach(File::delete);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        // 생성자, Getter, Setter
+        public JobStatusDto(String status) { this.status = status; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+        public List<TranscriptResponseDTO> getResult() { return result; }
+        public void setResult(List<TranscriptResponseDTO> result) { this.result = result; }
+        public String getError() { return error; }
+        public void setError(String error) { this.error = error; }
     }
 
     /**
-     * yt-dlp와 ffmpeg를 함께 사용하여 지정된 시간 구간의 오디오만 mp3 파일로 다운로드합니다.
+     * 1. 작업 요청 API: 변환 작업을 시작하고 즉시 작업 ID를 반환합니다.
+     */
+    @PostMapping("/api/transcribe/start")
+    public ResponseEntity<Map<String, String>> startTranscription(@RequestBody TranscriptRequestDTO requestDto) {
+        String jobId = UUID.randomUUID().toString();
+        jobStatuses.put(jobId, new JobStatusDto("PROCESSING"));
+
+        // 비동기적으로 실제 작업 수행
+        processTranscription(jobId, requestDto);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("jobId", jobId);
+        return ResponseEntity.accepted().body(response); // HTTP 202 Accepted
+    }
+
+    /**
+     * 2. 결과 확인 API: 작업 ID를 사용하여 현재 상태나 최종 결과를 조회합니다.
+     */
+    @GetMapping("/api/transcribe/status/{jobId}")
+    public ResponseEntity<JobStatusDto> getTranscriptionStatus(@PathVariable String jobId) {
+        JobStatusDto status = jobStatuses.get(jobId);
+        if (status == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(status);
+    }
+
+    /**
+     * 실제 변환 작업을 수행하는 비동기 메소드.
+     * 작업이 완료되거나 실패하면 jobStatuses Map을 업데이트합니다.
+     */
+    @Async
+    public void processTranscription(String jobId, TranscriptRequestDTO requestDto) {
+        Path tempDir = null;
+        try {
+            tempDir = Files.createTempDirectory("youtube-audio-");
+            File slicedAudioFile = downloadAndSliceAudioStream(tempDir, requestDto.getUrl(), requestDto.getStart(), requestDto.getEnd());
+            List<TranscriptResponseDTO> transcription = callGeminiApi(slicedAudioFile);
+
+            // 작업 성공 시 상태 업데이트
+            JobStatusDto finalStatus = jobStatuses.get(jobId);
+            finalStatus.setStatus("COMPLETED");
+            finalStatus.setResult(transcription);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 작업 실패 시 상태 업데이트
+            JobStatusDto finalStatus = jobStatuses.get(jobId);
+            finalStatus.setStatus("FAILED");
+            finalStatus.setError("스크립트 변환 중 오류 발생: " + e.getMessage());
+        } finally {
+            if (tempDir != null) {
+                // ... 임시 디렉토리 삭제 로직 ...
+            }
+        }
+    }
+
+    /**
+     * yt-dlp의 출력을 ffmpeg의 입력으로 직접 파이핑하여 메모리 내에서 스트림을 처리합니다.
+     * 이 방식은 디스크 I/O를 최소화하여 매우 빠릅니다.
      */
     private File downloadAndSliceAudioStream(Path tempDir, String url, float startTime, float endTime) throws IOException, InterruptedException {
         File outputFile = tempDir.resolve("sliced_audio.mp3").toFile();
-        float duration = endTime - startTime;
 
-        // ffmpeg에 전달할 인자 설정: "-ss [시작시간] -t [지속시간]"
-        String ffmpegArgs = String.format("-ss %.3f -t %.3f", startTime, duration);
+        ProcessBuilder ytDlpProcessBuilder = new ProcessBuilder(
+                "yt-dlp", "-f", "bestaudio", "-o", "-", url);
+        ProcessBuilder ffmpegProcessBuilder = new ProcessBuilder(
+                "ffmpeg", "-ss", String.format("%.3f", startTime), "-i", "-",
+                "-t", String.format("%.3f", endTime - startTime),
+                "-c:a", "libmp3lame", "-b:a", "128k", "-f", "mp3",
+                outputFile.getAbsolutePath());
 
-        ProcessBuilder pb = new ProcessBuilder(
-                "yt-dlp",
-                "-f", "bestaudio", // bestaudio를 선택하고 ffmpeg이 변환하도록 맡김
-                "-x", // --extract-audio의 단축 옵션
-                "--audio-format", "mp3",
-                "--postprocessor-args", ffmpegArgs, // ffmpeg에 자르기 옵션 전달
-                "-o", outputFile.getAbsolutePath(), // --output의 단축 옵션
-                url);
+        Process ytDlpProcess = null;
+        Process ffmpegProcess = null;
 
-        pb.redirectErrorStream(true);
-        Process process = pb.start();
+        try {
+            ytDlpProcess = ytDlpProcessBuilder.start();
+            ffmpegProcess = ffmpegProcessBuilder.start();
 
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("yt-dlp: " + line);
-                output.append(line).append("\n");
+            final Process finalYtDlpProcess = ytDlpProcess;
+            final Process finalFfmpegProcess = ffmpegProcess;
+
+            // yt-dlp의 출력을 ffmpeg의 입력으로 연결하는 스레드
+            Thread pipeThread = new Thread(() -> {
+                try (InputStream input = finalYtDlpProcess.getInputStream();
+                     OutputStream output = finalFfmpegProcess.getOutputStream()) {
+                    input.transferTo(output);
+                } catch (IOException e) {
+                    System.out.println("Pipe thread I/O Exception (expected on success): " + e.getMessage());
+                }
+            });
+
+            // yt-dlp의 에러 스트림을 읽어 교착 상태를 방지하는 스레드
+            StringBuilder ytDlpError = new StringBuilder();
+            Thread ytDlpErrorThread = new Thread(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(finalYtDlpProcess.getErrorStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println("yt-dlp-error: " + line);
+                        ytDlpError.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            pipeThread.start();
+            ytDlpErrorThread.start();
+
+            StringBuilder ffmpegOutput = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(ffmpegProcess.getErrorStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("ffmpeg: " + line);
+                    ffmpegOutput.append(line).append("\n");
+                }
             }
-        }
 
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new IOException("yt-dlp 프로세스 실행 실패 (종료 코드: " + exitCode + "). 출력:\n" + output.toString());
+            int ffmpegExitCode = ffmpegProcess.waitFor();
+            int ytExitCode = ytDlpProcess.waitFor();
+            pipeThread.join();
+            ytDlpErrorThread.join();
+
+            if (ffmpegExitCode != 0) {
+                throw new IOException("ffmpeg 프로세스가 비정상적으로 종료되었습니다 (코드: " + ffmpegExitCode + "). 출력:\n" + ffmpegOutput);
+            }
+            if (ytExitCode != 0) {
+                // ffmpeg이 성공했더라도 yt-dlp 에러가 있다면 로그를 남기는 것이 좋습니다.
+                System.err.println("yt-dlp 프로세스가 비정상적으로 종료되었지만 ffmpeg 작업은 성공했을 수 있습니다. yt-dlp 출력:\n" + ytDlpError);
+            }
+
+            return outputFile;
+
+        } finally {
+            if (ytDlpProcess != null) ytDlpProcess.destroyForcibly();
+            if (ffmpegProcess != null) ffmpegProcess.destroyForcibly();
         }
-        return outputFile;
     }
 
     /**
      * Gemini API를 호출하여 오디오 파일을 텍스트로 변환합니다.
      */
     private List<TranscriptResponseDTO> callGeminiApi(File audioFile) throws IOException {
-        /*GenerativeModel model = new GenerativeModel("gemini-1.5-flash", apiKey);
-        byte[] audioBytes = Files.readAllBytes(audioFile.toPath());
-
-        Content content = new Content.Builder()
-                .addPart(Part.fromMimeType(audioBytes, "audio/mpeg"))
-                .addPart(Part.fromText("이 오디오를 듣고 내용을 한국어 텍스트로 정확하게 작성해줘."))
-                .build();
-
-        GenerateContentResponse response = model.generateContent(content);
-        return response.getText();*/
 
         log.debug("call gemini api...");
 
-        Client client = Client.builder().apiKey(apiKey).build();
         byte[] audioBytes = Files.readAllBytes(audioFile.toPath());
 
         Content content =Content.fromParts(
@@ -153,33 +219,33 @@ public class TranscriptController {
         log.debug("[send to Gemini] contents: {}", content);
 
 
+        for(String currentApiKey : apiKeys) {
+            try {
+                Client client = Client.builder().apiKey(currentApiKey).build();
+                GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", content, null);
+                String rawResponse = response.text();
 
+                // 정상적인 응답을 받으면, 파싱하고 결과를 즉시 반환
+                if (rawResponse != null && !rawResponse.isBlank()) {
+                    if (rawResponse.startsWith("```json")) {
+                        rawResponse = rawResponse.substring(7, rawResponse.length() - 3).trim();
+                    } else if (rawResponse.startsWith("```")) {
+                        rawResponse = rawResponse.substring(3, rawResponse.length() - 3).trim();
+                    }
+                    Gson gson = new Gson();
+                    Type listType = new TypeToken<ArrayList<TranscriptResponseDTO>>() {}.getType();
+                    log.debug("[Gemini response] response: {}", rawResponse);
+                    return gson.fromJson(rawResponse, listType);
+                }
+                // 응답이 비어있으면 다음 키로 넘어감
+                System.out.println("Received empty response, trying next key...");
 
-        GenerateContentResponse response = client.models.generateContent("gemini-2.5-flash", content, null);
-
-        String jsonResponse = response.text();
-
-        if (jsonResponse.startsWith("```json")) {
-            jsonResponse = jsonResponse.substring(7, jsonResponse.length() - 3).trim();
-        } else if (jsonResponse.startsWith("```")) {
-            jsonResponse = jsonResponse.substring(3, jsonResponse.length() - 3).trim();
+            } catch (Exception e) {
+            // API 호출 중 다른 예외 발생 시 다음 키로 넘어감
+            System.err.println("API call failed for a key: " + e.getMessage());
         }
-
-        log.debug("[Gemini response] response: {}", jsonResponse);
-
-        Gson gson = new Gson();
-
-        // JSON 배열을 List<TranscriptItemDto> 타입으로 변환하기 위한 설정
-        Type listType = new TypeToken<ArrayList<TranscriptResponseDTO>>() {}.getType();
-
-        log.debug("[Gemini response] response: {}", listType);
-
-        List<TranscriptResponseDTO> list = gson.fromJson(jsonResponse, listType);
-
-        log.debug("[Gemini response] response: {}", list);
-
-        // JSON 문자열을 DTO 리스트 객체로 파싱하여 반환
-        return list;
-
+    }
+    // 모든 키를 시도했지만 실패한 경우
+        throw new IOException("모든 API 키를 사용했지만 Gemini API 호출에 실패했습니다. API 키 할당량을 확인해주세요.");
     }
 }

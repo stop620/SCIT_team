@@ -41,16 +41,32 @@ FOREIGN KEY (book_id) REFERENCES book(book_id) ON DELETE CASCADE
 - - ======== 5. 학습카드 테이블 (Card) ========
 CREATE TABLE card (
 card_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '학습카드 고유 ID',
-japanese VARCHAR(255) NOT NULL COMMENT '일본어 내용',
-korean VARCHAR(255) NOT NULL COMMENT '한국어 해석',
 url VARCHAR(255) COMMENT '관련 미디어 URL',
-timeline INT COMMENT '미디어 타임라인 (초)',
+title VARCHAR(255) COMMENT '제목',
 level INT COMMENT '난이도',
 genre VARCHAR(50) COMMENT '장르',
 created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
 like INT DEFAULT 0 COMMENT '좋아요 수',
 member_id BIGINT COMMENT '작성자 ID',
 FOREIGN KEY (member_id) REFERENCES member(member_id) ON DELETE SET NULL
+);
+- - ======== 5-1. 구간 테이블 (Section) ========
+CREATE TABLE section (
+    section_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '학습 구간 고유 ID',
+    card_id BIGINT NOT NULL COMMENT '어떤 학습 카드에 속하는지 (FK)',
+    start_seconds FLOAT NOT NULL COMMENT '구간 시작 시간 (초)',
+    end_seconds FLOAT NOT NULL COMMENT '구간 종료 시간 (초)',
+    FOREIGN KEY (card_id) REFERENCES learning_card(card_id) ON DELETE CASCADE
+);
+- - ======== 5-2. 문장 테이블 (Sentence) ========
+CREATE TABLE sentence (
+    sentence_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '문장 고유 ID',
+    section_id BIGINT NOT NULL COMMENT '어떤 학습 구간에 속하는지 (FK)',
+    sentence_index INT NOT NULL COMMENT '구간 내 문장 순서',
+    time VARCHAR(20) NOT NULL COMMENT '구간 내 상대적 시간 (예: 00:01.480)',
+    japanese TEXT NOT NULL COMMENT '일본어 문장',
+    korean TEXT NOT NULL COMMENT '한국어 번역',
+    FOREIGN KEY (section_id) REFERENCES learning_section(section_id) ON DELETE CASCADE
 );
 - - ======== 6. 퀴즈 테이블 (Quiz) ========
 CREATE TABLE quiz (
