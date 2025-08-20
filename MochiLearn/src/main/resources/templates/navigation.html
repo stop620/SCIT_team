@@ -1,6 +1,10 @@
 <html xmlns:th="http://thymeleaf.org">
 <body>
-
+<script th:inline="javascript">
+function wordPopup(){
+	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+}
+</script>
 <header th:fragment="navigation">
     <nav class="navbar">
         <div class="navbar_logo">
@@ -15,8 +19,8 @@
             <li><a th:href="@{/page/mypage}">마이페이지</a></li>
         </ul>
         <div class="navbar_btnContainer">
-            <!-- 단어장 페이지는 Modal로 이동 -->
-            <div class="navbar_btn" id="wordPageBtn">
+            <div class="navbar_btn" id="wordPageBtn"
+            th:onclick="wordPopup()">           
                 <a>단어장</a>
             </div>
             <div class="navbar_btn" id="loginBtn">

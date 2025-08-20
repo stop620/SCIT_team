@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/main.css}">
+
 <!-- 나눔바른고딕 
-font-family: 'NanumBarunGothicUltraLight';
-font-family: 'NanumBarunGothicLight';
-font-family: 'NanumBarunGothic';
-font-family: 'NanumBarunGothicBold';
+    font-family: 'NanumBarunGothicUltraLight';
+    font-family: 'NanumBarunGothicLight';
+    font-family: 'NanumBarunGothic';
+    font-family: 'NanumBarunGothicBold';
 -->
 <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
 
@@ -19,12 +20,19 @@ function wordPopup(){
 }
 </script>
 <head>
+<head>
     <meta charset="UTF-8">
-    <title>mypage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordCardPage</title>
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
-
-    mypage
+    <div class="addCardForm">
+        <form th:action="@{/page/addWordCard}" method="post">
+            <input type="text" id="name" name="name" placeholder="단어장 명을 입력하세요" required><br>
+            <input type="text" id="code" name="code" placeholder="공유 코드가 있다면 입력하세요"><br>
+            <input type="submit" value="단어장 추가">
+        </form>
+    </div>
 </body>
 </html>

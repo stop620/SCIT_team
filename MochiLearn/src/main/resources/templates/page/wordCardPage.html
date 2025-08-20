@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/main.css}">
+
 <!-- 나눔바른고딕 
-font-family: 'NanumBarunGothicUltraLight';
-font-family: 'NanumBarunGothicLight';
-font-family: 'NanumBarunGothic';
-font-family: 'NanumBarunGothicBold';
+    font-family: 'NanumBarunGothicUltraLight';
+    font-family: 'NanumBarunGothicLight';
+    font-family: 'NanumBarunGothic';
+    font-family: 'NanumBarunGothicBold';
 -->
 <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
 
@@ -13,18 +14,23 @@ font-family: 'NanumBarunGothicBold';
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-<script th:inline="javascript">
-function wordPopup(){
-	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-}
-</script>
 <head>
     <meta charset="UTF-8">
-    <title>mypage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordCardPage</title>
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
-
-    mypage
+        <div class="container">
+        <div class="wordCard">
+            <h1>憧れる</h1>
+            <h3>あこがれる / 동경하다 </h3>
+        </div>
+        
+        <div class="wordCard">
+            <h1>味わう</h1>
+            <h3>あじわう / 맛보다 </h3>
+        </div>
+    </div>
 </body>
 </html>

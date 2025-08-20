@@ -132,12 +132,14 @@ nav{
     background-color: #007bff;
     color: white;
     border-radius: 5px;
-    text-decoration: none;  
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .addBtn a{
     color: white;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .searchBox input[type="text"]{
@@ -180,15 +182,42 @@ nav{
     width: 100%;
 }
 
-.wordContainer{
+.wordContainer {
     background-color: #FFF2EB;
     width: 66%;
     display: grid;
     gap: 10px;
     grid-template-columns: repeat(2, 1fr); 
+    justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
+    align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
 }
 
-.wordList,.addWordList{
+.wordList, .addWordList {
+    width: 75%;
+    height: 75px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: center; /* 내부 wordCard를 가로 중앙 정렬 */
+    align-items: center;     /* 내부 wordCard를 세로 중앙 정렬 */
+    padding: 20px;
+    background-color: #FFE8CD;
+}
+
+.wordCard {
+    width: 80%;
+    text-align: center;
+    background-color: #FFE8CD;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wordCard a{
+    font-weight: bolder;
+    font-size: 1.4em;
+}
+
+.quizList{
     width: 66%;
     margin: 10px auto;
     flex-wrap: wrap;
@@ -197,7 +226,60 @@ nav{
     background-color: #FFE8CD;
 }
 
-.wordList,.addWordList h2{
-    text-align: center;
+.quizContainer{
+    width: 70%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background-color: #FFF2EB;
 }
 
+.quizCard{
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    margin: 10px;
+    width: 175px;
+    height: 100px;
+}
+
+.word{
+    width: 100%;
+    text-align: left;
+    border:#ddd 1px solid;
+    padding: 10px;
+}
+.wordExplain{
+    width: 100%;
+    text-align: left;
+    border:#ddd 1px solid;
+    padding: 10px;
+}
+
+.addCardForm{
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF2EB;
+}
+
+.addCardForm input[type="text"]{
+    width: 300px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.addCardForm input[type="submit"]{
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
