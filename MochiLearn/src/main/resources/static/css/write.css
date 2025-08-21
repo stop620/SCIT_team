@@ -219,6 +219,9 @@ main {
     gap: 0.75rem;
     margin-top: 1rem;
 }
+.timeline-button-wrapper { /* 추가 */
+    position: relative;
+}
 .timeline-button {
     width: 4rem; /* w-16 */
     height: 4rem; /* h-16 */
@@ -227,7 +230,6 @@ main {
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s;
-    position: relative;
     border: none;
     cursor: pointer;
 }
@@ -249,6 +251,28 @@ main {
     font-weight: 600;
     font-size: 0.875rem;
 }
+.timeline-delete-button { /* 추가 */
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #EF4444; /* red-500 */
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+.timeline-button-wrapper:hover .timeline-delete-button { /* 추가 */
+    opacity: 1;
+}
+
 
 /* Utility */
 .hidden {

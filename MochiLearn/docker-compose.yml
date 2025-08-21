@@ -1,0 +1,18 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Python AI 모듈
+  mochilearn-ai:
+    build:
+      # "context:"와 "dockerfile:"은 "build:"보다 두 칸 들여쓰기 되어야 합니다.
+      context: ./src/python 
+      dockerfile: Dockerfile
+    container_name: mochilearn-ai-container
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+    volumes:
+      - ./src/python:/app

@@ -9,7 +9,7 @@
     <!-- 기존 CSS 파일 -->
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/write.css}">
-    <!-- YouTube IFrame Player API 스크립트 -->
+    <!-- YouTube IFrame Player API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script th:src="@{/js/write.js}"></script>
 
@@ -21,16 +21,14 @@
 <main>
     <div class="main-grid">
 
-        <!-- Left Column: Video Player & Subtitles -->
+        <!-- 왼쪽부분 영상, 자막 -->
         <div class="left-column">
-            <!-- Title Input -->
+            <!-- 제목 -->
             <div>
-                <input
-                        id="title-input"
-                        type="text"
-                        class="input-field title-input"
-                        placeholder="학습 카드 제목을 입력하세요"
-                />
+                <input id="title-input"
+                       type="text"
+                       class="input-field title-input"
+                       placeholder="학습 카드 제목을 입력하세요잉"/>
             </div>
 
             <!-- Player -->

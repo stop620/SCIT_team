@@ -36,14 +36,14 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Google Gson for parsing JSON
-    implementation 'com.google.code.gson:gson:2.10.1'
+    // implementation 'com.google.code.gson:gson:2.10.1'
 
     // jave
-    implementation 'ws.schild:jave-core:3.5.0'
-    implementation 'ws.schild:jave-nativebin-win64:3.5.0'
+    // implementation 'ws.schild:jave-core:3.5.0'
+    // implementation 'ws.schild:jave-nativebin-win64:3.5.0'
 
     // google ai
-    implementation 'com.google.genai:google-genai:1.13.0'
+    // implementation 'com.google.genai:google-genai:1.13.0'
 }
 
 tasks.named('test') {

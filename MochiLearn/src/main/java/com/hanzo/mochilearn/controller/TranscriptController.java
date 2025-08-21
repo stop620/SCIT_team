@@ -1,96 +1,120 @@
 package com.hanzo.mochilearn.controller;
 
-import com.google.genai.Client;
-import com.google.genai.types.Content;
-import com.google.genai.types.GenerateContentResponse;
-import com.google.genai.types.Part;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.hanzo.mochilearn.dto.JobStatusDTO;
 import com.hanzo.mochilearn.dto.TranscriptRequestDTO;
 import com.hanzo.mochilearn.dto.TranscriptResponseDTO;
-import lombok.Getter;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.*;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import org.springframework.web.client.RestTemplate;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @RestController
 public class TranscriptController {
 
-    // application.properties에서 쉼표로 구분된 키 목록을 List<String>으로 주입받습니다.
-    @Value("#{'${gemini.api.keys}'.split(',')}")
-    private List<String> apiKeys;
+    // application.properties에서 Python 모듈의 주소 주입
+    @Value("${python.service.url}")
+    private String pythonServiceUrl;
 
-    // 진행 중인 작업의 상태와 결과를 저장하는 스레드 안전한 Map
-    private final Map<String, JobStatusDto> jobStatuses = new ConcurrentHashMap<>();
+    // HTTP 요청을 보내기 위한 RestTemplate
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    // JSON 구조에 맞춰 파싱할 데이터를 담을 클래스 (내부 정적 클래스로 선언)
-    @Getter
-    private static class TranslationResponse {
-        private String japanese;
-        private String korean;
+    // 진행 중인 작업의 상태와 결과를 저장하는 Map
+    private final Map<String, JobStatusDTO> jobStatuses = new ConcurrentHashMap<>();
 
-    }
 
-    /** 작업의 상태와 결과(또는 에러)를 담는 DTO */
-    public static class JobStatusDto {
-        private String status; // "PROCESSING", "COMPLETED", "FAILED"
-        private List<TranscriptResponseDTO> result;
-        private String error;
 
-        // 생성자, Getter, Setter
-        public JobStatusDto(String status) { this.status = status; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
-        public List<TranscriptResponseDTO> getResult() { return result; }
-        public void setResult(List<TranscriptResponseDTO> result) { this.result = result; }
-        public String getError() { return error; }
-        public void setError(String error) { this.error = error; }
-    }
-
-    /**
-     * 1. 작업 요청 API: 변환 작업을 시작하고 즉시 작업 ID를 반환합니다.
-     */
+    // 1. 작업 요청 API - 변환 작업을 시작하고 작업 ID를 반환
     @PostMapping("/api/transcribe/start")
     public ResponseEntity<Map<String, String>> startTranscription(@RequestBody TranscriptRequestDTO requestDto) {
-        String jobId = UUID.randomUUID().toString();
-        jobStatuses.put(jobId, new JobStatusDto("PROCESSING"));
 
-        // 비동기적으로 실제 작업 수행
+        String jobId = UUID.randomUUID().toString();
+        jobStatuses.put(jobId, new JobStatusDTO("PROCESSING"));
+
+        // 비동기로 실제 처리 요청
         processTranscription(jobId, requestDto);
 
         Map<String, String> response = new HashMap<>();
         response.put("jobId", jobId);
+
         return ResponseEntity.accepted().body(response); // HTTP 202 Accepted
     }
 
-    /**
-     * 2. 결과 확인 API: 작업 ID를 사용하여 현재 상태나 최종 결과를 조회합니다.
-     */
+    // 2. 결과 확인 API - jobId로 결과 조회
     @GetMapping("/api/transcribe/status/{jobId}")
-    public ResponseEntity<JobStatusDto> getTranscriptionStatus(@PathVariable String jobId) {
-        JobStatusDto status = jobStatuses.get(jobId);
+    public ResponseEntity<JobStatusDTO> getTranscriptionStatus(@PathVariable String jobId) {
+
+        JobStatusDTO status = jobStatuses.get(jobId);
+
         if (status == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build(); //작업 없음
         }
+
         return ResponseEntity.ok(status);
     }
+
+    // 실제 변환 작업을 수행
+    // Python 모듈에게 요청하고 결과를 받아 jobStatuses Map을 업데이트
+    @Async
+    public void processTranscription(String jobId, TranscriptRequestDTO requestDto) {
+
+        try {
+            // Python 모듈에 보낼 요청문 생성
+            Map<String, Object> pythonRequest = new HashMap<>();
+
+            pythonRequest.put("url", requestDto.getUrl());
+            pythonRequest.put("start", requestDto.getStart());
+            pythonRequest.put("end", requestDto.getEnd());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(pythonRequest, headers);
+
+            log.info("파이썬 모듈에게 요청전송 (jobId: {})", jobId);
+
+            // Python 서버에 POST 요청 전송
+            // Python 서버가 JSON 배열을 반환하므로 ParameterizedTypeReference를 사용
+            ResponseEntity<List<TranscriptResponseDTO>> response = restTemplate.exchange(
+                    pythonServiceUrl + "/api/transcribe",
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<>() {}
+            );
+
+            List<TranscriptResponseDTO> transcription = response.getBody();
+            log.info("Received response from Python AI module for jobId: {}", jobId);
+
+            // 작업 성공 시 상태 업데이트
+            JobStatusDTO finalStatus = jobStatuses.get(jobId);
+            finalStatus.setStatus("COMPLETED");
+            finalStatus.setResult(transcription);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 작업 실패 시 상태 업데이트
+            JobStatusDTO finalStatus = jobStatuses.get(jobId);
+            finalStatus.setStatus("FAILED");
+            finalStatus.setError("스크립트 변환 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    // 파이썬 모듈로 이전
+    /*
+    // application.properties에서 쉼표로 구분된 키 목록을 List<String>으로 주입받습니다.
+    @Value("#{'${gemini.api.keys}'.split(',')}")
+    private List<String> apiKeys;
 
     /**
      * 실제 변환 작업을 수행하는 비동기 메소드.
      * 작업이 완료되거나 실패하면 jobStatuses Map을 업데이트합니다.
-     */
+     *//*
     @Async
     public void processTranscription(String jobId, TranscriptRequestDTO requestDto) {
         Path tempDir = null;
@@ -117,10 +141,10 @@ public class TranscriptController {
         }
     }
 
-    /**
+    *//**
      * yt-dlp의 출력을 ffmpeg의 입력으로 직접 파이핑하여 메모리 내에서 스트림을 처리합니다.
      * 이 방식은 디스크 I/O를 최소화하여 매우 빠릅니다.
-     */
+     *//*
     private File downloadAndSliceAudioStream(Path tempDir, String url, float startTime, float endTime) throws IOException, InterruptedException {
         File outputFile = tempDir.resolve("sliced_audio.mp3").toFile();
 
@@ -199,9 +223,9 @@ public class TranscriptController {
         }
     }
 
-    /**
+    *//**
      * Gemini API를 호출하여 오디오 파일을 텍스트로 변환합니다.
-     */
+     *//*
     private List<TranscriptResponseDTO> callGeminiApi(File audioFile) throws IOException {
 
         log.debug("call gemini api...");
@@ -247,5 +271,5 @@ public class TranscriptController {
     }
     // 모든 키를 시도했지만 실패한 경우
         throw new IOException("모든 API 키를 사용했지만 Gemini API 호출에 실패했습니다. API 키 할당량을 확인해주세요.");
-    }
+    }*/
 }

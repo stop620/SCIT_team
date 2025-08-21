@@ -18,6 +18,26 @@ const formatTime = (seconds) => {
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
+/**
+ * AI가 보내주는 다양한 시간 형식(숫자 또는 "MM:SS.ms")을
+ * 초 단위 숫자로 변환하는 안정적인 헬퍼 함수입니다.
+ */
+const parseAITime = (timeValue) => {
+    if (typeof timeValue === 'number') {
+        return timeValue; // 이미 숫자인 경우 그대로 반환
+    }
+    if (typeof timeValue === 'string') {
+        const parts = timeValue.split(':');
+        if (parts.length === 2) { // "MM:SS.ms" 형식 처리
+            return (parseFloat(parts[0]) * 60) + parseFloat(parts[1]);
+        }
+        // "SS.ms" 형식 처리
+        return parseFloat(timeValue);
+    }
+    return 0; // 변환할 수 없는 경우 0 반환
+};
+
+
 // --- YouTube 관련 함수 ---
 const extractVideoId = (url) => {
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
@@ -34,9 +54,7 @@ const createPlayer = (videoId) => {
         width: '100%',
         videoId: videoId,
         playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
-        events: {
-            'onStateChange': onPlayerStateChange
-        }
+        events: { 'onStateChange': onPlayerStateChange }
     });
 };
 
@@ -53,8 +71,8 @@ const updateSingleTranscriptLine = () => {
 
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
-        document.getElementById('japanese-line').textContent = item.japanese;
-        document.getElementById('korean-line').textContent = item.korean;
+        document.getElementById('japanese-line').textContent = item.Japanese;
+        document.getElementById('korean-line').textContent = item.Korean;
         document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
     }
 };
@@ -65,28 +83,50 @@ const changeTranscriptIndex = (direction) => {
     updateSingleTranscriptLine();
 };
 
+const handleDeleteTimeline = (indexToDelete) => {
+    timelines.splice(indexToDelete, 1);
+    renderTimelines();
+};
+
 const renderTimelines = () => {
     const timelineContainer = document.getElementById('timeline-buttons-container');
     timelineContainer.innerHTML = '';
     timelines.forEach((timeline, index) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'timeline-button-wrapper';
+
         const button = document.createElement('button');
-        button.className = 'timeline-button'; // 기본 클래스
+        button.className = 'timeline-button';
         button.setAttribute('aria-label', timeline.label);
+
+        button.classList.remove('loading', 'failed', 'completed');
 
         if (timeline.status === 'PROCESSING') {
             button.disabled = true;
-            button.classList.add('loading'); // 로딩 클래스 추가
+            button.classList.add('loading');
             button.innerHTML = `<svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
         } else if (timeline.status === 'FAILED') {
             button.disabled = true;
-            button.classList.add('failed'); // 실패 클래스 추가
+            button.classList.add('failed');
             button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'timeline-delete-button';
+            deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            deleteButton.onclick = (e) => {
+                e.stopPropagation();
+                handleDeleteTimeline(index);
+            };
+            wrapper.appendChild(deleteButton);
+
         } else { // COMPLETED
-            button.classList.add('completed'); // 완료 클래스 추가
+            button.classList.add('completed');
             button.innerHTML = `<span class="timeline-button-label">${index + 1}</span>`;
             button.onclick = () => startTimelinePlayback(timeline);
         }
-        timelineContainer.appendChild(button);
+
+        wrapper.appendChild(button);
+        timelineContainer.appendChild(wrapper);
     });
 };
 
@@ -107,6 +147,7 @@ const startTimelinePlayback = (timeline) => {
         currentTranscriptIndex = 0;
         updateSingleTranscriptLine();
 
+        // --- 수정된 자막 동기화 로직 ---
         subtitleInterval = setInterval(() => {
             if (!player || typeof player.getCurrentTime !== 'function') {
                 clearInterval(subtitleInterval);
@@ -120,21 +161,27 @@ const startTimelinePlayback = (timeline) => {
 
             const relativeTime = currentTime - timeline.start;
 
-            let newIndex = -1;
+            // 현재 시간에 맞는 정확한 자막 인덱스를 찾습니다.
+            let newIndex = 0;
             for (let i = 0; i < currentTranscript.length; i++) {
-                const itemTime = parseFloat(currentTranscript[i].time);
-                if (relativeTime >= itemTime) {
+                const itemTime = parseAITime(currentTranscript[i].time);
+                // 다음 자막의 시작 시간 (마지막 자막일 경우 무한대로 설정)
+                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
+
+                // 현재 재생 시간이 이 자막의 시작 시간과 다음 자막의 시작 시간 사이에 있다면,
+                // 이 자막이 현재 표시되어야 할 자막입니다.
+                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
                     newIndex = i;
-                } else {
-                    break;
+                    break; // 정확한 인덱스를 찾았으므로 루프를 중단합니다.
                 }
             }
 
-            if (newIndex !== -1 && newIndex !== currentTranscriptIndex) {
+            // 인덱스가 변경되었을 때만 화면을 업데이트합니다.
+            if (newIndex !== currentTranscriptIndex) {
                 currentTranscriptIndex = newIndex;
                 updateSingleTranscriptLine();
             }
-        }, 250);
+        }, 100); // 확인 주기를 0.1초로 줄여 더 부드럽게 만듭니다.
     }
 };
 
@@ -172,7 +219,6 @@ const setupTagSelection = () => {
     const difficultyContainer = document.getElementById('difficulty-tags');
     const genreContainer = document.getElementById('genre-tags');
 
-    // 난이도 태그 (단일 선택)
     difficultyContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('tag-button')) {
             difficultyContainer.querySelectorAll('.tag-button').forEach(btn => {
@@ -182,7 +228,6 @@ const setupTagSelection = () => {
         }
     });
 
-    // 장르 태그 (다중 선택)
     genreContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('tag-button')) {
             e.target.classList.toggle('selected');
@@ -278,12 +323,7 @@ window.onload = () => {
                 section_num: index + 1,
                 start_seconds: t.start,
                 end_seconds: t.end,
-                sentences: t.transcript.map(s => ({
-                    index: s.index,
-                    time: s.time,
-                    japanese: s.Japanese,
-                    korean: s.Korean
-                }))
+                sentences: t.transcript
             }));
 
         if (!title || !url || !level || tag.length === 0 || completedSections.length === 0) {
@@ -316,7 +356,7 @@ window.onload = () => {
             })
             .then(data => {
                 alert('학습 카드가 성공적으로 저장되었습니다!');
-                window.location.href = '/mochilearn/page/study';
+                // window.location.href = '/mochilearn/cards/' + data.cardId;
             })
             .catch(error => {
                 console.error('Save Error:', error);
