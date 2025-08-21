@@ -43,4 +43,10 @@ public class PageController {
 	public String addWordCard() {
 		return "page/wordPage";
 	}
+	
+	@GetMapping("quizCardPage")
+	public String quizCardPage() {
+		return "page/quizCardPage";
+	}
+
 }

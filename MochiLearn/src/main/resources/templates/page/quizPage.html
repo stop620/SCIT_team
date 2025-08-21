@@ -17,16 +17,25 @@ font-family: 'NanumBarunGothicBold';
     /*<![CDATA[*/
         //에러 무시해도 됩니다. 
         var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
+        var quizPageUrl = [[@{/page/quizCardPage}]];
+            
+    	window.onload = function() {
             console.log("Navigation script loaded");
             const wordPageBtn = document.getElementById("wordPageBtn");
+            const quizCard1 = document.getElementById("quizCard1");
             wordPageBtn.onclick = function() {
                 wordPage();
+            };
+            quizCard1.onclick = function(){
+            	quizOpen();
             };
         };
         function wordPage() {
             window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
+        };
+        function quizOpen(){
+        	location.href = quizPageUrl;
+        };
         /*]]>*/
 </script>
 <head>
@@ -39,7 +48,7 @@ font-family: 'NanumBarunGothicBold';
     <div class="container">
         <h2>QUIZ</h2>
         <div class="quizContainer">
-            <div class="quizCard">
+            <div class="quizCard" id="quizCard1">
                 <h3>초</h3>
             </div>
             <div class="quizCard">

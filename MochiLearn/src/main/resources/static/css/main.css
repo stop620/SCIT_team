@@ -16,10 +16,6 @@
 
 /* tags */
 
-body:lang(ko) {
-	/* font-family: 'NanumBarunGothic', sans-serif; */
-}
-
 body {
     font-family: 'NanumBarunGothicAuto', 'NotoSansJP-Auto', 'ArialAuto', sans-serif;
     background-color: #f8f9fa;
@@ -77,12 +73,14 @@ nav{
     background-color: #007bff;
     border-radius: 5px;
     text-decoration: none;  
+    cursor: pointer;
 }
 .navbar_btn a{
     color: white;
     text-decoration: none;
 }
 .navbar_menu a:hover{
+    cursor: pointer;
     background-color: #007bff;
     color: white;
 }
@@ -227,7 +225,7 @@ nav{
     width: 66%;
     display: grid;
     gap: 10px;
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(2, 1fr);
     justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
     align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
 }
@@ -318,6 +316,10 @@ nav{
     margin: 10px;
     width: 175px;
     height: 100px;
+}
+
+.quizContainer .quizCard{
+	cursor:pointer;
 }
 
 .wordExplain{
