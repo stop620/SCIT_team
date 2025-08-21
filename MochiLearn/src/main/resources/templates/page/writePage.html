@@ -1,369 +1,95 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MochiLearn</title>
 
+    <!-- 기존 CSS 파일 -->
     <link rel="stylesheet" th:href="@{/css/main.css}">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- YouTube IFrame Player API -->
+    <link rel="stylesheet" th:href="@{/css/write.css}">
+    <!-- YouTube IFrame Player API 스크립트 -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script>
-        // 전역 변수
-        let player;
-        let timelineTimeout;
-        const timelines = [];
-        let currentTranscript = [];
-        let currentTranscriptIndex = 0;
-        let subtitleInterval; // 자막 동기화를 위한 setInterval ID
+    <script th:src="@{/js/write.js}"></script>
 
-        // --- 시간 변환 헬퍼 함수 ---
-        const parseTime = (timeString) => {
-            const parts = timeString.split(':').map(Number);
-            return parts.length === 2 ? parts[0] * 60 + parts[1] : 0;
-        };
-
-        const formatTime = (seconds) => {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = Math.floor(seconds % 60);
-            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-        };
-
-        // --- YouTube 관련 함수 ---
-        const extractVideoId = (url) => {
-            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        };
-
-        function onYouTubeIframeAPIReady() {}
-
-        const createPlayer = (videoId) => {
-            if (player) player.destroy();
-            player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        };
-
-        const onPlayerStateChange = (event) => {
-            if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-                clearInterval(subtitleInterval);
-            }
-        };
-
-        // --- UI 렌더링 함수 ---
-        const updateSingleTranscriptLine = () => {
-            const transcriptContainer = document.getElementById('transcript-container');
-            transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
-
-            if (currentTranscript.length > 0) {
-                const item = currentTranscript[currentTranscriptIndex];
-                // 서버 응답 DTO의 소문자 키에 맞게 수정
-                document.getElementById('japanese-line').textContent = item.japanese;
-                document.getElementById('korean-line').textContent = item.korean;
-                document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
-            }
-        };
-
-        const changeTranscriptIndex = (direction) => {
-            if (currentTranscript.length === 0) return;
-            currentTranscriptIndex = (currentTranscriptIndex + direction + currentTranscript.length) % currentTranscript.length;
-            updateSingleTranscriptLine();
-        };
-
-        const renderTimelines = () => {
-            const timelineContainer = document.getElementById('timeline-buttons-container');
-            timelineContainer.innerHTML = '';
-            timelines.forEach((timeline, index) => {
-                const button = document.createElement('button');
-                button.className = 'w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 relative';
-                button.setAttribute('aria-label', timeline.label);
-
-                if (timeline.status === 'PROCESSING') {
-                    button.disabled = true;
-                    button.className += ' bg-gray-300 animate-pulse';
-                    button.innerHTML = `<svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-                } else if (timeline.status === 'FAILED') {
-                    button.disabled = true;
-                    button.className += ' bg-red-300';
-                    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
-                } else { // COMPLETED
-                    button.className += ' bg-gray-200 hover:bg-pink-200';
-                    button.innerHTML = `<span class="text-gray-700 font-semibold text-sm">${index + 1}</span>`;
-                    button.onclick = () => startTimelinePlayback(timeline);
-                }
-                timelineContainer.appendChild(button);
-            });
-        };
-
-        // --- 핵심 로직 함수 ---
-        const startTimelinePlayback = (timeline) => {
-            // 선택된 구간의 시간 정보를 제목 옆에 표시
-            document.getElementById('selected-section-display').textContent = `- ${timeline.label}`;
-
-            if (player) {
-                player.seekTo(timeline.start, true);
-                player.playVideo();
-
-                clearTimeout(timelineTimeout);
-                clearInterval(subtitleInterval);
-
-                timelineTimeout = setTimeout(() => player.pauseVideo(), (timeline.end - timeline.start) * 1000);
-
-                currentTranscript = timeline.transcript;
-                currentTranscriptIndex = 0;
-                updateSingleTranscriptLine();
-
-                subtitleInterval = setInterval(() => {
-                    const currentTime = player.getCurrentTime();
-                    if (!player || typeof player.getCurrentTime !== 'function' || currentTime < timeline.start || currentTime > timeline.end) {
-                        clearInterval(subtitleInterval);
-                        return;
-                    }
-
-                    const relativeTime = currentTime - timeline.start;
-
-                    let newIndex = -1;
-                    for (let i = 0; i < currentTranscript.length; i++) {
-                        const itemTime = parseFloat(currentTranscript[i].time);
-                        if (relativeTime >= itemTime) {
-                            newIndex = i;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    if (newIndex !== -1 && newIndex !== currentTranscriptIndex) {
-                        currentTranscriptIndex = newIndex;
-                        updateSingleTranscriptLine();
-                    }
-                }, 250);
-            }
-        };
-
-        const pollForResult = (jobId) => {
-            fetch(`/mochilearn/api/transcribe/status/${jobId}`)
-                .then(response => response.ok ? response.json() : Promise.reject('상태 확인 중 서버 오류 발생'))
-                .then(statusData => {
-                    const targetTimeline = timelines.find(t => t.id === jobId);
-                    if (!targetTimeline) return;
-
-                    if (statusData.status === 'PROCESSING') {
-                        setTimeout(() => pollForResult(jobId), 2000);
-                    } else if (statusData.status === 'COMPLETED') {
-                        targetTimeline.status = 'COMPLETED';
-                        targetTimeline.transcript = statusData.result;
-                        renderTimelines();
-                    } else if (statusData.status === 'FAILED') {
-                        targetTimeline.status = 'FAILED';
-                        renderTimelines();
-                        throw new Error(statusData.error || '알 수 없는 오류로 작업에 실패했습니다.');
-                    }
-                })
-                .catch(error => {
-                    alert('대사 추출 중 오류가 발생했습니다: ' + error.message);
-                    console.error('Error:', error);
-                    const failedTimeline = timelines.find(t => t.id === jobId);
-                    if (failedTimeline) {
-                        failedTimeline.status = 'FAILED';
-                        renderTimelines();
-                    }
-                });
-        };
-
-        const setupTagSelection = () => {
-            const difficultyContainer = document.getElementById('difficulty-tags');
-            const genreContainer = document.getElementById('genre-tags');
-
-            // 난이도 태그 (단일 선택)
-            difficultyContainer.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') {
-                    // 모든 버튼에서 'selected' 스타일 제거
-                    difficultyContainer.querySelectorAll('button').forEach(btn => {
-                        btn.classList.remove('bg-pink-500', 'text-white');
-                        btn.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    // 클릭된 버튼에만 'selected' 스타일 추가
-                    e.target.classList.add('bg-pink-500', 'text-white');
-                    e.target.classList.remove('bg-gray-100', 'text-gray-700');
-                }
-            });
-
-            // 장르 태그 (다중 선택)
-            genreContainer.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') {
-                    // 'selected' 스타일을 토글
-                    const isSelected = e.target.classList.contains('bg-pink-500');
-                    if (isSelected) {
-                        e.target.classList.remove('bg-pink-500', 'text-white');
-                        e.target.classList.add('bg-gray-100', 'text-gray-700');
-                    } else {
-                        e.target.classList.add('bg-pink-500', 'text-white');
-                        e.target.classList.remove('bg-gray-100', 'text-gray-700');
-                    }
-                }
-            });
-        };
-
-        // --- 페이지 초기화 ---
-        window.onload = () => {
-            const urlInput = document.getElementById('url-input');
-            const addTimelineBtn = document.getElementById('add-timeline-btn');
-            const startInput = document.getElementById('start-input');
-            const endInput = document.getElementById('end-input');
-
-            setupTagSelection(); // 태그 선택 로직 초기화
-
-            urlInput.addEventListener('input', () => {
-                const url = urlInput.value;
-                const videoId = extractVideoId(url);
-                document.getElementById('player-container').classList.toggle('hidden', !videoId);
-                // 새 영상 로드 시, 선택된 구간 표시 초기화
-                document.getElementById('selected-section-display').textContent = '';
-                if (videoId) createPlayer(videoId);
-                else if (player) { player.destroy(); player = null; }
-            });
-
-            addTimelineBtn.addEventListener('click', () => {
-                const url = urlInput.value;
-                const start = parseTime(startInput.value);
-                const end = parseTime(endInput.value);
-
-                if (url && start >= 0 && end > start) {
-                    const data = { url, start, end };
-
-                    const tempId = `temp_${Date.now()}`;
-                    const newTimeline = {
-                        id: tempId,
-                        start,
-                        end,
-                        label: `${startInput.value}~${endInput.value}`,
-                        status: 'PROCESSING',
-                        transcript: []
-                    };
-                    timelines.push(newTimeline);
-                    renderTimelines();
-
-                    startInput.value = '';
-                    endInput.value = '';
-
-                    fetch('/mochilearn/api/transcribe/start', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    })
-                        .then(response => response.ok ? response.json() : Promise.reject('서버 응답 오류: ' + response.statusText))
-                        .then(result => {
-                            const optimisticTimeline = timelines.find(t => t.id === tempId);
-                            if (optimisticTimeline) {
-                                optimisticTimeline.id = result.jobId;
-                            }
-                            pollForResult(result.jobId);
-                        })
-                        .catch(error => {
-                            alert('작업 요청 중 오류가 발생했습니다: ' + error.message);
-                            console.error('Error:', error);
-                            const failedIndex = timelines.findIndex(t => t.id === tempId);
-                            if (failedIndex > -1) {
-                                timelines.splice(failedIndex, 1);
-                            }
-                            renderTimelines();
-                        });
-                } else {
-                    alert('유효한 유튜브 URL과 타임라인 구간(시작 시간 < 종료 시간)을 입력해주세요.');
-                }
-            });
-
-            document.getElementById('prev-btn').addEventListener('click', () => changeTranscriptIndex(-1));
-            document.getElementById('next-btn').addEventListener('click', () => changeTranscriptIndex(1));
-        };
-    </script>
 </head>
 
-<body class="bg-gray-50">
+<body>
 <div th:replace="~{navigation::navigation}"></div>
 
-<main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<main>
+    <div class="main-grid">
 
         <!-- Left Column: Video Player & Subtitles -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="left-column">
             <!-- Title Input -->
-            <div class="w-full">
+            <div>
                 <input
                         id="title-input"
                         type="text"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-xl font-bold"
+                        class="input-field title-input"
                         placeholder="학습 카드 제목을 입력하세요"
                 />
             </div>
 
             <!-- Player -->
-            <div id="player-container" class="aspect-video w-full bg-black rounded-lg overflow-hidden shadow-lg hidden">
+            <div id="player-container" class="player-container hidden">
                 <div id="player"></div>
             </div>
 
-            <!-- URL Input (Moved) -->
-            <div class="w-full">
+            <!-- URL Input -->
+            <div>
                 <input
                         id="url-input"
                         type="text"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        class="input-field"
                         placeholder="학습할 YouTube 영상 URL을 입력하세요."
                 />
             </div>
 
-            <!-- Transcript Display (Fixed Height) -->
-            <div id="transcript-container" class="bg-white p-6 rounded-lg shadow-md hidden h-48 overflow-y-auto">
-                <div class="flex items-center justify-between sticky top-0 bg-white py-2">
-                    <button id="prev-btn" class="p-2 rounded-full hover:bg-gray-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="m15 18-6-6 6-6"/></svg>
+            <!-- Transcript Display -->
+            <div id="transcript-container" class="card transcript-container hidden">
+                <div class="transcript-header">
+                    <button id="prev-btn" class="transcript-nav-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                     </button>
-                    <div class="text-center">
-                        <p id="japanese-line" class="text-xl text-gray-800">자막이 여기에 표시됩니다.</p>
-                        <p id="korean-line" class="text-base text-gray-500 mt-1">구간을 추가하고 버튼을 눌러주세요.</p>
+                    <div class="transcript-text">
+                        <p id="japanese-line">자막이 여기에 표시됩니다.</p>
+                        <p id="korean-line">구간을 추가하고 버튼을 눌러주세요.</p>
                     </div>
-                    <button id="next-btn" class="p-2 rounded-full hover:bg-gray-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600"><path d="m9 18 6-6-6-6"/></svg>
+                    <button id="next-btn" class="transcript-nav-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                     </button>
                 </div>
-                <div id="transcript-index" class="text-center text-sm text-gray-400 mt-4"></div>
+                <div id="transcript-index"></div>
             </div>
 
             <!-- Tag Selection -->
-            <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
+            <div class="card tag-section">
                 <div>
-                    <h4 class="font-semibold text-gray-600 mb-2">난이도</h4>
-                    <div id="difficulty-tags" class="flex flex-wrap gap-2">
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">초급</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">중급</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">고급</button>
+                    <h4 class="tag-title">난이도</h4>
+                    <div id="difficulty-tags" class="tag-group">
+                        <button class="tag-button">초급</button>
+                        <button class="tag-button">중급</button>
+                        <button class="tag-button">고급</button>
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-600 mb-2">장르</h4>
-                    <div id="genre-tags" class="flex flex-wrap gap-2">
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">드라마</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">애니</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">영화</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">일상회화</button>
-                        <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200">비즈니스</button>
+                    <h4 class="tag-title">장르</h4>
+                    <div id="genre-tags" class="tag-group">
+                        <button class="tag-button">드라마</button>
+                        <button class="tag-button">애니</button>
+                        <button class="tag-button">영화</button>
+                        <button class="tag-button">일상회화</button>
+                        <button class="tag-button">비즈니스</button>
                     </div>
                 </div>
             </div>
 
             <!-- Save Button -->
-            <div class="w-full">
-                <button id="save-card-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-300 text-lg">
+            <div>
+                <button id="save-card-btn" class="button">
                     학습 카드 저장하기
                 </button>
             </div>
@@ -371,35 +97,35 @@
         </div>
 
         <!-- Right Column: Controls & Timelines -->
-        <div class="space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="font-bold text-lg text-gray-800">학습 구간 추가</h3>
-                <div class="flex items-center space-x-2 mt-4">
+        <div class="right-column">
+            <div class="card">
+                <h3 class="card-title">학습 구간 추가</h3>
+                <div class="time-input-group">
                     <input
                             id="start-input"
                             type="text"
-                            class="w-full p-2 border border-gray-300 rounded-md text-center"
+                            class="time-input"
                             placeholder="00:00"
                     />
-                    <span class="text-gray-500">-</span>
+                    <span>-</span>
                     <input
                             id="end-input"
                             type="text"
-                            class="w-full p-2 border border-gray-300 rounded-md text-center"
+                            class="time-input"
                             placeholder="00:10"
                     />
                 </div>
-                <button id="add-timeline-btn" class="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center justify-center">
+                <button id="add-timeline-btn" class="button">
                     <span>구간 추가</span>
                 </button>
             </div>
 
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-lg text-gray-800">학습 구간 목록</h3>
-                    <span id="selected-section-display" class="text-sm font-medium text-pink-500"></span>
+            <div class="card">
+                <div class="timeline-header">
+                    <h3 class="card-title">학습 구간 목록</h3>
+                    <span id="selected-section-display"></span>
                 </div>
-                <div id="timeline-buttons-container" class="flex flex-wrap gap-3 mt-4">
+                <div id="timeline-buttons-container">
                     <!-- Circular timeline buttons will be added here -->
                 </div>
             </div>

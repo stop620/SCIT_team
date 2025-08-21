@@ -1,264 +1,326 @@
+// 전역 변수
+let player;
+let timelineTimeout;
+const timelines = [];
+let currentTranscript = [];
+let currentTranscriptIndex = 0;
+let subtitleInterval;
 
-    // 전역 변수 선언
-    let player;
-    let timelineTimeout; // setTimeout을 관리할 변수
-    const timelines = [];
-    let isSeeking = false; // 진행 바 드래그 중인지 여부
-    let selectedTimelineIndex = null; // 선택된 타임라인 인덱스
-
-    // '분:초' 형식을 초 단위 숫자로 변환하는 헬퍼 함수
-    const parseTime = (timeString) => {
-    const parts = timeString.split(':');
-    if (parts.length === 2) {
-    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-}
-    return 0;
+// --- 시간 변환 헬퍼 함수 ---
+const parseTime = (timeString) => {
+    const parts = timeString.split(':').map(Number);
+    return parts.length === 2 ? parts[0] * 60 + parts[1] : 0;
 };
 
-    // 초 단위 시간을 '분:초' 형식으로 포맷하는 헬퍼 함수
-    const formatTime = (seconds) => {
+const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-    return `${formattedMinutes}:${formattedSeconds}`;
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
-    // URL에서 Video ID를 추출하는 함수
-    const extractVideoId = (url) => {
+// --- YouTube 관련 함수 ---
+const extractVideoId = (url) => {
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };
 
-    // YouTube IFrame API가 로드되면 호출되는 함수 (필수)
-    function onYouTubeIframeAPIReady() {
-    // 이 함수는 API 스크립트가 로드될 때 자동으로 호출됩니다.
-}
+function onYouTubeIframeAPIReady() {}
 
-    // 플레이어를 생성하고 비디오를 로드하는 함수
-    const createPlayer = (videoId) => {
-    // 기존 플레이어가 있다면 제거합니다.
-    if (player) {
-    player.destroy();
-}
-
+const createPlayer = (videoId) => {
+    if (player) player.destroy();
     player = new YT.Player('player', {
-    height: '390',
-    width: '640',
-    videoId: videoId,
-    playerVars: {
-    'playsinline': 1
-},
-    events: {
-    'onStateChange': onPlayerStateChange,
-    'onReady': onPlayerReady
-}
-});
+        height: '100%',
+        width: '100%',
+        videoId: videoId,
+        playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
 };
 
-    // 플레이어 준비가 완료되면 호출되는 함수
-    const onPlayerReady = (event) => {
-    const progressBar = document.getElementById('progress-bar');
-    const totalTimeDisplay = document.getElementById('total-time');
-    progressBar.max = event.target.getDuration();
-    totalTimeDisplay.textContent = formatTime(event.target.getDuration());
+const onPlayerStateChange = (event) => {
+    if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+        clearInterval(subtitleInterval);
+    }
 };
 
-    // 플레이어 상태 변경 시 호출되는 함수
-    const onPlayerStateChange = (event) => {
-    // 이 버전에서는 setInterval을 사용하지 않습니다.
+// --- UI 렌더링 함수 ---
+const updateSingleTranscriptLine = () => {
+    const transcriptContainer = document.getElementById('transcript-container');
+    transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
+
+    if (currentTranscript.length > 0) {
+        const item = currentTranscript[currentTranscriptIndex];
+        document.getElementById('japanese-line').textContent = item.japanese;
+        document.getElementById('korean-line').textContent = item.korean;
+        document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
+    }
 };
 
-    // 대사 표시 영역을 업데이트하는 함수
-    const updateTranscriptDisplay = (transcriptData) => {
-    console.log(transcriptData);
-    alert(transcriptData);
-
-    const transcriptDisplay = document.getElementById('transcript-display');
-    if (transcriptData) {
-    transcriptDisplay.classList.remove('hidden');
-
-    let contentHTML = '<h3 class="font-bold text-lg text-gray-800">대사 정보</h3>';
-
-    // 데이터가 배열인 경우 (여러 개의 대사)
-    if (Array.isArray(transcriptData)) {
-    transcriptData.forEach((item, index) => {
-    contentHTML += `
-                            <div class="mt-4 border-t border-gray-300 pt-4">
-                                <p class="font-semibold text-gray-800">원본 ${index + 1}:</p>
-                                <p class="text-gray-700">${item.japanese}</p>
-                                <p class="font-semibold text-gray-800 mt-2">해석 ${index + 1}:</p>
-                                <p class="text-gray-700">${item.korean}</p>
-                            </div>
-                        `;
-});
-}
-    // 데이터가 단일 객체인 경우
-    else {
-    contentHTML += `
-                        <p class="font-semibold text-gray-800 mt-2">원본:</p>
-                        <p class="text-gray-700">${transcriptData.japanese}</p>
-                        <p class="font-semibold text-gray-800 mt-2">해석:</p>
-                        <p class="text-gray-700">${transcriptData.korean}</p>
-                    `;
-}
-
-    transcriptDisplay.innerHTML = contentHTML;
-} else {
-    transcriptDisplay.classList.add('hidden');
-}
+const changeTranscriptIndex = (direction) => {
+    if (currentTranscript.length === 0) return;
+    currentTranscriptIndex = (currentTranscriptIndex + direction + currentTranscript.length) % currentTranscript.length;
+    updateSingleTranscriptLine();
 };
 
-    // 타임라인 버튼을 UI에 렌더링하는 함수
-    const renderTimelines = () => {
-    const timelineContainer = document.getElementById('timeline-container');
+const renderTimelines = () => {
+    const timelineContainer = document.getElementById('timeline-buttons-container');
     timelineContainer.innerHTML = '';
     timelines.forEach((timeline, index) => {
-    const buttonWrapper = document.createElement('div');
-    buttonWrapper.className = 'relative group';
+        const button = document.createElement('button');
+        button.className = 'timeline-button'; // 기본 클래스
+        button.setAttribute('aria-label', timeline.label);
 
-    const button = document.createElement('button');
-    button.className = 'bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2';
-    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>${timeline.label}</span>`;
-    button.onclick = () => {
+        if (timeline.status === 'PROCESSING') {
+            button.disabled = true;
+            button.classList.add('loading'); // 로딩 클래스 추가
+            button.innerHTML = `<svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        } else if (timeline.status === 'FAILED') {
+            button.disabled = true;
+            button.classList.add('failed'); // 실패 클래스 추가
+            button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+        } else { // COMPLETED
+            button.classList.add('completed'); // 완료 클래스 추가
+            button.innerHTML = `<span class="timeline-button-label">${index + 1}</span>`;
+            button.onclick = () => startTimelinePlayback(timeline);
+        }
+        timelineContainer.appendChild(button);
+    });
+};
+
+// --- 핵심 로직 함수 ---
+const startTimelinePlayback = (timeline) => {
+    document.getElementById('selected-section-display').textContent = `- ${timeline.label}`;
+
     if (player) {
-    player.seekTo(timeline.start, true);
-    player.playVideo(); // 버튼 클릭 시 자동 재생
-    // 기존의 정지 타이머가 있으면 취소
-    clearTimeout(timelineTimeout);
-    // 새로운 정지 타이머 설정
-    timelineTimeout = setTimeout(() => {
-    player.pauseVideo();
-}, (timeline.end - timeline.start) * 1000);
-}
-    updateTranscriptDisplay(timeline.transcript); // 버튼 클릭 시 대사 업데이트
+        player.seekTo(timeline.start, true);
+        player.playVideo();
+
+        clearTimeout(timelineTimeout);
+        clearInterval(subtitleInterval);
+
+        timelineTimeout = setTimeout(() => player.pauseVideo(), (timeline.end - timeline.start) * 1000);
+
+        currentTranscript = timeline.transcript;
+        currentTranscriptIndex = 0;
+        updateSingleTranscriptLine();
+
+        subtitleInterval = setInterval(() => {
+            if (!player || typeof player.getCurrentTime !== 'function') {
+                clearInterval(subtitleInterval);
+                return;
+            }
+            const currentTime = player.getCurrentTime();
+            if (currentTime < timeline.start || currentTime > timeline.end) {
+                clearInterval(subtitleInterval);
+                return;
+            }
+
+            const relativeTime = currentTime - timeline.start;
+
+            let newIndex = -1;
+            for (let i = 0; i < currentTranscript.length; i++) {
+                const itemTime = parseFloat(currentTranscript[i].time);
+                if (relativeTime >= itemTime) {
+                    newIndex = i;
+                } else {
+                    break;
+                }
+            }
+
+            if (newIndex !== -1 && newIndex !== currentTranscriptIndex) {
+                currentTranscriptIndex = newIndex;
+                updateSingleTranscriptLine();
+            }
+        }, 250);
+    }
 };
 
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300';
-    deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
-    deleteButton.onclick = () => handleDeleteTimeline(index);
+const pollForResult = (jobId) => {
+    fetch(`/mochilearn/api/transcribe/status/${jobId}`)
+        .then(response => response.ok ? response.json() : Promise.reject('상태 확인 중 서버 오류 발생'))
+        .then(statusData => {
+            const targetTimeline = timelines.find(t => t.id === jobId);
+            if (!targetTimeline) return;
 
-    buttonWrapper.appendChild(button);
-    buttonWrapper.appendChild(deleteButton);
-    timelineContainer.appendChild(buttonWrapper);
-});
-
-    // 타임라인 제목 가시성 관리
-    const timelineHeader = document.getElementById('timeline-header');
-    if (timelines.length > 0) {
-    timelineHeader.classList.remove('hidden');
-} else {
-    timelineHeader.classList.add('hidden');
-}
+            if (statusData.status === 'PROCESSING') {
+                setTimeout(() => pollForResult(jobId), 2000);
+            } else if (statusData.status === 'COMPLETED') {
+                targetTimeline.status = 'COMPLETED';
+                targetTimeline.transcript = statusData.result;
+                renderTimelines();
+            } else if (statusData.status === 'FAILED') {
+                targetTimeline.status = 'FAILED';
+                renderTimelines();
+                throw new Error(statusData.error || '알 수 없는 오류로 작업에 실패했습니다.');
+            }
+        })
+        .catch(error => {
+            alert('대사 추출 중 오류가 발생했습니다: ' + error.message);
+            console.error('Error:', error);
+            const failedTimeline = timelines.find(t => t.id === jobId);
+            if (failedTimeline) {
+                failedTimeline.status = 'FAILED';
+                renderTimelines();
+            }
+        });
 };
 
-    // 타임라인 버튼 삭제
-    const handleDeleteTimeline = (index) => {
-    timelines.splice(index, 1);
-    renderTimelines(); // UI 업데이트
+const setupTagSelection = () => {
+    const difficultyContainer = document.getElementById('difficulty-tags');
+    const genreContainer = document.getElementById('genre-tags');
+
+    // 난이도 태그 (단일 선택)
+    difficultyContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-button')) {
+            difficultyContainer.querySelectorAll('.tag-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            e.target.classList.add('selected');
+        }
+    });
+
+    // 장르 태그 (다중 선택)
+    genreContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-button')) {
+            e.target.classList.toggle('selected');
+        }
+    });
 };
 
-    // 페이지 로드 후 실행될 함수
-    window.onload = () => {
+// --- 페이지 초기화 ---
+window.onload = () => {
     const urlInput = document.getElementById('url-input');
     const addTimelineBtn = document.getElementById('add-timeline-btn');
     const startInput = document.getElementById('start-input');
     const endInput = document.getElementById('end-input');
-    const progressBar = document.getElementById('progress-bar');
+    const saveCardBtn = document.getElementById('save-card-btn');
 
-    // URL 입력 시 즉시 영상 로드
+    setupTagSelection();
+
     urlInput.addEventListener('input', () => {
-    const url = urlInput.value;
-    const videoId = extractVideoId(url);
-    const playerWrapper = document.getElementById('player-wrapper');
-    const invalidUrlBlock = document.getElementById('invalid-url-block');
-    const playerContainer = document.getElementById('player');
+        const url = urlInput.value;
+        const videoId = extractVideoId(url);
+        document.getElementById('player-container').classList.toggle('hidden', !videoId);
+        document.getElementById('selected-section-display').textContent = '';
+        if (videoId) createPlayer(videoId);
+        else if (player) { player.destroy(); player = null; }
+    });
 
-    if (videoId) {
-    // 유효한 URL이면 플레이어 생성
-    playerWrapper.classList.remove('hidden');
-    invalidUrlBlock.classList.add('hidden');
-    createPlayer(videoId);
-} else {
-    // 유효하지 않은 URL이면 알림 표시
-    playerWrapper.classList.remove('hidden');
-    invalidUrlBlock.classList.remove('hidden');
-    // 기존 플레이어 제거
-    if (player) {
-    player.destroy();
-    player = null;
-}
-}
-});
-
-    // 타임라인 추가 버튼 클릭 이벤트
     addTimelineBtn.addEventListener('click', () => {
-    const url = urlInput.value;
-    const start = parseTime(startInput.value);
-    const end = parseTime(endInput.value);
+        const url = urlInput.value;
+        const start = parseTime(startInput.value);
+        const end = parseTime(endInput.value);
 
-    if (url && start >= 0 && end > start) {
-    // 서버로 보낼 데이터 객체
-    const data = {
-    url: url,
-    start: start,
-    end: end
-};
+        if (url && start >= 0 && end > start) {
+            const data = { url, start, end };
 
-    // 서버 API 호출
-    fetch('/mochilearn/api/transcribe', {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json'
-},
-    body: JSON.stringify(data)
-})
-    .then(response => {
-    if (!response.ok) {
-    throw new Error('서버 응답 오류: ' + response.statusText);
-}
-    return response.json();
-})
-    .then(result => {
-    const newTimelineItem = {
-    start,
-    end,
-    label: `${startInput.value}~${endInput.value}`,
-    transcript: result // 서버에서 받은 대사 전체를 저장
-};
-    timelines.push(newTimelineItem);
-    startInput.value = '';
-    endInput.value = '';
-    renderTimelines(); // UI 업데이트
-    updateTranscriptDisplay(result); // 대사 표시 영역 업데이트
-})
-    .catch(error => {
-    alert('대사 추출 중 오류가 발생했습니다: ' + error.message);
-    console.error('Error:', error);
-});
-} else {
-    alert('유효한 유튜브 URL과 타임라인 구간(시작 시간 < 종료 시간)을 입력해주세요.');
-}
-});
+            const tempId = `temp_${Date.now()}`;
+            const newTimeline = {
+                id: tempId,
+                start,
+                end,
+                label: `${startInput.value}~${endInput.value}`,
+                status: 'PROCESSING',
+                transcript: []
+            };
+            timelines.push(newTimeline);
+            renderTimelines();
 
-    // 진행 바 드래그 시작
-    progressBar.addEventListener('mousedown', () => {
-    isSeeking = true;
-});
+            startInput.value = '';
+            endInput.value = '';
 
-    // 진행 바 드래그 중 시간 이동
-    progressBar.addEventListener('input', (e) => {
-    const newTime = parseFloat(e.target.value);
-    document.getElementById('current-time').textContent = formatTime(newTime);
-    if (player) {
-    player.seekTo(newTime, true);
-}
-});
+            fetch('/mochilearn/api/transcribe/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.ok ? response.json() : Promise.reject('서버 응답 오류: ' + response.statusText))
+                .then(result => {
+                    const optimisticTimeline = timelines.find(t => t.id === tempId);
+                    if (optimisticTimeline) {
+                        optimisticTimeline.id = result.jobId;
+                    }
+                    pollForResult(result.jobId);
+                })
+                .catch(error => {
+                    alert('작업 요청 중 오류가 발생했습니다: ' + error.message);
+                    console.error('Error:', error);
+                    const failedIndex = timelines.findIndex(t => t.id === tempId);
+                    if (failedIndex > -1) {
+                        timelines.splice(failedIndex, 1);
+                    }
+                    renderTimelines();
+                });
+        } else {
+            alert('유효한 유튜브 URL과 타임라인 구간(시작 시간 < 종료 시간)을 입력해주세요.');
+        }
+    });
 
-    // 진행 바 드래그 종료
-    progressBar.addEventListener('mouseup', () => {
-    isSeeking = false;
-});
+    document.getElementById('prev-btn').addEventListener('click', () => changeTranscriptIndex(-1));
+    document.getElementById('next-btn').addEventListener('click', () => changeTranscriptIndex(1));
+
+    saveCardBtn.addEventListener('click', () => {
+        const title = document.getElementById('title-input').value;
+        const url = document.getElementById('url-input').value;
+
+        const selectedDifficultyEl = document.querySelector('#difficulty-tags .selected');
+        const level = selectedDifficultyEl ? selectedDifficultyEl.textContent : null;
+
+        const selectedTagEls = document.querySelectorAll('#genre-tags .selected');
+        const tag = Array.from(selectedTagEls).map(el => el.textContent).join(',');
+
+        const completedSections = timelines
+            .filter(t => t.status === 'COMPLETED')
+            .map((t, index) => ({
+                section_num: index + 1,
+                start_seconds: t.start,
+                end_seconds: t.end,
+                sentences: t.transcript.map(s => ({
+                    index: s.index,
+                    time: s.time,
+                    japanese: s.Japanese,
+                    korean: s.Korean
+                }))
+            }));
+
+        if (!title || !url || !level || tag.length === 0 || completedSections.length === 0) {
+            alert('제목, URL, 난이도, 장르를 모두 선택하고, 하나 이상의 학습 구간을 추가해주세요.');
+            return;
+        }
+
+        const cardData = {
+            title: title,
+            url: url,
+            level: level,
+            tag: tag,
+            sections: completedSections
+        };
+
+        console.log('Saving Card Data:', JSON.stringify(cardData, null, 2));
+
+        fetch('/mochilearn/api/study/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cardData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message || '저장에 실패했습니다.') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('학습 카드가 성공적으로 저장되었습니다!');
+                window.location.href = '/mochilearn/page/study';
+            })
+            .catch(error => {
+                console.error('Save Error:', error);
+                alert('저장 중 오류가 발생했습니다: ' + error.message);
+            });
+    });
 };
