@@ -2,24 +2,37 @@ package com.hanzo.mochilearn.dto;
 
 import java.time.LocalDateTime;
 
+import com.hanzo.mochilearn.entity.StudyEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class StudyDTO {
-	private Long cardId;		//학습카드 고유 ID
-    private String japanese;	//일본어 내용
-    private String korean;		//한국어 해석
-    private String url;			//관련 미디어 URL
-    private Integer timeline;	//미디어 타임라인 (초)
-    private Integer level;		//난이도
-    private String genre;		//장르
-    private Integer likeCount;	//좋아요
-    private LocalDateTime createdDate;  // 작성일
+    private Long cardId;
+    private String url;
+    private String title;
+    private Integer level;
+    private String genre;
+    private LocalDateTime createdDate;
+    private Integer like;
+    private Long memberId; // member_id 필드. 필요에 따라 MemberDTO로도 변환 가능
+    
+    public static StudyDTO fromEntity(StudyEntity entity) {
+        return StudyDTO.builder()
+                .cardId(entity.getCardId())
+                .url(entity.getUrl())
+                .title(entity.getTitle())
+                .level(entity.getLevel())
+                .genre(entity.getGenre())
+                .createdDate(entity.getCreatedDate())
+                .like(entity.getLike())
+                // 멤버 정보가 있으면 .memberId(entity.getMember().getMemberId()) 등으로 작성
+                .build();
+    }
 }

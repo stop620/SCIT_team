@@ -4,66 +4,52 @@ package com.hanzo.mochilearn.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "card")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class StudyEntity {
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "card_id")
     private Long cardId;
-	//학습카드 고유 ID
 
-    @Column(nullable = false, length = 255)
-    private String japanese;
-    //일본어 내용
-    
-    @Column(nullable = false, length = 255)
-    private String korean;
-    //한국어 해석
-    
-    @Column(length = 255)
+    @Column(name = "url", length = 255)
     private String url;
-    //관련 미디어 URL
 
-    private Integer timeline;
-    //미디어 타임라인 (초)
+    @Column(name = "title", length = 255, nullable = false)
+    private String title;
 
+    @Column(name = "level")
     private Integer level;
-    //난이도
 
-    @Column(length = 50)
+    @Column(name = "genre", length = 50)
     private String genre;
-    //장르
 
-    @CreationTimestamp
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
-    //작성일
 
-    @Column(name = "`like`")
-    private Integer likeCount = 0;
-    //좋아요
+    @Column(name = "like") // 예약어이지만 보통 JPA에서는 가능. 문제가 있으면 like_count 등으로 컬럼명 변경 추천
+    private Integer like;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "member_id")
-//    private Member member;
-//    //작성자 ID 멤버엔티티 필요
-
+    // 외래키가 필요하면 아래 추가(주석 해제 + Member 엔티티 필요)
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_card_member"))
+    // private Member member;
 }
