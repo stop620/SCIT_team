@@ -1,4 +1,0 @@
-flask
-yt-dlp
-google-generativeai
-gunicorn

@@ -35,10 +35,10 @@ public class CardEntity {
 
     private String tag; // 장르 및 기타 태그 (쉼표로 구분된 문자열)
 
-    @Column(name = "`like`") // 'like'는 SQL 예약어이므로 backtick으로 감싸줍니다.
+    @Column(name = "`like`") // 'like'는예약어이므로 백틱
     private int like = 0;
 
-    @CreatedDate // 엔티티가 생성될 때 자동으로 현재 시간이 기록됩니다.
+    @CreatedDate // 엔티티가 생성될 때 자동으로 현재 시간이 기록
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
 

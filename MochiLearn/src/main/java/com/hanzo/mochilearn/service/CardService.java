@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -32,7 +33,7 @@ public class CardService {
                 .url(cardDto.getUrl())
                 .tag(cardDto.getTag())
                 .memberId(memberId)
-
+                .sections(new ArrayList<>())
                 .build();
 
         // "초급", "중급", "고급" 문자열을 숫자로 저장
@@ -42,7 +43,7 @@ public class CardService {
             case "고급": cardEntity.setLevel(3); break;
         }
 
-        // TODO: member_id는 현재 로그인한 사용자 정보에서 가져와야 합니다.
+        // TODO: 로그인 완성 시 member_id는 현재 로그인한 사용자 정보에서 가져와야 합니다
         // card.setMemberId( ... );
 
         log.debug("cardEntity: {}", cardEntity);
@@ -51,7 +52,7 @@ public class CardService {
 
         log.info("Saved Card with ID: {}", savedCard);
 
-        // 2. Section 및 Sentence 엔티티 생성 및 저장
+        // Section 및 Sentence 엔티티 생성 및 저장
         if (cardDto.getSections() != null) {
 
             for (SectionDTO sectionDto : cardDto.getSections()) {
@@ -59,12 +60,13 @@ public class CardService {
                 log.debug("sectionDto: {}", sectionDto);
 
                 SectionEntity section = SectionEntity.builder()
-                        .card(savedCard)
                         .startSeconds(sectionDto.getStartSeconds())
                         .endSeconds(sectionDto.getEndSeconds())
                         .sectionNum(sectionDto.getSectionNum())
+                        .sentences(new ArrayList<>())
                         .build();
 
+                savedCard.addSection(section); //카드 <> 섹션 연관 관계 설정
                 SectionEntity savedSection = sectionRepository.save(section);
 
                 log.info("  Saved Section : {}", savedSection);
@@ -75,13 +77,13 @@ public class CardService {
                         log.debug("sentenceDto: {}", sentenceDto);
 
                         SentenceEntity sentence = SentenceEntity.builder()
-                                .section(savedSection)
                                 .sentenceIndex(sentenceDto.getSentenceIndex())
                                 .time(sentenceDto.getTime())
                                 .japanese(sentenceDto.getJapanese())
                                 .korean(sentenceDto.getKorean())
                                 .build();
 
+                        savedSection.addSentence(sentence); // 섹션 <> 문장 연관관계 설정
                         sentenceRepository.save(sentence);
                     }
                     log.info("    Saved {} sentences for Section ID: {}", sectionDto.getSentences().size(), savedSection.getId());
@@ -89,4 +91,6 @@ public class CardService {
             }
         }
     }
+
+
 }

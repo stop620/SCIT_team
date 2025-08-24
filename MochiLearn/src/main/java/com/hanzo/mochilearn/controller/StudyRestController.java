@@ -30,34 +30,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 public class StudyRestController {
 
-    // --- 의존성 주입 ---
-    // 실제로는 이 로직을 처리하는 Service 계층을 주입하는 것이 좋습니다.
-
     private final CardService cardService;
 
-
-
-
-    /**
-     * 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
-     */
+    // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
-    @Transactional // 여러 테이블에 걸친 작업을 하나의 트랜잭션으로 묶어 데이터 정합성 보장
+    @Transactional
     public ResponseEntity<?> saveLearningCard(@RequestBody CardDTO cardDto) {
-        log.info("Received Learning Card Data for saving: {}", cardDto);
+        log.info("저장할 학습 카드 데이터 : {}", cardDto);
 
         try {
-            // TODO: 유저정보 생기면 로직 추가
-
-            // 1. Card 엔티티 생성 및 저장
+            // Card 엔티티 생성 및 저장
+            // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
             cardService.save(cardDto, 1);
 
-            return ResponseEntity.ok(Map.of("message", "Data saved successfully", "cardId", cardDto.getId()));
+            return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardDto.getId()));
 
         } catch (Exception e) {
-            log.error("Error saving learning card", e);
-            // TODO: 좀 더 구체적인 에러 메시지를 반환하는 것이 좋습니다.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Error saving data"));
+            log.error("카드 데이터 저장 오류", e);
+            // TODO: 오류 메시지 세분화 필요
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
 }
