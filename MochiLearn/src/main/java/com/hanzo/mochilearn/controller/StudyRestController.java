@@ -1,25 +1,6 @@
 package com.hanzo.mochilearn.controller;
 
-<<<<<<< HEAD
-import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.service.CardService;
-
-import lombok.RequiredArgsConstructor;
-@RestController
-@RequiredArgsConstructor
-
-public class StudyRestController {
-    private final CardService cardService;
-
-=======
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
@@ -51,25 +32,11 @@ public class StudyRestController {
     private final CardService cardService;
 
     // 학습 카드 로드
->>>>>>> develop
     @GetMapping("/api/study/load")
     public List<CardDTO> getCards(
             @RequestParam(name="sort", defaultValue = "popular") String sort,
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestParam(name="size", defaultValue = "12") int size,
-<<<<<<< HEAD
-    		@RequestParam(name ="search", defaultValue = "") String search) {
-            if (search == null || search.isEmpty()) {
-                return cardService.getPagedCards(sort, page, size);
-            } else {
-                return cardService.searchCards(sort, page, size, search);
-            }
-        }
-    @PostMapping("/filterByTags")
-    public List<CardDTO> filterByTags(@RequestBody List<String> tags) {
-        return cardService.findCardsByTags(tags);
-    
-=======
             @RequestParam(name ="search", defaultValue = "") String search) {
         if (search == null || search.isEmpty()) {
             return cardService.getPagedCards(sort, page, size);
@@ -97,5 +64,4 @@ public class StudyRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
->>>>>>> develop
 }

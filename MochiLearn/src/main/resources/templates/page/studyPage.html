@@ -4,11 +4,9 @@
 <meta charset="UTF-8" />
 <title>study</title>
 <link rel="stylesheet" th:href="@{/css/nav.css}" />
-<<<<<<< HEAD
-=======
+
     <link rel="stylesheet" th:href="@{/css/main.css}" />
 
->>>>>>> develop
 <style>
         #cardGrid {
 		    display: grid;
@@ -142,20 +140,13 @@
 </head>
 <body>
 
-<<<<<<< HEAD
-    <div th:replace="~{navigation::navigation}"></div>
-	
-	<div id="searchContainer" style="margin-bottom: 16px;">
-=======
 <div th:replace="~{navigation::navigation}"></div>
 
 <div id="searchContainer" style="margin-bottom: 16px;">
->>>>>>> develop
     	<input type="text" id="searchInput" style="width: 220px;">
     	<button id="searchBtn">검색</button>
 	</div>
-	<div id="addCard"><button id="addCardBtn">학습카드 추가하기</button></div>
-	<!-- 대현이가 추가페이지 다 만들면 연결하깅 -->
+	<div id="addCard"><a th:href="@{/page/write}" style="text-decoration: none;"><button id="addCardBtn">학습카드 추가하기</button></a></div>
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
     <!-- 왼쪽: 태그 버튼 -->
     <button type="button" id="tagBtn">태그버튼</button>
@@ -293,11 +284,7 @@
 		    cards.forEach(card => {
 		        const thumbUrl = getYoutubeThumbnail(card.url);
 		        const cardHtml = `
-<<<<<<< HEAD
-		            <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.cardId}'">
-=======
 		            <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
->>>>>>> develop
 		                <h3>${card.title}</h3>
 		                <img src="${thumbUrl}" alt="썸네일 이미지" />
 		            </div>

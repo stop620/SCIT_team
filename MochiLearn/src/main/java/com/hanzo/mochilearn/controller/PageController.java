@@ -1,5 +1,6 @@
 package com.hanzo.mochilearn.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -14,37 +15,22 @@ import com.hanzo.mochilearn.service.CardService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("page")
 public class PageController {
-	private final CardService cardService;
 
     private final CardService cardService;
 
-    public PageController(CardService cardService) {
-        this.cardService = cardService;
-    }
+    
 
     @GetMapping("study")
     public String studyPage(Model model) {
-<<<<<<< HEAD
-        List<CardDTO> cards = cardService.getAllCards();
-        model.addAttribute("cards", cards);
-        return "page/studyPage";  
-    }
-    @GetMapping("studyCard")
-    public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        CardEntity entity = cardService.getCardById(cardId);
-        CardDTO dto= cardService.toDTO(entity);
-        model.addAttribute("card", dto);
-        return "page/studyCard";
-=======
         List<CardDTO> cards = new ArrayList<>();
         model.addAttribute("cards", cards);
         return "page/studyPage";
->>>>>>> develop
     }
 
     @GetMapping("studyCard")
