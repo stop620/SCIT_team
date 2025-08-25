@@ -55,14 +55,11 @@ public class PageController {
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     
     @GetMapping("studyCardPage")
     public String studyCardPage(){
     	return "page/studyCardPage";
 =======
-=======
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
 =======
 >>>>>>> 5390e62 (디자인 테스트 페이지 추가)
 
@@ -80,9 +77,6 @@ public class PageController {
     public String testStudy() {
         return "page/testStudy";
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
-=======
 >>>>>>> 5390e62 (디자인 테스트 페이지 추가)
 =======
 >>>>>>> 5390e62 (디자인 테스트 페이지 추가)
