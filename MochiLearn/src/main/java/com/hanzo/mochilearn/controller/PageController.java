@@ -56,4 +56,19 @@ public class PageController {
     public String writePage() {
         return "page/writePage";
     }
+
+    @GetMapping("/test/home")
+    public String testHome() {
+        return "page/testHome";
+    }
+
+    @GetMapping("/test/best")
+    public String testBest() {
+        return "page/testBest";
+    }
+
+    @GetMapping("/test/study")
+    public String testStudy() {
+        return "page/testStudy";
+    }
 }

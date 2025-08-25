@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en"
+xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MochiLearn - 학습하기</title>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mochi-pink: #FFB6C1;
+            --mochi-mint: #3ED6D0;
+            --mochi-blue: #32D9FF;
+            --mochi-gray-light: #F5F5F5;
+            --mochi-gray-dark: #333333;
+            /* Difficulty-based colors */
+            --mochi-level-beginner: #FFB6C1;
+            --mochi-level-intermediate: #3ED6D0;
+            --mochi-level-advanced: #C8A2C8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--mochi-gray-dark);
+            background-color: var(--mochi-gray-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Header Section */
+        .main-header {
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .main-header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-image {
+            height: 3rem; /* Adjust height to fit the header */
+            width: auto;
+        }
+
+        .nav-links {
+            display: none;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--mochi-gray-dark);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--mochi-mint);
+        }
+
+        .cta-btn {
+            background-color: var(--mochi-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--mochi-mint);
+        }
+
+        .mobile-menu-btn {
+            display: block;
+            color: var(--mochi-gray-dark);
+        }
+
+        /* Main Content Section */
+        .main-content {
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        /* Search and Filter Section */
+        .search-container {
+            background-color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-right: 2.5rem; /* Space for the icon */
+            border: 1px solid #ddd;
+            border-radius: 9999px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--mochi-mint);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1rem;
+            color: #A0A0A0; /* Updated color for the icon */
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background-color: var(--mochi-mint); /* Updated color */
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem; /* Updated border radius */
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .add-btn:hover {
+            background-color: #2BAE9F;
+        }
+
+        .filter-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .tag-search-btn, .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Video Grid Section */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .video-card {
+            background-color: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 150px;
+            background-color: var(--mochi-gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--mochi-gray-dark);
+            position: relative;
+        }
+
+        .play-icon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mochi-blue);
+        }
+
+        .video-info {
+            padding: 1rem;
+        }
+
+        .video-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Container for difficulty and likes */
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.25rem;
+        }
+
+        /* Styles for difficulty tags */
+        .difficulty-tag {
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem; /* Slightly rounded */
+            color: white;
+        }
+        .difficulty-tag.beginner {
+            background-color: var(--mochi-level-beginner);
+        }
+        .difficulty-tag.intermediate {
+            background-color: var(--mochi-level-intermediate);
+        }
+        .difficulty-tag.advanced {
+            background-color: var(--mochi-level-advanced);
+        }
+
+        /* Styles for likes */
+        .video-stats {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--mochi-gray-dark);
+        }
+        .video-stats .star {
+            color: var(--mochi-pink);
+            margin-right: 5px;
+        }
+
+        /* Container for genre/other tags */
+        .tag-container {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--mochi-gray-light);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .genre-tag-item {
+            background-color: var(--mochi-gray-light);
+            color: var(--mochi-gray-dark);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--mochi-mint);
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--mochi-gray-dark);
+        }
+
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .modal-tag-item {
+            padding: 0.5rem 1rem;
+            background-color: var(--mochi-gray-light);
+            color: var(--mochi-gray-dark);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .modal-tag-item:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .modal-tag-item.selected {
+            background-color: var(--mochi-pink);
+            color: white;
+        }
+
+        /* Footer Section */
+        .main-footer {
+            background-color: white;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .main-footer-content {
+            text-align: center;
+            color: var(--mochi-gray-dark);
+            font-size: 0.875rem;
+        }
+
+        .footer-links a {
+            color: var(--mochi-gray-dark);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--mochi-mint);
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: none;
+            }
+            .search-bar-row {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<header class="main-header">
+    <nav class="container">
+        <!-- Logo -->
+        <a th:href="@{/page/test/home}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <!-- Navigation links -->
+        <div class="nav-links">
+            <a th:href="@{/page/test/study}" class="nav-link">학습하기</a>
+            <a href="#" class="nav-link">퀴즈풀기</a>
+            <a href="#" class="nav-link">마이페이지</a>
+            <a href="#" class="nav-link">단어장</a>
+            <a href="#" class="nav-link">로그인</a>
+            <a th:href="@{/page/test/best}" class="cta-btn">시작하기</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </nav>
+</header>
+
+<!-- Main Content Section -->
+<main class="main-content container">
+    <!-- Search and Filter Section -->
+    <div class="search-container">
+        <!-- Search bar with integrated icon -->
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="작성자 또는 제목을 검색해보세요.">
+            <span class="search-icon">🔎</span>
+        </div>
+
+        <!-- Add button -->
+        <button class="add-btn">추가하기</button>
+
+        <!-- Tag search and Sort -->
+        <div class="filter-row">
+            <button class="tag-search-btn" onclick="openModal()">태그 검색</button>
+            <select class="sort-select">
+                <option value="latest">최신순</option>
+                <option value="likes">좋아요순</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- All Videos Section -->
+    <section>
+        <div class="video-grid">
+            <!-- Video Card 1 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 1</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag beginner">초급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 1.2K
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">드라마</span>
+                        <span class="genre-tag-item">일상회화</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 2 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 2</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag intermediate">중급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 980
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">일상회화</span>
+                        <span class="genre-tag-item">애니메이션</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 3 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 3</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag advanced">고급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 850
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">비즈니스</span>
+                        <span class="genre-tag-item">영화</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 4 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 4</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag intermediate">중급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 760
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">드라마</span>
+                        <span class="genre-tag-item">취미</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 5 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 5</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag advanced">고급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 230
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">비즈니스</span>
+                        <span class="genre-tag-item">일상회화</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 6 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 6</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag beginner">초급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 190
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">애니메이션</span>
+                        <span class="genre-tag-item">여행</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 7 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 7</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag beginner">초급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 150
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">영화</span>
+                        <span class="genre-tag-item">드라마</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Video Card 8 -->
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <div class="play-icon">▶</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">영상 제목 8</h3>
+                    <div class="video-meta">
+                        <span class="difficulty-tag intermediate">중급</span>
+                        <div class="video-stats">
+                            <span class="star">⭐</span> 120
+                        </div>
+                    </div>
+                    <div class="tag-container">
+                        <span class="genre-tag-item">일상회화</span>
+                        <span class="genre-tag-item">게임</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer Section -->
+<footer class="main-footer">
+    <div class="container main-footer-content">
+        <p style="margin-bottom: 0.5rem;">&copy; 2025 MochiLearn. All Rights Reserved.</p>
+        <div style="margin-top: 1rem; margin-bottom: 1rem;">
+            <a href="#" class="footer-links">개인정보처리방침</a>
+            <span style="margin: 0 1rem;">|</span>
+            <a href="#" class="footer-links">이용약관</a>
+            <span style="margin: 0 1rem;">|</span>
+            <a href="#" class="footer-links">고객센터</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Tag Filter Modal -->
+<div id="tagModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">태그 필터</h3>
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-tags">
+            <span class="modal-tag-item">드라마</span>
+            <span class="modal-tag-item">애니메이션</span>
+            <span class="modal-tag-item">영화</span>
+            <span class="modal-tag-item">일상회화</span>
+            <span class="modal-tag-item">비즈니스</span>
+            <span class="modal-tag-item">여행</span>
+            <span class="modal-tag-item">취미</span>
+            <span class="modal-tag-item">게임</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('tagModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('tagModal').classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalTags = document.querySelectorAll('.modal-tag-item');
+        modalTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                tag.classList.toggle('selected');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
