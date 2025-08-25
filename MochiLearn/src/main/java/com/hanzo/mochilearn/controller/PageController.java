@@ -28,6 +28,7 @@ public class PageController {
     public String myPage() {
         return "page/myPage";
     }
+<<<<<<< HEAD
     
 	@GetMapping({"wordCard2","wordCard1"})
 	public String wordCard() {
@@ -55,4 +56,11 @@ public class PageController {
 	}
 	
 
+=======
+
+    @GetMapping("write")
+    public String writePage() {
+        return "page/writePage";
+    }
+>>>>>>> develop
 }
