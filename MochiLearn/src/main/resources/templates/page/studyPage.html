@@ -145,8 +145,11 @@
     	<input type="text" id="searchInput" style="width: 220px;">
     	<button id="searchBtn">검색</button>
 	</div>
-	<div id="addCard"><button id="addCardBtn">학습카드 추가하기</button></div>
-	<!-- 대현이가 추가페이지 다 만들면 연결하깅 -->
+	<div id="addCard">
+		<a th:href="@{/page/write}">
+			<button id="addCardBtn">학습카드 추가하기</button>
+		</a>
+	</div>
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
     <!-- 왼쪽: 태그 버튼 -->
     <button type="button" id="tagBtn">태그버튼</button>
