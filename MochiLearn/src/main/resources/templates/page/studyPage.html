@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <title>study</title>
 <link rel="stylesheet" th:href="@{/css/nav.css}" />
+<<<<<<< HEAD
+=======
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+
+>>>>>>> develop
 <style>
         #cardGrid {
 		    display: grid;
@@ -137,9 +142,15 @@
 </head>
 <body>
 
+<<<<<<< HEAD
     <div th:replace="~{navigation::navigation}"></div>
 	
 	<div id="searchContainer" style="margin-bottom: 16px;">
+=======
+<div th:replace="~{navigation::navigation}"></div>
+
+<div id="searchContainer" style="margin-bottom: 16px;">
+>>>>>>> develop
     	<input type="text" id="searchInput" style="width: 220px;">
     	<button id="searchBtn">검색</button>
 	</div>
@@ -282,7 +293,11 @@
 		    cards.forEach(card => {
 		        const thumbUrl = getYoutubeThumbnail(card.url);
 		        const cardHtml = `
+<<<<<<< HEAD
 		            <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.cardId}'">
+=======
+		            <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
+>>>>>>> develop
 		                <h3>${card.title}</h3>
 		                <img src="${thumbUrl}" alt="썸네일 이미지" />
 		            </div>

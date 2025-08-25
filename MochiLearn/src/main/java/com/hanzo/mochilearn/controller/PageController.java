@@ -21,8 +21,15 @@ import lombok.extern.slf4j.Slf4j;
 public class PageController {
 	private final CardService cardService;
 
+    private final CardService cardService;
+
+    public PageController(CardService cardService) {
+        this.cardService = cardService;
+    }
+
     @GetMapping("study")
     public String studyPage(Model model) {
+<<<<<<< HEAD
         List<CardDTO> cards = cardService.getAllCards();
         model.addAttribute("cards", cards);
         return "page/studyPage";  
@@ -31,6 +38,19 @@ public class PageController {
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
         CardEntity entity = cardService.getCardById(cardId);
         CardDTO dto= cardService.toDTO(entity);
+        model.addAttribute("card", dto);
+        return "page/studyCard";
+=======
+        List<CardDTO> cards = new ArrayList<>();
+        model.addAttribute("cards", cards);
+        return "page/studyPage";
+>>>>>>> develop
+    }
+
+    @GetMapping("studyCard")
+    public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
+        CardEntity entity = cardService.getCardById(cardId);
+        CardDTO dto = cardService.toDTO(entity);
         model.addAttribute("card", dto);
         return "page/studyCard";
     }
@@ -48,5 +68,10 @@ public class PageController {
     @GetMapping("mypage")
     public String myPage() {
         return "page/myPage";
+    }
+
+    @GetMapping("write")
+    public String writePage() {
+        return "page/writePage";
     }
 }

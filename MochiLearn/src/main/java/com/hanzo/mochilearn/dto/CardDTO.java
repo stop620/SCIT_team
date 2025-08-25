@@ -35,4 +35,27 @@ public class CardDTO {
                 .memberId(entity.getMemberId())
                 .build();
     }
+=======
+import lombok.Builder;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Builder
+@Data
+public class CardDTO {
+
+    private int id;
+    private String title;
+    private String url;
+    private String level;
+    private int like;
+    private LocalDateTime createdDate;
+    private int memberId;
+    private String tag;
+
+    private List<SectionDTO> sections;
+
+>>>>>>> develop
 }

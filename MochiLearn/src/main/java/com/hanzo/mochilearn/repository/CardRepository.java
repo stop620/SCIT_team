@@ -1,18 +1,28 @@
 package com.hanzo.mochilearn.repository;
 
+<<<<<<< HEAD
 
 
+=======
+import com.hanzo.mochilearn.entity.CardEntity;
+>>>>>>> develop
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+<<<<<<< HEAD
 import com.hanzo.mochilearn.entity.CardEntity;
 
 
 
 @Repository
 public interface CardRepository extends JpaRepository<CardEntity, Integer> {
+=======
+@Repository
+public interface CardRepository extends JpaRepository<CardEntity, Integer> {
+
+>>>>>>> develop
     // 최신순 전체 조회
     Page<CardEntity> findAllByOrderByCreatedDateDesc(Pageable pageable);
 
@@ -28,4 +38,7 @@ public interface CardRepository extends JpaRepository<CardEntity, Integer> {
 
 
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
