@@ -48,5 +48,11 @@ public class PageController {
 	public String quizCardPage() {
 		return "page/quizCardPage";
 	}
+	
+	@GetMapping("addStudyCard")
+	public String addStudyCard() {
+		return "page/addStudyCard";
+	}
+	
 
 }
