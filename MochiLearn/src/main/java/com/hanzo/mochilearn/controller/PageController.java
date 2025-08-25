@@ -33,7 +33,6 @@ public class PageController {
 	public String wordCard() {
 		return "page/wordCardPage";
 	}
-	
 	@GetMapping("addWordCard")
 	public String addWord() {
 		return "page/addWordCardPage";
@@ -82,15 +81,5 @@ public class PageController {
     @GetMapping("/test/study")
     public String testStudy() {
         return "page/testStudy";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
-=======
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
-=======
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
-=======
->>>>>>> 5390e62 (디자인 테스트 페이지 추가)
     }
 }
