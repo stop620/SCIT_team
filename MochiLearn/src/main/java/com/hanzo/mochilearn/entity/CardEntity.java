@@ -4,6 +4,8 @@ package com.hanzo.mochilearn.entity;
 
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,12 +25,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudyEntity {
+public class CardEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_id")
-    private Long cardId;
+    private Integer cardId;
 
     @Column(name = "url", length = 255)
     private String url;
@@ -39,14 +41,15 @@ public class StudyEntity {
     @Column(name = "level")
     private Integer level;
 
-    @Column(name = "genre", length = 50)
-    private String genre;
-
+    @CreatedDate
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @Column(name = "like") // 예약어이지만 보통 JPA에서는 가능. 문제가 있으면 like_count 등으로 컬럼명 변경 추천
+    @Column(name = "like")
     private Integer like;
+    
+    @Column(name = "tag", length = 255)
+    private String tag;
 
     // 외래키가 필요하면 아래 추가(주석 해제 + Member 엔티티 필요)
     // @ManyToOne(fetch = FetchType.LAZY)

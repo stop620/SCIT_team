@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.hanzo.mochilearn.dto.StudyDTO;
-import com.hanzo.mochilearn.entity.StudyEntity;
-import com.hanzo.mochilearn.service.StudyService;
+import com.hanzo.mochilearn.dto.CardDTO;
+import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.service.CardService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,18 +19,18 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping("page")
 public class PageController {
-	private final StudyService ss;
+	private final CardService cs;
 
     @GetMapping("study")
     public String studyPage(Model model) {
-        List<StudyDTO> cards = ss.getAllCards();
+        List<CardDTO> cards = cs.getAllCards();
         model.addAttribute("cards", cards);
         return "page/studyPage";  
     }
     @GetMapping("studyCard")
-    public String studyCard(@RequestParam("cardId") Long cardId, Model model) {
-        StudyEntity entity = ss.getCardById(cardId);
-        StudyDTO dto= ss.toDTO(entity);
+    public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
+        CardEntity entity = cs.getCardById(cardId);
+        CardDTO dto= cs.toDTO(entity);
         model.addAttribute("card", dto);
         return "page/studyCard";
     }
