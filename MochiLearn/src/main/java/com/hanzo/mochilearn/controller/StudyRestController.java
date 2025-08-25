@@ -40,7 +40,7 @@ public class StudyRestController {
             @RequestParam(name ="search", defaultValue = "") String search) {
         if (search == null || search.isEmpty()) {
             return cardService.getPagedCards(sort, page, size);
-        } else {
+       } else {
             return cardService.searchCards(sort, page, size, search);
         }
     }

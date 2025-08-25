@@ -2,11 +2,17 @@ package com.hanzo.mochilearn.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hanzo.mochilearn.entity.CardEntity;
-import lombok.Data;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SectionDTO {
 
     private int id;
