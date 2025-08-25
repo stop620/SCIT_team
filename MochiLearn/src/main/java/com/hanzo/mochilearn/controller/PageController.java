@@ -53,9 +53,26 @@ public class PageController {
     public String writePage() {
         return "page/writePage";
     }
+<<<<<<< HEAD
     
     @GetMapping("studyCardPage")
     public String studyCardPage(){
     	return "page/studyCardPage";
+=======
+
+    @GetMapping("/test/home")
+    public String testHome() {
+        return "page/testHome";
+    }
+
+    @GetMapping("/test/best")
+    public String testBest() {
+        return "page/testBest";
+    }
+
+    @GetMapping("/test/study")
+    public String testStudy() {
+        return "page/testStudy";
+>>>>>>> 5390e62 (디자인 테스트 페이지 추가)
     }
 }
