@@ -32,7 +32,7 @@ public class CardDTO {
                 .createdDate(entity.getCreatedDate())
                 .like(entity.getLike())
                 .tag(entity.getTag())
-                // 멤버 정보가 있으면 .memberId(entity.getMember().getMemberId()) 등으로 작성
+                .memberId(entity.getMemberId())
                 .build();
     }
 }

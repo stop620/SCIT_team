@@ -19,18 +19,18 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping("page")
 public class PageController {
-	private final CardService cs;
+	private final CardService cardService;
 
     @GetMapping("study")
     public String studyPage(Model model) {
-        List<CardDTO> cards = cs.getAllCards();
+        List<CardDTO> cards = cardService.getAllCards();
         model.addAttribute("cards", cards);
         return "page/studyPage";  
     }
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        CardEntity entity = cs.getCardById(cardId);
-        CardDTO dto= cs.toDTO(entity);
+        CardEntity entity = cardService.getCardById(cardId);
+        CardDTO dto= cardService.toDTO(entity);
         model.addAttribute("card", dto);
         return "page/studyCard";
     }

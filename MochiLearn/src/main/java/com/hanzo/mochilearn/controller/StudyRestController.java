@@ -2,7 +2,6 @@ package com.hanzo.mochilearn.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +12,11 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.service.CardService;
 
 import lombok.RequiredArgsConstructor;
-@CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
 
 public class StudyRestController {
-    private final CardService cs;
+    private final CardService cardService;
 
     @GetMapping("/api/study/load")
     public List<CardDTO> getCards(
@@ -27,10 +25,13 @@ public class StudyRestController {
             @RequestParam(name="size", defaultValue = "12") int size,
     		@RequestParam(name ="search", defaultValue = "") String search) {
             if (search == null || search.isEmpty()) {
-                return cs.getPagedCards(sort, page, size);
+                return cardService.getPagedCards(sort, page, size);
             } else {
-                return cs.searchCards(sort, page, size, search);
+                return cardService.searchCards(sort, page, size, search);
             }
         }
+    @PostMapping("/filterByTags")
+    public List<CardDTO> filterByTags(@RequestBody List<String> tags) {
+        return cardService.findCardsByTags(tags);
     
 }

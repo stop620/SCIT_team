@@ -23,10 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional
 public class CardService {
-    private final CardRepository cr;
+    private final CardRepository cardRepository;
 
     public List<CardDTO> getAllCards() {
-        return cr.findAll()
+        return cardRepository.findAll()
                  .stream()
                  .map(this::toDTO)
                  .collect(Collectors.toList());
@@ -51,9 +51,9 @@ public class CardService {
         Page<CardEntity> entityPage;
 
         if ("latest".equalsIgnoreCase(sort)) {
-            entityPage = cr.findAllByOrderByCreatedDateDesc(pageable);
+            entityPage = cardRepository.findAllByOrderByCreatedDateDesc(pageable);
         } else { // 인기순 기본
-            entityPage = cr.findAllByOrderByLikeDesc(pageable);
+            entityPage = cardRepository.findAllByOrderByLikeDesc(pageable);
         }
 
         return entityPage.stream()
@@ -67,9 +67,9 @@ public class CardService {
         Page<CardEntity> entityPage;
 
         if ("latest".equalsIgnoreCase(sort)) {
-            entityPage = cr.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(search, pageable);
         } else {
-            entityPage = cr.findByTitleContainingIgnoreCaseOrderByLikeDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByLikeDesc(search, pageable);
         }
 
         return entityPage.stream()
@@ -78,7 +78,7 @@ public class CardService {
     }
 	//cardId 기준으로 일치하는 studyCard 확인
     public CardEntity getCardById(Integer cardId) {
-        return cr.findById(cardId).orElse(null);
+        return cardRepository.findById(cardId).orElse(null);
     }
 
 	

@@ -51,8 +51,6 @@ public class CardEntity {
     @Column(name = "tag", length = 255)
     private String tag;
 
-    // 외래키가 필요하면 아래 추가(주석 해제 + Member 엔티티 필요)
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_card_member"))
-    // private Member member;
+    @Column(name = "member_id")
+    private Integer memberId;
 }
