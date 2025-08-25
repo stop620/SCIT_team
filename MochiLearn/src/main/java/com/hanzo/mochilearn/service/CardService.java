@@ -11,14 +11,20 @@ import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class CardService {
 
     private final CardRepository cardRepository;
@@ -90,6 +96,63 @@ public class CardService {
                 }
             }
         }
+    }
+
+    // 모든 카드 로드
+    public List<CardDTO> getAllCards() {
+        return cardRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CardDTO toDTO(CardEntity entity) {
+        if (entity == null) return null;
+        return CardDTO.builder()
+                .id(entity.getId())
+                .url(entity.getUrl())
+                .title(entity.getTitle())
+                .level(entity.getLevel().toString())
+                .like(entity.getLike())  // 필드명 맞춤
+                .createdDate(entity.getCreatedDate())
+                // 만약 memberId 포함 시, 아래 주석 해제하고 구현 필요
+                //.memberId(entity.getMember() != null ? entity.getMember().getMemberId() : null)
+                .build();
+    }
+    //페이지 불러오기
+    public List<CardDTO> getPagedCards(String sort, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CardEntity> entityPage;
+
+        if ("latest".equalsIgnoreCase(sort)) {
+            entityPage = cardRepository.findAllByOrderByCreatedDateDesc(pageable);
+        } else { // 인기순 기본
+            entityPage = cardRepository.findAllByOrderByLikeDesc(pageable);
+        }
+
+        return entityPage.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    //제목으로 검색하기
+    public List<CardDTO> searchCards(String sort, int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CardEntity> entityPage;
+
+        if ("latest".equalsIgnoreCase(sort)) {
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(search, pageable);
+        } else {
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByLikeDesc(search, pageable);
+        }
+
+        return entityPage.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+    //cardId 기준으로 일치하는 studyCard 확인
+    public CardEntity getCardById(Integer cardId) {
+        return cardRepository.findById(cardId).orElse(null);
     }
 
 
