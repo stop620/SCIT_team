@@ -56,10 +56,14 @@ public class PageController {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 6c6e1be (temp upload)
     
     @GetMapping("studyCardPage")
     public String studyCardPage(){
     	return "page/studyCardPage";
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 5390e62 (디자인 테스트 페이지 추가)
@@ -81,5 +85,7 @@ public class PageController {
     @GetMapping("/test/study")
     public String testStudy() {
         return "page/testStudy";
+=======
+>>>>>>> parent of 6c6e1be (temp upload)
     }
 }
