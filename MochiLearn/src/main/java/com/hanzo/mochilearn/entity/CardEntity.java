@@ -1,10 +1,7 @@
 package com.hanzo.mochilearn.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -24,7 +21,7 @@ public class CardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "card_id")
-    private int id;
+    private Integer id;
 
     @Column(nullable = false)
     private String title;
@@ -48,6 +45,7 @@ public class CardEntity {
     // mappedBy: Section 엔티티에 있는 'card' 필드가 이 관계의 주인임을 명시
     // cascade: Card가 저장/삭제될 때 Section도 함께 저장/삭제되도록 설정
     // orphanRemoval: Card에서 Section이 제거되면 DB에서도 삭제되도록 설정
+    @ToString.Exclude
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SectionEntity> sections = new ArrayList<>();
 

@@ -1,9 +1,7 @@
 package com.hanzo.mochilearn.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.SectionDTO;
-import com.hanzo.mochilearn.dto.SentenceDTO;
+import com.hanzo.mochilearn.dto.*;
 import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
 import com.hanzo.mochilearn.entity.SentenceEntity;
@@ -11,6 +9,7 @@ import com.hanzo.mochilearn.repository.CardRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.QuizService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StudyRestController {
 
     private final CardService cardService;
+    private final QuizService quizService;
 
     // 학습 카드 로드
     @GetMapping("/api/study/load")
@@ -47,15 +47,20 @@ public class StudyRestController {
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional
-    public ResponseEntity<?> saveLearningCard(@RequestBody CardDTO cardDto) {
-        log.info("저장할 학습 카드 데이터 : {}", cardDto);
+    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
+        log.info("저장할 학습 카드 데이터 : {}", cardSaveDto);
+
+        CardDTO cardDto = cardSaveDto.getCardDTO();
+        List<QuizDTO> quizDtoList = cardSaveDto.getQuizDtoList();
 
         try {
             // Card 엔티티 생성 및 저장
             // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
-            cardService.save(cardDto, 1);
 
-            return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardDto.getId()));
+            Integer cardId = cardService.save(cardDto, 1);
+            quizService.save(quizDtoList, cardId);
+
+            return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardSaveDto.getCardDTO().getId()));
 
         } catch (Exception e) {
             log.error("카드 데이터 저장 오류", e);
