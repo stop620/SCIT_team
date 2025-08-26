@@ -13,7 +13,7 @@ public class PageController {
     public String studyPage() {
         return "page/studyPage";
     }
-
+    
     @GetMapping("quiz")
     public String quizPage() {
         return "page/quizPage";
@@ -28,7 +28,6 @@ public class PageController {
     public String myPage() {
         return "page/myPage";
     }
-<<<<<<< HEAD
     
 	@GetMapping({"wordCard2","wordCard1"})
 	public String wordCard() {
@@ -49,18 +48,14 @@ public class PageController {
 	public String quizCardPage() {
 		return "page/quizCardPage";
 	}
-	
-	@GetMapping("writePage")
-	public String addStudyCard() {
-		return "page/writePage";
-	}
-	
-
-=======
 
     @GetMapping("write")
     public String writePage() {
         return "page/writePage";
     }
->>>>>>> develop
+    
+    @GetMapping("studyCardPage")
+    public String studyCardPage(){
+    	return "page/studyCardPage";
+    }
 }
