@@ -57,6 +57,7 @@ const updateSingleTranscriptLine = () => {
 
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
+
         document.getElementById('japanese-line').textContent = item.japanese;
         document.getElementById('korean-line').textContent = item.korean;
         document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
@@ -138,7 +139,7 @@ const startTimelinePlayback = (timeline) => {
             }
         }, 100);
 
-        currentTranscript = timeline.transcript;
+        currentTranscript = timeline.transcript.sentences;
         currentTranscriptIndex = 0;
         updateSingleTranscriptLine();
 
@@ -186,6 +187,7 @@ const pollForResult = (jobId) => {
             } else if (statusData.status === 'COMPLETED') { // 완료된 결과 받은 경우
                 targetTimeline.status = 'COMPLETED';
                 targetTimeline.transcript = statusData.result;
+                console.log(targetTimeline.transcript);
                 renderTimelines();
             } else if (statusData.status === 'FAILED') { // 실패
                 targetTimeline.status = 'FAILED';
@@ -330,7 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
             url: url,
             level: level,
             tag: tag,
-            sections: completedSections
+            sections: completedSections.sentences,
+            quiz: completedSections.quizSentences
         };
 
         console.log('Saving Card Data:', JSON.stringify(cardData, null, 2));

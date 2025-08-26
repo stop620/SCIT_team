@@ -6,7 +6,8 @@ import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.hanzo.transcribeserver.dto.ResponseDTO;
+import com.hanzo.transcribeserver.dto.GeminiResponseDTO;
+import com.hanzo.transcribeserver.dto.SentenceDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,7 +34,7 @@ public class TranscribeService {
     // 동시에 최대 4개의 스레드만 API를 호출하도록 허용 (현재 api 키 갯수)
     private final Semaphore apiCallSemaphore = new Semaphore(4);
 
-    public List<ResponseDTO> processTranscription(String url, float startTime, float endTime) throws IOException, InterruptedException {
+    public GeminiResponseDTO processTranscription(String url, float startTime, float endTime) throws IOException, InterruptedException {
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("youtube-audio-");
@@ -60,6 +60,8 @@ public class TranscribeService {
     }
 
     // yt-dlp 다운로드 하면서 ffmpeg로 필요한 구간만 처리
+
+
     public File downloadAndSliceAudio(Path tempDir, String url, float startTime, float endTime) throws IOException, InterruptedException {
         File outputFile = tempDir.resolve("sliced_audio.mp3").toFile();
 
@@ -139,7 +141,7 @@ public class TranscribeService {
     }
 
     // Gemini API를 호출하여 오디오 파일을 텍스트로 변환
-    public List<ResponseDTO> callGeminiApi(File audioFile) throws IOException, InterruptedException {
+    public GeminiResponseDTO callGeminiApi(File audioFile) throws IOException, InterruptedException {
 
         log.debug("gemini api 호출 세마포어 대기중... (현재 스레드: {})", Thread.currentThread().getName());
         apiCallSemaphore.acquire();
@@ -149,10 +151,12 @@ public class TranscribeService {
             int startKeyIndex = apiKeyIndex.getAndIncrement();
 
             byte[] audioBytes = Files.readAllBytes(audioFile.toPath());
-            String prompt = "Transcribe this audio file into Japanese and Korean. " +
-                    "If multiple lines appear in the file, short lines such as oh and ah may be omitted. " +
-                    "All answers, whether one or more, are in JSON format " +
-                    "{index: order, time: time from start time (seconds to 3 decimal places only), japanese: Japanese, korean: Korean}.";
+            String prompt = "이 오디오 파일을 일본어와 한국어로 전사해줘. 구간 전체적인 난이도도 1~3레벨로 평가해줘 3이 고급수준이야." +
+                    "감탄사 같은 표현은 생략해주세요. " +
+                    "일본어 텍스트는 공백문자가 없어야합니다." +
+                    "하나 이상의 답변은 모두 JSON 형식 transcriptions: [{index: 순서, time: 시작으로부터 해당 자막 시작시간(초), japanese: 일본어, korean: 한국어}, ...]. {level: 평균 난이도}" +
+                    "추가로 문장 중에 퀴즈에 넣을만한 정도의 표현과 길이를 가진 문장은 별도로 quiz_sentences: [{japanese: 일본어, korean: 한국어, level: 난이도}, ...] 형식으로 주세요." +
+                    "퀴즈의 일본어 텍스트는 조사의 뒤나 하나의 단어 뒤에서 구분해서 배열 형태로 나누어 주세요.";
 
             Content content =Content.fromParts(
                     Part.fromText(prompt),
@@ -181,9 +185,9 @@ public class TranscribeService {
                             rawResponse = rawResponse.substring(3, rawResponse.length() - 3).trim();
                         }
                         Gson gson = new Gson();
-                        Type listType = new TypeToken<ArrayList<ResponseDTO>>() {}.getType();
-                        log.debug("[Gemini response] response: {}", rawResponse);
-                        return gson.fromJson(rawResponse, listType);
+                        log.debug("[Gemini Api] rawResponse: {}", rawResponse);
+                        // 최상위 DTO인 GeminiResponseDto 타입으로 파싱합니다.
+                        return gson.fromJson(rawResponse, GeminiResponseDTO.class);
                     }
                     // 응답이 비어있으면 다음 키로 재시도
                     log.warn("[Gemini Api] 빈 응답을 받았습니다. 다음 키로 재시도합니다.");
