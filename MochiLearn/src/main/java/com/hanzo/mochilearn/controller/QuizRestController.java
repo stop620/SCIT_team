@@ -1,6 +1,7 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.QuizDTO;
+import com.hanzo.mochilearn.dto.QuizResponseDTO;
 import com.hanzo.mochilearn.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,9 @@ public class QuizRestController {
     private final QuizService quizService;
 
     @GetMapping("/api/quizzes")
-    public List<QuizDTO> getQuizzes(@RequestParam int level){
+    public List<QuizResponseDTO> getQuizzes(@RequestParam int level){
 
-        List<QuizDTO> quizList = quizService.makeQuiz(level, 1);
+        List<QuizResponseDTO> quizList = quizService.makeQuiz(level, 1);
 
         log.debug("[quiz controller] make quiz list: {}", quizList);
 

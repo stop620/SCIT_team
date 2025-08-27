@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface QuizRepository extends JpaRepository<QuizEntity, Integer> {
@@ -17,5 +18,6 @@ public interface QuizRepository extends JpaRepository<QuizEntity, Integer> {
     @Query(value = "SELECT * FROM quiz WHERE level = :level AND id NOT IN :solvedIds ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<QuizEntity> findUnsolvedRandomQuizByLevel(int level, int limit, List<Integer> quizIds);
 
-
+    @Query(value = "SELECT japanese FROM quiz ORDER BY RAND() LIMIT 1", nativeQuery = true)
+    Optional<String> findRandomQuiz();
 }
