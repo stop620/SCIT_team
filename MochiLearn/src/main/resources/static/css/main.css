@@ -2,13 +2,10 @@
 
 /* tags */
 
-<<<<<<< HEAD
 body:lang(ko) {
 	font-family: 'NanumBarunGothic', sans-serif;
 }
 
-=======
->>>>>>> d28871e (quizPage / quiz System Upload)
 body {
     background-color: #f8f9fa;
     margin: 0;
@@ -190,13 +187,9 @@ nav{
     width: 66%;
     display: grid;
     gap: 10px;
-<<<<<<< HEAD
-    grid-template-columns: repeat(2, 1fr); 
-=======
     grid-template-columns: repeat(2, 1fr);
     justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
     align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
->>>>>>> d28871e (quizPage / quiz System Upload)
 }
 
 .wordList,.addWordList{
@@ -212,8 +205,6 @@ nav{
     text-align: center;
 }
 
-<<<<<<< HEAD
-=======
 .quizContainer .quizCard{
 	cursor:pointer;
 }
@@ -247,4 +238,3 @@ nav{
     border-radius: 5px;
     cursor: pointer;
 }
->>>>>>> d28871e (quizPage / quiz System Upload)

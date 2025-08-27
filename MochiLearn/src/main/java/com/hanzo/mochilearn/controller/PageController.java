@@ -6,6 +6,7 @@ import com.hanzo.mochilearn.service.CardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -51,7 +52,6 @@ public class PageController {
     public String myPage() {
         return "page/myPage";
     }
-<<<<<<< HEAD
 
     @GetMapping("write")
     public String writePage() {
@@ -72,8 +72,7 @@ public class PageController {
     public String testStudy() {
         return "page/testStudy";
     }
-=======
-    
+
 	@GetMapping({"wordCard2","wordCard1"})
 	public String wordCard() {
 		return "page/wordCardPage";
@@ -94,5 +93,4 @@ public class PageController {
 		return "page/quizCardPage";
 	}
 
->>>>>>> d28871e (quizPage / quiz System Upload)
 }
