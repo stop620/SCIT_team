@@ -52,7 +52,6 @@ public class PageController {
     public String writePage() {
         return "page/writePage";
     }
-<<<<<<< HEAD
 
     @GetMapping("studyCardPage")
     public String studyCardPage(){
@@ -77,11 +76,11 @@ public class PageController {
     @GetMapping("quizCardResult")
     public String studyCardResult(){
         return "page/quizCardResult";
-=======
-    
-    @GetMapping("studyCardPage")
-    public String studyCardPage(){
-    	return "page/studyCardPage";
->>>>>>> parent of 6c6e1be (temp upload)
     }
+    
+    @PostMapping("quizCardResult")
+    public String quizCardResult() {
+    	return "page/quizCardResult";
+    }
+    
 }

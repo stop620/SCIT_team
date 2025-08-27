@@ -26,6 +26,7 @@ public class StudyRestController {
     private final CardService cardService;
 
     // 학습 카드 로드
+    /*
     @GetMapping("/api/study/load")
     public List<CardDTO> getCards(
             @RequestParam(name="sort", defaultValue = "popular") String sort,
@@ -37,7 +38,7 @@ public class StudyRestController {
         } else {
             return cardService.searchCards(sort, page, size, search);
         }
-    }
+    }*/
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional

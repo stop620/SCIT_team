@@ -24,6 +24,7 @@
 
 <!-- chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script th:src="@{/js/quizResult.js}"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -31,17 +32,60 @@
     <title>quiz result</title>
 </head>
 <body>
-    <div class="chartContainer">
-        <canvas class="resultChart"></canvas>
-    </div>
-    <div class="quizCardContent">
+	<div th:replace="~{navigation::navigation}"></div>
+    <main>
+        <h1>퀴즈 결과</h1>
+        <div class="container">
+            <div class="chartContainer">
+                <canvas class="resultChart"></canvas>
+            </div>
+        </div>
 
-    </div>
-    <div class="quizCardContent">
         
+        <h1>오답 노트</h1>
+
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <span>01/10</span>
+                <span>未知の世界に憧れる</span>
+                <input type="text" id="answer1" name="answer1" placeholder="요미가나를 입력하세요">
+            </div>
+        </div>
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <span>02/10</span>
+                <span>未知の世界に_____</span>
+                <input type="radio" id="answer2" name="answer2" value="あこがれる">
+                <label for="answer2">1.憧れる</label>
+                <input type="radio" id="answer2-2" name="answer2" value="あじわう">
+                <label for="answer2-2">2.味わう</label>
+            </div>
+        </div>
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <span>03/10</span>
+                <div class="quizCategoryBlank">
+                    <div class="quizBlank"></div>
+                    <div class="quizFilled">はどうかと</div>
+                    <div class="quizBlank"></div>
+                </div>
+                <div class="quizBlankWordPool">
+                    <div class="wordPoolItem" draggable="true">塩加減</div>
+                    <div class="wordPoolItem" draggable="true">味わう</div>
+                    <div class="wordPoolItem" draggable="true">未知</div>
+                    <div class="wordPoolItem" draggable="true">憧れる</div>
+                    <div class="wordPoolItem" draggable="true">世界</div>
+                    <div class="wordPoolItem" draggable="true">未知</div>
+                </div>
+                <!-- quizCardPage.html, form 태그 안에 추가 -->
+            </div>
+        </div>
+    </main>
+
+
+    <div class="chatbot">
+        챗봇
     </div>
-    <div class="quizCardContent">
-        
-    </div>
+
 </body>
 </html>
