@@ -51,6 +51,7 @@ public class PageController {
     public String myPage() {
         return "page/myPage";
     }
+<<<<<<< HEAD
 
     @GetMapping("write")
     public String writePage() {
@@ -71,4 +72,27 @@ public class PageController {
     public String testStudy() {
         return "page/testStudy";
     }
+=======
+    
+	@GetMapping({"wordCard2","wordCard1"})
+	public String wordCard() {
+		return "page/wordCardPage";
+	}
+	
+	@GetMapping("addWordCard")
+	public String addWord() {
+		return "page/addWordCardPage";
+	}
+	
+	@PostMapping("addWordCard")
+	public String addWordCard() {
+		return "page/wordPage";
+	}
+	
+	@GetMapping("quizCardPage")
+	public String quizCardPage() {
+		return "page/quizCardPage";
+	}
+
+>>>>>>> d28871e (quizPage / quiz System Upload)
 }

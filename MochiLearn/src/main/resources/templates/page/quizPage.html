@@ -13,7 +13,35 @@ font-family: 'NanumBarunGothicBold';
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<<<<<<< HEAD
 
+=======
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        //에러 무시해도 됩니다. 
+        var wordPageUrl = [[@{/page/word}]];
+        var quizPageUrl = [[@{/page/quizCardPage}]];
+            
+    	window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            const quizCard1 = document.getElementById("quizCard1");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+            quizCard1.onclick = function(){
+            	quizOpen();
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+        };
+        function quizOpen(){
+        	location.href = quizPageUrl;
+        };
+        /*]]>*/
+</script>
+>>>>>>> d28871e (quizPage / quiz System Upload)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,7 +49,24 @@ font-family: 'NanumBarunGothicBold';
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
+<<<<<<< HEAD
 
     quiz
+=======
+    <div class="container">
+        <h2>QUIZ</h2>
+        <div class="quizContainer">
+            <div class="quizCard" id="quizCard1">
+                <h3>초</h3>
+            </div>
+            <div class="quizCard">
+                <h3>중</h3>
+            </div>
+            <div class="quizCard">
+                <h3>고</h3>
+            </div>
+        </div>
+    </div>
+>>>>>>> d28871e (quizPage / quiz System Upload)
 </body>
 </html>

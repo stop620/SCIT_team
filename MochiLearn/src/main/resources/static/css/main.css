@@ -2,10 +2,13 @@
 
 /* tags */
 
+<<<<<<< HEAD
 body:lang(ko) {
 	font-family: 'NanumBarunGothic', sans-serif;
 }
 
+=======
+>>>>>>> d28871e (quizPage / quiz System Upload)
 body {
     background-color: #f8f9fa;
     margin: 0;
@@ -62,12 +65,14 @@ nav{
     background-color: #007bff;
     border-radius: 5px;
     text-decoration: none;  
+    cursor: pointer;
 }
 .navbar_btn a{
     color: white;
     text-decoration: none;
 }
 .navbar_menu a:hover{
+    cursor: pointer;
     background-color: #007bff;
     color: white;
 }
@@ -185,7 +190,13 @@ nav{
     width: 66%;
     display: grid;
     gap: 10px;
+<<<<<<< HEAD
     grid-template-columns: repeat(2, 1fr); 
+=======
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
+    align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
+>>>>>>> d28871e (quizPage / quiz System Upload)
 }
 
 .wordList,.addWordList{
@@ -201,3 +212,39 @@ nav{
     text-align: center;
 }
 
+<<<<<<< HEAD
+=======
+.quizContainer .quizCard{
+	cursor:pointer;
+}
+
+.wordExplain{
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+}
+
+.addCardForm{
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF2EB;
+}
+
+.addCardForm input[type="text"]{
+    width: 300px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.addCardForm input[type="submit"]{
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+>>>>>>> d28871e (quizPage / quiz System Upload)
