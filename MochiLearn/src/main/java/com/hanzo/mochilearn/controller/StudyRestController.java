@@ -1,36 +1,40 @@
 package com.hanzo.mochilearn.controller;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.SectionDTO;
-import com.hanzo.mochilearn.dto.SentenceDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.SectionEntity;
-import com.hanzo.mochilearn.entity.SentenceEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.SectionRepository;
-import com.hanzo.mochilearn.repository.SentenceRepository;
-import com.hanzo.mochilearn.service.CardService;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.hanzo.mochilearn.dto.CardDTO;
+import com.hanzo.mochilearn.entity.SentenceEntity;
+import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.SentenceRepository;
+import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.SentenceService;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 public class StudyRestController {
 
     private final CardService cardService;
-
+    private final SentenceService sentenceService;
+    private final CardRepository cardRepository;
+    private final SentenceRepository sentenceRepository;
+    
     // 학습 카드 로드
     @GetMapping("/api/study/load")
     public List<CardDTO> getCards(
@@ -64,4 +68,11 @@ public class StudyRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
+    
+    @GetMapping("/api/sections/sentences")
+    public List<SentenceEntity> getSentences(@RequestParam Integer sectionId) {
+    	log.debug("{}",sectionId);
+        return sentenceService.getSentencesBySectionId(sectionId);
+    }
+    
 }

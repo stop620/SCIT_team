@@ -1,74 +1,182 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <title>학습 카드 상세</title>
-    <link rel="stylesheet" th:href="@{/css/nav.css}" />
-    <link rel="stylesheet" th:href="@{/css/main.css}" />
-
-    <style>
-        body {
-            max-width: 800px;
-            margin: 40px auto;
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
-        }
-        .card-detail {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 24px;
-            text-align: center;
-        }
-        .card-detail img {
-            max-width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        .card-detail h1 {
-            font-size: 1.8em;
-            margin-bottom: 12px;
-            color: #333;
-        }
-        .card-detail p {
-            font-size: 1.1em;
-            color: #555;
-            line-height: 1.4;
-        }
-        .back-btn {
-            display: inline-block;
-            margin-top: 24px;
-            padding: 10px 18px;
-            text-decoration: none;
-            background-color: #4a90e2;
-            color: white;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-        .back-btn:hover {
-            background-color: #357ABD;
-        }
-    </style>
+<meta charset="UTF-8" />
+<title>학습 카드 상세</title>
+<link rel="stylesheet" th:href="@{/css/nav.css}" />
+<link rel="stylesheet" th:href="@{/css/main.css}" />
+<link rel="stylesheet" th:href="@{/css/write.css}">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div th:replace="~{navigation::navigation}"></div>
+<div th:replace="~{navigation::navigation}"></div>
+<main>
+    <div class="main-grid">
+        <!-- 왼쪽 공간 - 제목, 영상, 자막, 태그 등 -->
+        <div class="left-column">
+            <!-- 제목 공간 -->
+            <div>
+                <h1 th:text="${card.title}">카드 제목</h1>
+            </div>
+            <!-- 유튜브 영상 로드 공간 -->
+            <div id="player-container" class="player-container">
+                <div id="player" th:attr="data-url=${card.url}"></div>
+            </div>
+            
+            <!-- 자막 공간 -->
+            <div id="transcript-container" class="card transcript-container">
+                <div class="transcript-header">
+                    <button id="prev-btn" class="transcript-nav-btn"></button>
+                    <div class="transcript-text">
+                        <p id="japanese-line">자막이 여기에 표시됩니다.</p>
+                        <p id="korean-line">구간을 추가하고 버튼을 눌러주세요.</p>
+                    </div>
+                    <button id="next-btn" class="transcript-nav-btn"></button>
+                </div>
+                <div id="transcript-index"></div>
+            </div>
+            <!-- 태그 공간 -->
+            <div class="card tag-section">
+                <div>
+                    <h4 class="tag-title">난이도</h4>
+                    <div id="difficulty-tags" class="tag-group">
+                        <button class="tag-button">초급</button>
+                        <button class="tag-button">중급</button>
+                        <button class="tag-button">고급</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="tag-title">장르</h4>
+                    <div id="genre-tags" class="tag-group">
+                        <button class="tag-button">드라마</button>
+                        <button class="tag-button">애니</button>
+                        <button class="tag-button">영화</button>
+                        <button class="tag-button">일상회화</button>
+                        <button class="tag-button">비즈니스</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="card">
+                <div class="timeline-header">
+                    <h3 class="card-title">학습 구간 목록</h3>
+                    <span id="selected-section-display"></span>
+                </div>
+                <div id="timeline-buttons-container">
+                    <!-- 학습 구간 추가시 이곳에 버튼이 생성됩니다 -->
+                    <div th:each="section : ${card.sections}">
+        			<button class="timeline-button" th:text="${section.sectionNum}"
+  													th:attr="data-section-id=${section.id}"
+  													onclick="loadSentences(this)"></button>
+    				</div>
+                </div>
+            </div>
+        </div>
+</main>
 
-    <div class="card-detail" th:if="${card}">
-        <!-- 썸네일 이미지 -->
-        <img th:src="${card.url != null} ? ${card.url} : @{/images/default-thumbnail.png}" alt="카드 이미지" />
+<!-- 유튜브 API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    let player;
+    let subtitleInterval;
+    let timelineTimeout;
 
-        <!-- 카드 제목 -->
-        <h1 th:text="${card.title}">카드 제목</h1>
+    // 유튜브 API 로드 플래그
+    let youtubeApiLoaded = false;
 
-        <!-- 뒤로 가기 버튼 -->
-        <a href="/study" class="back-btn">목록으로 돌아가기</a>
-    </div>
+    // ✅ 전역으로 선언해야 API에서 호출 가능
+    window.onload = function() {
+        console.log("유튜브 API 로드 완료: onYouTubeIframeAPIReady() 호출됨");
+        youtubeApiLoaded = true;
 
-    
+        if (document.readyState === "complete" || document.readyState === "interactive") {
+            initializePlayer();
+        }
+    };
+
+    // DOMContentLoaded 이벤트
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM 로드 완료: DOMContentLoaded 이벤트 발생");
+
+        if (youtubeApiLoaded) {
+            initializePlayer();
+        } else {
+            console.log("아직 API가 준비되지 않음 → API 로드 후 실행 예정");
+        }
+    });
+
+    // 플레이어 초기화
+    const initializePlayer = () => {
+        console.log("플레이어 초기화 함수 실행");
+        const playerDiv = document.getElementById('player');
+        if (!playerDiv) {
+            console.error("player 엘리먼트를 찾을 수 없습니다.");
+            return;
+        }
+
+        const videoUrl = playerDiv.getAttribute('data-url');
+        console.log("player div data-url 속성 값:", videoUrl);
+        if (!videoUrl) {
+            console.error("videoUrl이 없습니다.");
+            return;
+        }
+
+        const videoId = extractVideoId(videoUrl);
+        if (videoId) {
+            createPlayer(videoId);
+        } else {
+            console.error("videoId를 추출하지 못했습니다.");
+        }
+    };
+
+    // 유튜브 영상 ID 추출
+    const extractVideoId = (url) => {
+        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        const match = url.match(regex);
+        return match ? match[1] : null;
+    };
+
+    // 플레이어 생성
+    const createPlayer = (videoId) => {
+        if (player) {
+            player.destroy();
+        }
+        player = new YT.Player('player', {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: { playsinline: 1, controls: 1, rel: 0 },
+            events: { onStateChange: onPlayerStateChange }
+        });
+        console.log("YT.Player 객체 생성 완료");
+    };
+
+    // 플레이어 상태 변경 이벤트
+    const onPlayerStateChange = (event) => {
+        if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            clearInterval(subtitleInterval);
+            clearTimeout(timelineTimeout); // ✅ setTimeout은 clearTimeout으로 정리
+        }
+    };
+    function loadSentences(button) {
+        // 1. 버튼 엘리먼트에서 sectionId 추출
+        const sectionId = button.getAttribute('data-section-id');
+        console.log("sectionId:", sectionId);  // 변수명 일치
+
+        // 2. AJAX로 sectionId에 따른 sentence 데이터 요청
+        fetch(`/api/sections/sentences?sectionId=${sectionId}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Server error: " + response.status);
+                return response.json();
+            })
+            .then(sentences => {
+                console.log("서버에서 받은 sentence 리스트:", sentences);
+            })
+            .catch(error => {
+                console.error("sentence 데이터 요청 실패:", error);
+            });
+    }
+
+</script>
 </body>
 </html>

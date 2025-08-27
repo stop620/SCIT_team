@@ -11,6 +11,7 @@ description = 'MochiLearn'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    
     }
 }
 

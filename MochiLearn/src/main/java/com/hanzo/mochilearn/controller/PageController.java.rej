@@ -1,0 +1,31 @@
+diff a/MochiLearn/src/main/java/com/hanzo/mochilearn/controller/PageController.java b/MochiLearn/src/main/java/com/hanzo/mochilearn/controller/PageController.java	(rejected hunks)
+@@ -16,26 +16,29 @@
+  @RequestMapping("page")
+  public class PageController {
+  
+++<<<<<<< HEAD
+ +    private final CardService cardService;
+ +
+ +    public PageController(CardService cardService) {
+ +        this.cardService = cardService;
+ +    }
+ +
+ +    @GetMapping("study")
+ +    public String studyPage(Model model) {
+ +        List<CardDTO> cards = new ArrayList<>();
+ +        model.addAttribute("cards", cards);
+ +        return "page/studyPage";
+ +    }
+++=======
+++>>>>>>> 3fbca76 (ㅎㅎ)
+ +
+ +    @GetMapping("studyCard")
+ +    public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
+ +        CardEntity entity = cardService.getCardById(cardId);
+ +        CardDTO dto = cardService.toDTO(entity);
+ +        model.addAttribute("card", dto);
+ +        return "page/studyCard";
+ +    }
+  
+      @GetMapping("quiz")
+      public String quizPage() {

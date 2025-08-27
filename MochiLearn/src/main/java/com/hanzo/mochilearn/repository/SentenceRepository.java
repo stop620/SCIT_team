@@ -8,4 +8,5 @@ import java.util.List;
 
 @Repository
 public interface SentenceRepository extends JpaRepository<SentenceEntity, Integer> {
+	List<SentenceEntity> findBySectionId(Integer sectionId);
 }

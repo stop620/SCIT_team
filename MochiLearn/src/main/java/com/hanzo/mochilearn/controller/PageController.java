@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.entity.SectionEntity;
+import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.SectionService;
+import com.hanzo.mochilearn.service.SentenceService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PageController {
 
     private final CardService cardService;
+    private final SectionService sectionService;
 
     
 
@@ -37,7 +42,12 @@ public class PageController {
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
         CardEntity entity = cardService.getCardById(cardId);
         CardDTO dto = cardService.toDTO(entity);
+        log.debug("{}",dto);
+        // 카드와 연관된 섹션 목록 조회
         model.addAttribute("card", dto);
+        
+        
+
         return "page/studyCard";
     }
 

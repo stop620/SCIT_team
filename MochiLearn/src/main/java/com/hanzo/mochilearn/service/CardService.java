@@ -1,6 +1,17 @@
 package com.hanzo.mochilearn.service;
 
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
@@ -10,18 +21,9 @@ import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -102,26 +104,46 @@ public class CardService {
 
     // 모든 카드 로드
     public List<CardDTO> getAllCards() {
-        return cardRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    	
+    	List<CardEntity> cardEntityList = cardRepository.findAll();
+    	List<CardDTO> cardDtoList = new ArrayList<>();
+    	
+    	for(CardEntity entity : cardEntityList) {
+    		CardDTO dto = CardDTO.toDTO(entity);
+    		cardDtoList.add(dto);
+    	}
+    	
+        return cardDtoList;
+               
     }
-
+    
     public CardDTO toDTO(CardEntity entity) {
-        if (entity == null) return null;
-        return CardDTO.builder()
-
-                .id(entity.getId())
-                .url(entity.getUrl())
-                .title(entity.getTitle())
-                .level(entity.getLevel().toString())
-                .like(entity.getLike())  // 필드명 맞춤
-                .createdDate(entity.getCreatedDate())
-                // 만약 memberId 포함 시, 아래 주석 해제하고 구현 필요
-                //.memberId(entity.getMember() != null ? entity.getMember().getMemberId() : null)
-                .build();
+    	
+    	CardDTO dto = CardDTO.builder()
+    			.id(entity.getId())
+    			.title(entity.getTitle())
+    			.url(entity.getUrl())
+    			.level(entity.getLevel().toString())
+    			.like(entity.getLike())
+    			.createdDate(entity.getCreatedDate())
+    			.memberId(entity.getMemberId())
+    			.tag(entity.getTag())
+    			.build();
+    	
+    	List<SectionDTO> sections = new ArrayList<>();
+    	
+    	for(SectionEntity section : entity.getSections()) {
+    		SectionDTO sectionDTO = SectionDTO.toDTO(section);
+    		
+    		sections.add(sectionDTO);
+    	}
+    	
+    	dto.setSections(sections);
+    	
+    	return dto;
     }
+
+    
     //페이지 불러오기
     public List<CardDTO> getPagedCards(String sort, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -159,5 +181,5 @@ public class CardService {
     public CardEntity getCardById(Integer cardId) {
         return cardRepository.findById(cardId).orElse(null);
     }
-
+    
 }
