@@ -1,16 +1,17 @@
+<!--
 <!doctype html>
 <html lang="ko" xmlns:th="http://thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/main.css}">
 <link rel="stylesheet" th:href="@{/css/quiz.css}">
-<!-- 나눔바른고딕 
+&lt;!&ndash; 나눔바른고딕
 font-family: 'NanumBarunGothicUltraLight';
 font-family: 'NanumBarunGothicLight';
 font-family: 'NanumBarunGothic';
 font-family: 'NanumBarunGothicBold';
--->
+&ndash;&gt;
 <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
 
-<!-- noto sans jpn-->
+&lt;!&ndash; noto sans jpn&ndash;&gt;
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@ font-family: 'NanumBarunGothicBold';
         /*]]>*/
 </script>
 
-<!-- chart.js -->
+&lt;!&ndash; chart.js &ndash;&gt;
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -80,13 +81,432 @@ font-family: 'NanumBarunGothicBold';
                     <div class="wordPoolItem" draggable="true">世界</div>
                     <div class="wordPoolItem" draggable="true">未知</div>
                 </div>
-                <!-- quizCardPage.html, form 태그 안에 추가 -->
+                &lt;!&ndash; quizCardPage.html, form 태그 안에 추가 &ndash;&gt;
                 <button type="button" id="resetDragDropBtn">초기화</button>
             </div>
         </div>
 
         <button type="submit">퀴즈 제출</button>
     </form>
+
+</body>
+</html>-->
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MochiLearn - 퀴즈 풀기</title>
+    <!-- Chart.js CDN for the results chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 기본 스타일 */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
+        .quiz-container, .result-container { background-color: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); width: 100%; max-width: 600px; padding: 2rem; box-sizing: border-box; }
+        .hidden { display: none; }
+
+        /* 퀴즈 뷰 스타일 */
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .progress-text { font-size: 1.1rem; font-weight: 600; color: #868e96; }
+        .progress-bar-container { flex-grow: 1; background-color: #e9ecef; border-radius: 10px; height: 10px; margin: 0 1rem; }
+        .progress-bar { width: 0%; height: 100%; background-color: #4c6ef5; border-radius: 10px; transition: width 0.3s ease-in-out; }
+        .korean-hint { font-size: 1.25rem; font-weight: 600; color: #343a40; text-align: center; margin-bottom: 2rem; }
+        .quiz-area { min-height: 150px; margin-bottom: 2rem; transition: all 0.3s; }
+
+        /* 정답/오답 이펙트 */
+        .correct-flash { animation: flash-green 0.5s; }
+        .incorrect-flash { animation: flash-red 0.5s; }
+        @keyframes flash-green { 50% { background-color: #d3f9d8; } }
+        @keyframes flash-red { 50% { background-color: #ffe3e3; } }
+
+        /* 1 & 2. 순서 섞기 / 빈칸 채우기 공통 스타일 */
+        .answer-area, .word-bank { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 1rem; border-radius: 8px; min-height: 50px; }
+        .answer-area { border: 2px dashed #ced4da; margin-bottom: 1rem; align-items: center; }
+        .word-bank { border: 1px solid #f1f3f5; }
+        .word-btn { padding: 8px 16px; font-size: 1rem; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 20px; cursor: grab; transition: all 0.2s; user-select: none; }
+        .word-btn:hover { background-color: #e9ecef; transform: translateY(-2px); }
+        .word-btn.dragging { opacity: 0.5; }
+        .word-btn.used { visibility: hidden; } /* 선택지에 있는 버튼이 사용되면 숨김 */
+        .blank-space { border-bottom: 2px solid #4c6ef5; min-width: 80px; height: 40px; display: inline-flex; justify-content: center; align-items: center; padding: 0 8px; }
+        .blank-space.drag-over { background-color: #edf2ff; }
+        .blank-word { color: #495057; font-size: 1.5rem; }
+        /* --- 수정된 부분: 빈칸에 들어간 단어 스타일 --- */
+        .blank-space .word-btn {
+            background: none;
+            border: none;
+            color: #4c6ef5;
+            font-weight: 600;
+            padding: 0;
+            cursor: pointer;
+            transform: none;
+            visibility: visible; /* 항상 보이도록 설정 */
+        }
+        .blank-space .word-btn:hover {
+            background: none;
+            transform: none;
+            text-decoration: underline;
+        }
+
+        /* 3. 문장 선택 (CHOICE) */
+        .choice-sentences { display: flex; flex-direction: column; gap: 1rem; }
+        .choice-btn { width: 100%; padding: 1rem; font-size: 1rem; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s; }
+        .choice-btn:hover { background-color: #e9ecef; }
+        .choice-btn.selected { border-color: #4c6ef5; background-color: #edf2ff; box-shadow: 0 0 0 2px #4c6ef5; }
+
+        /* 버튼 및 피드백 */
+        .action-container { display: flex; justify-content: center; }
+        .action-btn { width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; color: white; cursor: pointer; transition: background-color 0.2s; }
+        #check-btn { background-color: #4c6ef5; }
+        #check-btn:hover:not(:disabled) { background-color: #3b5bdb; }
+        #check-btn:disabled { background-color: #adb5bd; cursor: not-allowed; }
+        #next-btn { background-color: #20c997; display: none; }
+        #next-btn:hover { background-color: #12b886; }
+        .feedback { text-align: center; margin-top: 1.5rem; font-size: 1.1rem; font-weight: 600; height: 25px; transition: color 0.3s; }
+        .feedback.correct { color: #20c997; }
+        .feedback.incorrect { color: #fa5252; }
+
+        /* 결과창 스타일 */
+        .result-header { text-align: center; margin-bottom: 2rem; }
+        .result-header h1 { font-size: 2rem; font-weight: 700; color: #212529; }
+        .result-header p { font-size: 1.2rem; color: #495057; }
+        .chart-container { position: relative; width: 200px; height: 200px; margin: 0 auto 2rem auto; }
+        #chart-score { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; font-weight: 700; color: #343a40; }
+        .incorrect-notes h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; border-bottom: 2px solid #f1f3f5; padding-bottom: 0.5rem; }
+        .incorrect-item { background-color: #fff9db; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .incorrect-item p { margin: 0.25rem 0; }
+        .incorrect-item .korean { font-weight: 500; color: #495057; }
+        .incorrect-item .user-answer { color: #fa5252; font-weight: 600; }
+        .incorrect-item .correct-answer { color: #20c997; font-weight: 600; }
+        .result-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .result-actions .action-btn { width: 50%; }
+        #retry-btn { background-color: #4c6ef5; }
+        #exit-btn { background-color: #868e96; }
+    </style>
+</head>
+<body>
+
+<div id="quiz-view" class="quiz-container">
+    <div class="quiz-header">
+        <div id="progress-text" class="progress-text"></div>
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+    </div>
+    <div id="korean-hint" class="korean-hint">퀴즈를 불러오는 중입니다...</div>
+    <div id="quiz-area" class="quiz-area"></div>
+    <div class="action-container">
+        <button id="check-btn" class="action-btn">정답 확인</button>
+        <button id="next-btn" class="action-btn">다음 문제</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+</div>
+
+<div id="result-view" class="result-container hidden">
+    <div class="result-header">
+        <h1>퀴즈 결과</h1>
+        <p id="score-text"></p>
+    </div>
+    <div class="chart-container">
+        <canvas id="result-chart"></canvas>
+        <div id="chart-score"></div>
+    </div>
+    <div id="incorrect-notes" class="incorrect-notes">
+        <h2>오답 노트</h2>
+        <div id="incorrect-list"></div>
+    </div>
+    <div class="result-actions">
+        <button id="retry-btn" class="action-btn">다시 풀기</button>
+        <button id="exit-btn" class="action-btn">나가기</button>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 전역 변수 및 상태 관리 ---
+        let quizzes = [];
+        let currentQuizIndex = -1;
+        let userAnswer = [];
+        let userResults = [];
+
+        // --- DOM 요소 ---
+        const quizView = document.getElementById('quiz-view');
+        const resultView = document.getElementById('result-view');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const koreanHint = document.getElementById('korean-hint');
+        const quizArea = document.getElementById('quiz-area');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const feedback = document.getElementById('feedback');
+        const scoreText = document.getElementById('score-text');
+        const incorrectList = document.getElementById('incorrect-list');
+        const resultChartCanvas = document.getElementById('result-chart');
+        const chartScore = document.getElementById('chart-score');
+        const retryBtn = document.getElementById('retry-btn');
+        const exitBtn = document.getElementById('exit-btn');
+
+        // --- 데이터 로딩 ---
+        const loadQuizzes = () => {
+            const mockData = [ { "quizId": 10, "quizType": "SHUFFLE", "korean": "꽥꽥 짖지 마", "shuffledSentence": [ "ほえ", "てんじゃねえ", "ギャンギャン" ], "blankSentence": null, "blankChoices": null, "choiceSentences": null, "suffleAnswer": [ "ギャンギャン", "ほえ", "てんじゃねえ" ], "blankAnswer": null, "choiceAnswer": null }, { "quizId": 15, "quizType": "CHOICE", "korean": "지켜야만 하는 철의 규율이 있어.", "shuffledSentence": null, "blankSentence": null, "blankChoices": null, "choiceSentences": [ "守らなきゃならねえ鉄の掟がある", "の守らなきゃ鉄ならねえある掟が", "守らなきゃがあるならねえ掟鉄の" ], "suffleAnswer": null, "blankAnswer": null, "choiceAnswer": "守らなきゃならねえ鉄の掟がある" }, { "quizId": 13, "quizType": "SHUFFLE", "korean": "알바 못 해", "shuffledSentence": [ "バイト", "られ", "入れ", "よ", "ねえ" ], "blankSentence": null, "blankChoices": null, "choiceSentences": null, "suffleAnswer": [ "バイト", "入れ", "られ", "ねえ", "よ" ], "blankAnswer": null, "choiceAnswer": null }, { "quizId": 11, "quizType": "CHOICE", "korean": "왜 연한 청록색 하오리 차림이야", "shuffledSentence": null, "blankSentence": null, "blankChoices": null, "choiceSentences": [ "なんで浅葱色の羽織姿", "なんで浅葱色羽織姿の", "浅葱色のなんで羽織姿" ], "suffleAnswer": null, "blankAnswer": null, "choiceAnswer": "なんで浅葱色の羽織姿" }, { "quizId": 17, "quizType": "BLANK", "korean": "처음으로 진정한 동료가 될 수 있을 것 같은 기분이 들어.", "shuffledSentence": null, "blankSentence": [ "初めて", "本当", "______", "仲間", "に", "なれる", "よう", "な", "気", "______", "する" ], "blankChoices": [ "が", "の", "バイト", "生徒", "ぜん" ], "choiceSentences": null, "suffleAnswer": null, "blankAnswer": [ "の", "が" ], "choiceAnswer": null } ];
+            quizzes = mockData;
+            startQuiz();
+        };
+
+        const startQuiz = () => {
+            currentQuizIndex = -1;
+            userResults = [];
+            resultView.classList.add('hidden');
+            quizView.classList.remove('hidden');
+            nextQuestion();
+        };
+
+        // --- 퀴즈 렌더링 로직 ---
+        const renderQuiz = () => {
+            userAnswer = [];
+            checkBtn.disabled = false;
+            quizArea.innerHTML = '';
+            const quiz = quizzes[currentQuizIndex];
+            koreanHint.textContent = quiz.korean;
+
+            switch (quiz.quizType) {
+                case 'SHUFFLE': renderScrambleQuiz(quiz); break;
+                case 'BLANK': renderFillInBlankQuiz(quiz); break;
+                case 'CHOICE': renderMultipleChoiceQuiz(quiz); break;
+            }
+        };
+
+        const renderScrambleQuiz = (quiz) => {
+            let blankCounter = 0;
+            const answerHTML = quiz.suffleAnswer.map(() => `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`).join('');
+            quizArea.innerHTML = `<div id="answer-area" class="answer-area">${answerHTML}</div><div id="word-bank" class="word-bank"></div>`;
+            const wordBank = document.getElementById('word-bank');
+            quiz.shuffledSentence.forEach((word, index) => {
+                const btn = createWordButton(word, `bank-word-${index}`);
+                wordBank.appendChild(btn);
+            });
+            userAnswer = Array(blankCounter).fill(null);
+            setupInteractions();
+        };
+
+        const renderFillInBlankQuiz = (quiz) => {
+            let blankCounter = 0;
+            const sentenceHTML = quiz.blankSentence.map(part =>
+                part === '______'
+                    ? `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`
+                    : `<span class="blank-word">${part}</span>`
+            ).join('');
+            quizArea.innerHTML = `<div class="blank-sentence">${sentenceHTML}</div><div id="word-bank" class="blank-choices"></div>`;
+            const choicesContainer = document.getElementById('word-bank');
+            quiz.blankChoices.forEach((choice, index) => {
+                const btn = createWordButton(choice, `bank-word-${index}`);
+                choicesContainer.appendChild(btn);
+            });
+            userAnswer = Array(blankCounter).fill(null);
+            setupInteractions();
+        };
+
+        const renderMultipleChoiceQuiz = (quiz) => {
+            quizArea.innerHTML = '<div id="choice-sentences" class="choice-sentences"></div>';
+            const choicesContainer = document.getElementById('choice-sentences');
+            quiz.choiceSentences.forEach(sentence => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = sentence;
+                btn.onclick = () => selectMultipleChoice(btn);
+                choicesContainer.appendChild(btn);
+            });
+        };
+
+        // --- 상호작용 로직 ---
+        const createWordButton = (word, id) => {
+            const btn = document.createElement('button');
+            btn.className = 'word-btn';
+            btn.textContent = word;
+            btn.id = id;
+            btn.draggable = true;
+            return btn;
+        };
+
+        const selectMultipleChoice = (button) => {
+            const selected = document.querySelector('#choice-sentences .selected');
+            if (selected) selected.classList.remove('selected');
+            button.classList.add('selected');
+            userAnswer = [button.textContent];
+        };
+
+        // --- 드래그 앤 드롭 및 클릭 통합 로직 ---
+        const setupInteractions = () => {
+            const wordBank = document.getElementById('word-bank');
+            const answerArea = document.getElementById('answer-area') || document.querySelector('.blank-sentence');
+
+            // 클릭 이벤트 처리
+            wordBank.addEventListener('click', (e) => {
+                if (e.target.classList.contains('word-btn') && !e.target.classList.contains('used')) {
+                    const firstEmptyBlank = answerArea.querySelector('.blank-space:not(:has(*))');
+                    if (firstEmptyBlank) {
+                        moveWordToBlank(e.target, firstEmptyBlank);
+                    }
+                }
+            });
+
+            // 드래그 앤 드롭 이벤트 처리
+            const draggables = wordBank.querySelectorAll('.word-btn');
+            const dropzones = answerArea.querySelectorAll('.blank-space');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', (e) => {
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', e.target.id);
+                });
+                draggable.addEventListener('dragend', (e) => {
+                    e.target.classList.remove('dragging');
+                });
+            });
+
+            dropzones.forEach(dropzone => {
+                dropzone.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    if (!dropzone.hasChildNodes()) e.target.classList.add('drag-over');
+                });
+                dropzone.addEventListener('dragleave', e => e.target.classList.remove('drag-over'));
+                dropzone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    e.target.classList.remove('drag-over');
+                    const id = e.dataTransfer.getData('text/plain');
+                    const draggable = document.getElementById(id);
+                    if (dropzone.hasChildNodes() || !draggable || draggable.classList.contains('used')) return;
+                    moveWordToBlank(draggable, dropzone);
+                });
+            });
+        };
+
+        const moveWordToBlank = (wordButton, blankSpace) => {
+            blankSpace.appendChild(wordButton);
+            wordButton.classList.add('used'); // 선택지에서 숨기기 위해 'used' 클래스 추가
+            const blankIndex = parseInt(blankSpace.dataset.blankIndex);
+            userAnswer[blankIndex] = wordButton.textContent;
+
+            wordButton.onclick = () => moveWordToBank(wordButton, blankSpace);
+        };
+
+        const moveWordToBank = (wordButton, blankSpace) => {
+            const wordBank = document.getElementById('word-bank');
+            wordBank.appendChild(wordButton);
+            wordButton.classList.remove('used'); // 선택지에서 다시 보이도록 'used' 클래스 제거
+            const blankIndex = parseInt(blankSpace.dataset.blankIndex);
+            userAnswer[blankIndex] = null;
+            wordButton.onclick = null;
+        };
+
+
+        // --- 정답 확인 및 다음 문제 ---
+        const checkAnswer = () => {
+            const quiz = quizzes[currentQuizIndex];
+            let isCorrect = false;
+
+            switch (quiz.quizType) {
+                case 'SHUFFLE':
+                    isCorrect = JSON.stringify(userAnswer) === JSON.stringify(quiz.suffleAnswer);
+                    break;
+                case 'BLANK':
+                    isCorrect = JSON.stringify(userAnswer) === JSON.stringify(quiz.blankAnswer);
+                    break;
+                case 'CHOICE':
+                    isCorrect = userAnswer[0] === quiz.choiceAnswer;
+                    break;
+            }
+
+            userResults.push({ quiz, isCorrect, userAnswer: [...userAnswer] });
+
+            feedback.textContent = isCorrect ? '정답입니다!' : '틀렸습니다!';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            quizView.className = `quiz-container ${isCorrect ? 'correct-flash' : 'incorrect-flash'}`;
+            setTimeout(() => quizView.classList.remove('correct-flash', 'incorrect-flash'), 500);
+
+            checkBtn.style.display = 'none';
+            nextBtn.style.display = 'block';
+            checkBtn.disabled = true;
+        };
+
+        const nextQuestion = () => {
+            if (currentQuizIndex >= quizzes.length - 1) {
+                progressBar.style.width = '100%';
+                progressText.textContent = `완료!`;
+                setTimeout(showResults, 500);
+                return;
+            }
+            currentQuizIndex++;
+            progressText.textContent = `${currentQuizIndex + 1} / ${quizzes.length}`;
+            progressBar.style.width = `${((currentQuizIndex) / quizzes.length) * 100}%`;
+            feedback.textContent = '';
+            checkBtn.style.display = 'block';
+            nextBtn.style.display = 'none';
+            renderQuiz();
+        };
+
+        // --- 결과창 로직 ---
+        const showResults = () => {
+            quizView.classList.add('hidden');
+            resultView.classList.remove('hidden');
+
+            const correctCount = userResults.filter(r => r.isCorrect).length;
+            const totalCount = quizzes.length;
+            scoreText.textContent = `총 ${totalCount}문제 중 ${correctCount}문제를 맞혔어요!`;
+            chartScore.textContent = `${correctCount}/${totalCount}`;
+
+            const incorrectQuizzes = userResults.filter(r => !r.isCorrect);
+            if (incorrectQuizzes.length > 0) {
+                incorrectList.innerHTML = incorrectQuizzes.map(item => {
+                    const quiz = item.quiz;
+                    let correctAnswerText = '';
+                    let userAnswerText = item.userAnswer.filter(Boolean).join('');
+
+                    if (quiz.quizType === 'SHUFFLE') correctAnswerText = quiz.suffleAnswer.join('');
+                    if (quiz.quizType === 'BLANK') correctAnswerText = quiz.blankAnswer.join(', ');
+                    if (quiz.quizType === 'CHOICE') correctAnswerText = quiz.choiceAnswer;
+
+                    return `<div class="incorrect-item">
+                                <p class="korean">${quiz.korean}</p>
+                                <p class="user-answer">내 답안: ${userAnswerText || '(미입력)'}</p>
+                                <p class="correct-answer">정답: ${correctAnswerText}</p>
+                            </div>`;
+                }).join('');
+            } else {
+                incorrectList.innerHTML = '<p style="text-align:center;">틀린 문제가 없어요! 완벽해요! 🎉</p>';
+            }
+
+            new Chart(resultChartCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: ['정답', '오답'],
+                    datasets: [{
+                        data: [correctCount, totalCount - correctCount],
+                        backgroundColor: ['#4c6ef5', '#fa5252'],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '70%',
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        };
+
+        // --- 이벤트 리스너 ---
+        checkBtn.addEventListener('click', checkAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        retryBtn.addEventListener('click', startQuiz);
+        exitBtn.addEventListener('click', () => {
+            alert('나가기 버튼 클릭됨');
+        });
+
+        // --- 초기화 ---
+        loadQuizzes();
+    });
+</script>
 
 </body>
 </html>

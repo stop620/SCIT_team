@@ -114,6 +114,7 @@ public class QuizService {
         dto.setQuizType(QuizType.SHUFFLE);
         dto.setKorean(quizEntity.getKorean());
         dto.setShuffledSentence(shuffledWords);
+        dto.setSuffleAnswer(originalWords);
 
         return dto;
     }
@@ -150,6 +151,7 @@ public class QuizService {
         dto.setKorean(quizEntity.getKorean());
         dto.setBlankSentence(sentenceWithBlanks);
         dto.setBlankChoices(choices);
+        dto.setBlankAnswer(answerWords);
         return dto;
     }
 
@@ -183,6 +185,7 @@ public class QuizService {
         dto.setQuizType(QuizType.CHOICE);
         dto.setKorean(quizEntity.getKorean());
         dto.setChoiceSentences(choices);
+        dto.setChoiceAnswer(correctAnswer);
         return dto;
     }
 
