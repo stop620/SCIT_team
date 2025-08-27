@@ -34,14 +34,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 575ff7d (영상/ AI 처리 서버 파이썬 >> 자바 교체 분리했습니다.)
-=======
-
->>>>>>> develop
 }
 
 tasks.named('test') {

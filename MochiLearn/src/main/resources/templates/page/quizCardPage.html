@@ -2,19 +2,8 @@
 <html lang="ko" xmlns:th="http://thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/main.css}">
 <link rel="stylesheet" th:href="@{/css/quiz.css}">
-<!-- 나눔바른고딕 
-font-family: 'NanumBarunGothicUltraLight';
-font-family: 'NanumBarunGothicLight';
-font-family: 'NanumBarunGothic';
-font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
 
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-<script defer th:src="@{/js/dragAndDrop.js}"></script>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -44,9 +33,7 @@ font-family: 'NanumBarunGothicBold';
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
-    <form>
-        
-
+    <form action="quizCardResult" method="post">
         <div class="quizCardContainer">
             <div class="quizCardContent">
                 <span>01/10</span>

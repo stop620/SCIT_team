@@ -1,0 +1,36 @@
+main {
+    max-width: 80%; /* max-w-7xl */
+    margin: auto;
+    padding: 1.5rem; /* p-6 */
+}
+.chartContainer{
+    display: flex;
+    width: 100%;
+    margin: 10px;
+}
+.quizCardContainer{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-color: #FFFFFF;
+    margin: 10px;
+    border: solid 5px #FFF2EB;
+    border-radius: 5px;
+}
+
+.quizCardContent{
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFE8CD;
+    justify-content: center;
+    align-content: center;
+} 
+
+.quizCardContent span{
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+}   

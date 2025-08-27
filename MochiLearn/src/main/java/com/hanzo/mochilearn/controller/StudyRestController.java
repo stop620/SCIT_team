@@ -1,17 +1,20 @@
 package com.hanzo.mochilearn.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.service.CardService;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +25,19 @@ public class StudyRestController {
 
     private final CardService cardService;
 
+    // 학습 카드 로드
+    @GetMapping("/api/study/load")
+    public List<CardDTO> getCards(
+            @RequestParam(name="sort", defaultValue = "popular") String sort,
+            @RequestParam(name="page", defaultValue = "0") int page,
+            @RequestParam(name="size", defaultValue = "12") int size,
+            @RequestParam(name ="search", defaultValue = "") String search) {
+        if (search == null || search.isEmpty()) {
+            return cardService.getPagedCards(sort, page, size);
+        } else {
+            return cardService.searchCards(sort, page, size, search);
+        }
+    }
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional
