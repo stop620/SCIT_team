@@ -324,8 +324,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 isCorrect,
                 quiz,
                 userAnswer,
+                level,
             };
         });
+
+        console.log(resultData);
 
         fetch(`/mochilearn/api/quiz/saveResult`, {
             method: 'POST',

@@ -17,7 +17,7 @@ public class QuizEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "quiz_id")
-    private int id;
+    private Integer id;
 
     private String japanese;
     private String korean;

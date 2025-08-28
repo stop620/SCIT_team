@@ -1,18 +1,15 @@
 package com.hanzo.mochilearn.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanzo.mochilearn.dto.QuizDTO;
 import com.hanzo.mochilearn.dto.QuizResponseDTO;
 import com.hanzo.mochilearn.dto.QuizResultDTO;
 import com.hanzo.mochilearn.dto.QuizType;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.MemberQuizHistoryEntity;
-import com.hanzo.mochilearn.entity.QuizEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.MemberQuizHistoryRepository;
-import com.hanzo.mochilearn.repository.QuizRepository;
+import com.hanzo.mochilearn.entity.*;
+import com.hanzo.mochilearn.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +25,10 @@ public class QuizService {
 
     private final QuizRepository quizRepository;
     private final CardRepository cardRepository;
-    private final MemberQuizHistoryRepository memberQuizHistoryRepository;
+    private final QuizSessionRepository quizSessionRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final QuizAnswerRepository quizAnswerRepository;
+    private final MemberRepository memberRepository;
     private final Random random = new Random();
     private final int quizCount = 5;
 
@@ -58,9 +58,10 @@ public class QuizService {
 
     public List<QuizResponseDTO> makeQuiz(int level, int memberId) {
 
+        // 랜덤 퀴즈 문장 가져오기
         List<QuizEntity> quizEntityList = getRandomQuiz(level, memberId);
 
-        // 퀴즈 유형을 만들고 DTO로 반환
+        // 랜덤 문장을 문제 형태로 가공해서 반환
         return quizEntityList.stream()
                 .map(this::createRandomQuizDto)
                 .collect(Collectors.toList());
@@ -68,12 +69,10 @@ public class QuizService {
 
     private List<QuizEntity> getRandomQuiz(int level, int memberId) {
 
-        // 사용자가 이전에 수행한 퀴즈 조회
-        List<MemberQuizHistoryEntity> userHistory = memberQuizHistoryRepository.findByMemberId(memberId);
-        // 퀴즈 id 리스트로 변환
-        List<Integer> solvedQuizIds = userHistory.stream()
-                .map(history -> history.getQuiz().getId())
-                .collect(Collectors.toList());
+        // 사용자가 이전에 수행한 퀴즈 중 맞춘 퀴즈 ID 조회
+        // 1. 유저가 했던 퀴즈 세션 id 리스트 조회
+        List<Integer> solvedQuizIds = quizSessionRepository.FindAllIdByMemberId(level, memberId);
+        log.debug("[solvedQuizIds] = {}", solvedQuizIds);
 
         // 퀴즈 DB에서 조회 (level, 풀지 않은 퀴즈, 무작위 5개)
         List<QuizEntity> quizEntities = new ArrayList<>();
@@ -190,6 +189,7 @@ public class QuizService {
         return dto;
     }
 
+    // 빈칸 맞추기 퀴즈를 위한 랜덤 오답 단어 찾는 메소드
     private String getRandomWord() {
         String randomSentence = quizRepository.findRandomQuiz().orElseThrow(() -> new RuntimeException("random quiz not found"));
         List<String> words = Arrays.asList(randomSentence.split(","));
@@ -197,7 +197,63 @@ public class QuizService {
         return words.get(random.nextInt(words.size()));
     }
 
+    // 퀴즈 결과 저장 메소드
     public Integer saveResult(List<QuizResultDTO> quizResultDtoList, int memberId) {
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("member not found"));
+
+        // 출제했던 퀴즈 dto 리스트
+        List<QuizResponseDTO> quizData = quizResultDtoList.stream().map(dto -> dto.getQuiz()).collect(Collectors.toList());
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            String quizJson = mapper.writeValueAsString(quizData);
+
+            log.debug(quizJson);
+
+            QuizSessionEntity quizSessionEntity = QuizSessionEntity.builder()
+                    .member(member)
+                    .level(quizResultDtoList.get(0).getLevel())
+                    .quizData(quizJson)
+                    .build();
+
+            QuizSessionEntity savedSessionEntity = quizSessionRepository.save(quizSessionEntity);
+
+            log.debug("[Quiz Result Save] Save Quiz Session: ID = {}, Entity = {}", savedSessionEntity.getId(), savedSessionEntity);
+
+            Long score = quizResultDtoList.stream().filter(QuizResultDTO::isCorrect).count();
+
+            QuizAttemptEntity quizAttemptEntity = QuizAttemptEntity.builder()
+                    .session(savedSessionEntity)
+                    //TODO: 시도 횟수 구분 로직 추가해야함 1: 첫시도, 2: 재시도
+                    .attemptNo(1)
+                    .score(score.intValue())
+                    .build();
+
+            QuizAttemptEntity savedAttemptEntity = quizAttemptRepository.save(quizAttemptEntity);
+
+            log.debug("[Quiz Result Save] save Quiz Attempt: ID = {}, Entity = {}", savedAttemptEntity.getAttemptId(), savedAttemptEntity);
+
+            int index = 0;
+            for(QuizResultDTO quizResultDTO : quizResultDtoList) {
+                index++;
+                QuizAnswerEntity quizAnswerEntity = QuizAnswerEntity.builder()
+                        .attempt(savedAttemptEntity)
+                        .quizId(quizResultDTO.getQuizId())
+                        .questionNo(index)
+                        .userAnswer(quizResultDTO.getUserAnswer().toString())
+                        .isCorrect(quizResultDTO.isCorrect())
+                        .build();
+
+                Integer savedAnswerId = quizAnswerRepository.save(quizAnswerEntity).getAnswerId();
+                log.debug("[Quiz Result Save] save Quiz Answer: ID = {}", savedAnswerId);
+            }
+
+        } catch (JsonProcessingException e) {
+            new RuntimeException(e.getMessage());
+        }
+
         return memberId;
     }
 }

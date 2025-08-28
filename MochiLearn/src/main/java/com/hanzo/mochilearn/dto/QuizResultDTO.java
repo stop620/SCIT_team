@@ -14,12 +14,12 @@ public class QuizResultDTO {
 
     private int quizId;
 
+    @JsonProperty("isCorrect")
     private boolean isCorrect;
 
-    @JsonProperty("quiz")
-    private List<QuizResponseDTO> quizList;
+    private QuizResponseDTO quiz;
 
     private List<String> userAnswer;
 
-
+    private int level;
 }

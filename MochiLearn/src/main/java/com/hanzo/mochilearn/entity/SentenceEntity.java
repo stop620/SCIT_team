@@ -17,17 +17,17 @@ public class SentenceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sentence_id")
-    private int id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_id")
     private SectionEntity section;
 
     @Column(name = "sentence_index", nullable = false)
-    private int sentenceIndex;
+    private Integer sentenceIndex;
 
     @Column(nullable = false)
-    private float time;
+    private Float time;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String japanese;

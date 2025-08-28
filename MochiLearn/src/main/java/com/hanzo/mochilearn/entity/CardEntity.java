@@ -33,14 +33,14 @@ public class CardEntity {
     private String tag; // 장르 및 기타 태그 (쉼표로 구분된 문자열)
 
     @Column(name = "`like`") // 'like'는예약어이므로 백틱
-    private int like = 0;
+    private Integer like = 0;
 
     @CreatedDate // 엔티티가 생성될 때 자동으로 현재 시간이 기록
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
 
     @Column(name = "member_id")
-    private int memberId; // Member 엔티티와 직접적인 연관관계 대신 ID만 저장
+    private Integer memberId; // Member 엔티티와 직접적인 연관관계 대신 ID만 저장
 
     // mappedBy: Section 엔티티에 있는 'card' 필드가 이 관계의 주인임을 명시
     // cascade: Card가 저장/삭제될 때 Section도 함께 저장/삭제되도록 설정
