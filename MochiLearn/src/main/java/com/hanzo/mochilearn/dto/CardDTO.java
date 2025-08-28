@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
-import com.hanzo.mochilearn.entity.SentenceEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +29,32 @@ public class CardDTO {
     private String tag;
 
     private List<SectionDTO> sections;
-
     
+    
+    public static CardDTO toDTO(CardEntity entity) {
+    	
+    	CardDTO dto = CardDTO.builder()
+    			.id(entity.getId())
+    			.title(entity.getTitle())
+    			.url(entity.getUrl())
+    			.level(entity.getLevel().toString())
+    			.like(entity.getLike())
+    			.createdDate(entity.getCreatedDate())
+    			.memberId(entity.getMemberId())
+    			.tag(entity.getTag())
+    			.build();
+    	
+    	List<SectionDTO> sections = new ArrayList<>();
+    	
+    	for(SectionEntity section : entity.getSections()) {
+    		SectionDTO sectionDTO = SectionDTO.toDTO(section);
+    		
+    		sections.add(sectionDTO);
+    	}
+    	
+    	dto.setSections(sections);
+    	
+    	return dto;
+    }
     
 }

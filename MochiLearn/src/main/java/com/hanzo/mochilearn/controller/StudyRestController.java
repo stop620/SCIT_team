@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.entity.SentenceEntity;
+import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 import com.hanzo.mochilearn.service.CardService;
@@ -48,7 +48,14 @@ public class StudyRestController {
             return cardService.searchCards(sort, page, size, search);
         }
     }
-
+    @GetMapping("/api/study/card")
+    public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
+    	CardEntity cardEntity = cardService.findCardById(cardId);
+    	CardDTO cardDTO = cardService.toSimpleDTO(cardEntity);
+        log.debug("CardDTO: {}", cardDTO);
+        return cardDTO;
+    	
+    }
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional
@@ -69,10 +76,6 @@ public class StudyRestController {
         }
     }
     
-    @GetMapping("/api/sections/sentences")
-    public List<SentenceEntity> getSentences(@RequestParam Integer sectionId) {
-    	log.debug("{}",sectionId);
-        return sentenceService.getSentencesBySectionId(sectionId);
-    }
+    
     
 }

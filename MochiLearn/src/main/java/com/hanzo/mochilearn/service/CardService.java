@@ -105,19 +105,16 @@ public class CardService {
     // 모든 카드 로드
     public List<CardDTO> getAllCards() {
     	
-    	List<CardEntity> cardEntityList = cardRepository.findAll();
-    	List<CardDTO> cardDtoList = new ArrayList<>();
-    	
-    	for(CardEntity entity : cardEntityList) {
-    		CardDTO dto = CardDTO.toDTO(entity);
-    		cardDtoList.add(dto);
-    	}
-    	
-        return cardDtoList;
+        return cardRepository.findAll().stream()
+                .map(this::toSimpleDTO)
+                .collect(Collectors.toList());
                
     }
     
-    public CardDTO toDTO(CardEntity entity) {
+    public CardDTO toSimpleDTO(CardEntity entity) {
+    	List<SectionDTO> sections = entity.getSections().stream()
+    	        .map(SectionDTO::toDTO)
+    	        .collect(Collectors.toList());
     	
     	CardDTO dto = CardDTO.builder()
     			.id(entity.getId())
@@ -128,17 +125,26 @@ public class CardService {
     			.createdDate(entity.getCreatedDate())
     			.memberId(entity.getMemberId())
     			.tag(entity.getTag())
+    			.sections(sections)
     			.build();
     	
-    	List<SectionDTO> sections = new ArrayList<>();
+    	return dto;
+    }
+    //section값 없는거....
+    public CardDTO toDTO(CardEntity entity) {
     	
-    	for(SectionEntity section : entity.getSections()) {
-    		SectionDTO sectionDTO = SectionDTO.toDTO(section);
-    		
-    		sections.add(sectionDTO);
-    	}
     	
-    	dto.setSections(sections);
+    	CardDTO dto = CardDTO.builder()
+    			.id(entity.getId())
+    			.title(entity.getTitle())
+    			.url(entity.getUrl())
+    			.level(entity.getLevel().toString())
+    			.like(entity.getLike())
+    			.createdDate(entity.getCreatedDate())
+    			.memberId(entity.getMemberId())
+    			.tag(entity.getTag())
+    			.sections(null)
+    			.build();
     	
     	return dto;
     }
@@ -176,10 +182,11 @@ public class CardService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+    //cardId와 일치하는 데이터 가져오기
+	public CardEntity findCardById(Integer cardId) {
+		return cardRepository.findById(cardId).orElse(null);		
+	}
 
-    //cardId 기준으로 일치하는 studyCard 확인
-    public CardEntity getCardById(Integer cardId) {
-        return cardRepository.findById(cardId).orElse(null);
-    }
+    
     
 }

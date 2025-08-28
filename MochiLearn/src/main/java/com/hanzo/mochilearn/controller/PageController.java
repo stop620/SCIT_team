@@ -26,9 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("page")
 public class PageController {
 
-    private final CardService cardService;
-    private final SectionService sectionService;
-
     
 
     @GetMapping("study")
@@ -40,14 +37,7 @@ public class PageController {
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        CardEntity entity = cardService.getCardById(cardId);
-        CardDTO dto = cardService.toDTO(entity);
-        log.debug("{}",dto);
-        // 카드와 연관된 섹션 목록 조회
-        model.addAttribute("card", dto);
-        
-        
-
+        model.addAttribute("cardId", cardId);
         return "page/studyCard";
     }
 
