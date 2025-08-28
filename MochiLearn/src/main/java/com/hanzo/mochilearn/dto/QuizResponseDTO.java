@@ -23,7 +23,7 @@ public class QuizResponseDTO {
     // CHOICE 타입에서 사용
     private List<String> choiceSentences;
 
-    private List<String> suffleAnswer; // 정답 문장 배열 (SCRAMBLE)
+    private List<String> shuffleAnswer; // 정답 문장 배열 (SCRAMBLE)
     private List<String> blankAnswer; // 빈칸의 정답 단어들 (BLANK)
     private String choiceAnswer; // 정답 문장 (CHOICE)
 }

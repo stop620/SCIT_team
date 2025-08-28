@@ -2,6 +2,7 @@ package com.hanzo.mochilearn.service;
 
 import com.hanzo.mochilearn.dto.QuizDTO;
 import com.hanzo.mochilearn.dto.QuizResponseDTO;
+import com.hanzo.mochilearn.dto.QuizResultDTO;
 import com.hanzo.mochilearn.dto.QuizType;
 import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.entity.MemberQuizHistoryEntity;
@@ -114,7 +115,7 @@ public class QuizService {
         dto.setQuizType(QuizType.SHUFFLE);
         dto.setKorean(quizEntity.getKorean());
         dto.setShuffledSentence(shuffledWords);
-        dto.setSuffleAnswer(originalWords);
+        dto.setShuffleAnswer(originalWords);
 
         return dto;
     }
@@ -196,4 +197,7 @@ public class QuizService {
         return words.get(random.nextInt(words.size()));
     }
 
+    public Integer saveResult(List<QuizResultDTO> quizResultDtoList, int memberId) {
+        return memberId;
+    }
 }

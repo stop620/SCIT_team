@@ -47,7 +47,7 @@ public class StudyRestController {
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional
-    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
+    public ResponseEntity<ApiResponse<Integer>> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
         log.info("저장할 학습 카드 데이터 : {}", cardSaveDto);
 
         CardDTO cardDto = cardSaveDto.getCardDTO();
@@ -60,12 +60,13 @@ public class StudyRestController {
             Integer cardId = cardService.save(cardDto, 1);
             quizService.save(quizDtoList, cardId);
 
-            return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardSaveDto.getCardDTO().getId()));
+            return ResponseEntity.ok(ApiResponse.success("카드 데이터 저장 성공!", cardId));
 
         } catch (Exception e) {
             log.error("카드 데이터 저장 오류", e);
             // TODO: 오류 메시지 세분화 필요
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.fail("카드 저장 실패.", null));
         }
     }
 }

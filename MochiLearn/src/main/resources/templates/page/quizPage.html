@@ -24,18 +24,29 @@ font-family: 'NanumBarunGothicBold';
             console.log("Navigation script loaded");
             const wordPageBtn = document.getElementById("wordPageBtn");
             const quizCard1 = document.getElementById("quizCard1");
+            const quizCard2 = document.getElementById("quizCard2");
+            const quizCard3 = document.getElementById("quizCard3");
             wordPageBtn.onclick = function() {
                 wordPage();
             };
             quizCard1.onclick = function(){
-            	quizOpen();
+                console.log(this);
+            	quizOpen(1);
+            };
+            quizCard2.onclick = function(){
+                console.log(this);
+                quizOpen(2);
+            };
+            quizCard3.onclick = function(){
+                console.log(this);
+                quizOpen(3);
             };
         };
         function wordPage() {
             window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
         };
-        function quizOpen(){
-        	location.href = quizPageUrl;
+        function quizOpen(level){
+        	location.href = quizPageUrl + "?level=" + level;
         };
         /*]]>*/
 </script>
@@ -53,10 +64,10 @@ font-family: 'NanumBarunGothicBold';
             <div class="quizCard" id="quizCard1">
                 <h3>초</h3>
             </div>
-            <div class="quizCard">
+            <div class="quizCard" id="quizCard2">
                 <h3>중</h3>
             </div>
-            <div class="quizCard">
+            <div class="quizCard" id="quizCard3">
                 <h3>고</h3>
             </div>
         </div>

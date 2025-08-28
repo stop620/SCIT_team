@@ -1,5 +1,6 @@
 package com.hanzo.mochilearn.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,13 @@ import java.util.List;
 public class QuizResultDTO {
 
     private int quizId;
-    private QuizType quizType;
+
     private boolean isCorrect;
-    private List<String> correctAnswer;
+
+    @JsonProperty("quiz")
+    private List<QuizResponseDTO> quizList;
+
     private List<String> userAnswer;
-    private String korean;
+
 
 }
