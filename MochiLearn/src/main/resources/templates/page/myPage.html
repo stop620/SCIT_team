@@ -1,30 +1,159 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/main.css}">
-<!-- 나눔바른고딕 
-font-family: 'NanumBarunGothicUltraLight';
-font-family: 'NanumBarunGothicLight';
-font-family: 'NanumBarunGothic';
-font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/myPage.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <script th:inline="javascript">
-function wordPopup(){
-	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-}
+    /*<![CDATA[*/
+        //에러 무시해도 됩니다. 
+        var wordPageUrl = [[@{/page/word}]];
+        window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+        }
+        /*]]>*/
 </script>
+<!-- chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:src="@{/js/myPage.js}"></script>
+
 <head>
     <meta charset="UTF-8">
     <title>mypage</title>
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
+    <div class="main-grid">
+        <div class="left-column">
+            <div class="dashboard">
+                <div class="profilePic">
+                    <img th:src="@{/img/bbb.jpg}">
+                </div>
+                <div class="dashboardMenu">나의 공부</div>
+                <div class="dashboardMenu">성적 조회</div>
+                <div class="dashboardMenu">내 게시물</div>
+                <div class="dashboardMenu">즐겨 찾기</div>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div class="mainContainer">
+                <div class="studyStats">
+                <h2>학습 통계</h2>
+                    <div>
+                        <canvas id="study-stats">
+                            출석 그래프
+                            <!-- 어떤 형태로 갈지 다시 이야기 할 것 -->
+                        </canvas>
+                    </div>
+                </div>
+                <div class="graphContainer">
+                    <div class="graph">
+                        <canvas id="study-tracker">
+                            공부 추적 더미 그래프
+                            <!-- 어떤 형태로 갈지 다시 이야기 할것 -->
+                        </canvas>
+                    </div>
+                    <div class="graph">
+                        <canvas id="grade-trend"></canvas>
+                    </div>
+                    <div class="graph">
+                        <canvas id="etc"></canvas>
+                    </div>
+                </div>
+                <div>
 
-    mypage
+                </div>
+                <div class="board">
+                    <h2>성적 조회</h2>
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>퀴즈 1</td>
+                                <td>7/10</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>2025-08-27</td>
+                                <td>퀴즈 2</td>
+                                <td>9/10</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>2025-08-26</td>
+                                <td>퀴즈 3</td>
+                                <td>8/10</td>
+                            </tr>
+                        </table>
+                </div>
+
+                <div class="board">
+                    <h2>내 게시물</h2>
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>1번 게시글</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>2번 게시글</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>3번 게시글</td>
+                                <td>9</td>
+                            </tr>
+                        </table>
+                </div>
+
+                <div class="board">
+                    <h2>즐겨찾기</h2>
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>1번 게시글</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>2번 게시글</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>3번 게시글</td>
+                                <td>9</td>
+                            </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
