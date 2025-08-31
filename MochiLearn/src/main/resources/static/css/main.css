@@ -40,7 +40,7 @@ nav{
 .navbar ul{
     padding: 0;
     margin: 0;
-}   
+}
 .navbar li{
     display: inline-block;
     padding: 10px 20px;
@@ -50,7 +50,7 @@ nav{
     padding: 10px 20px;
     font-weight: bold;
     font-family: 'Noto Sans JP', sans-serif;
-}   
+}
 .navbar_btnContainer{
     display: flex;
     align-items: right;
@@ -61,7 +61,7 @@ nav{
     padding: 10px 20px;
     background-color: #007bff;
     border-radius: 5px;
-    text-decoration: none;  
+    text-decoration: none;
     cursor: pointer;
 }
 .navbar_btn a{
