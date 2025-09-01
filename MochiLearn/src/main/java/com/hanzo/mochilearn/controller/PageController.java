@@ -1,20 +1,11 @@
 package com.hanzo.mochilearn.controller;
 
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.SectionEntity;
-import com.hanzo.mochilearn.entity.SentenceEntity;
-import com.hanzo.mochilearn.service.CardService;
-import com.hanzo.mochilearn.service.SectionService;
-import com.hanzo.mochilearn.service.SentenceService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

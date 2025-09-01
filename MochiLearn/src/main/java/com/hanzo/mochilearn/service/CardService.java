@@ -2,6 +2,7 @@ package com.hanzo.mochilearn.service;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,9 +17,11 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
 import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 
@@ -34,6 +37,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
+    private final MemberRepository memberRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -151,7 +155,10 @@ public class CardService {
     	
     	return dto;
     }
-
+    //cardId와 일치하는 데이터 가져오기
+  	public CardEntity findCardById(Integer cardId) {
+  		return cardRepository.findById(cardId).orElse(null);		
+  	}
     
     //페이지 불러오기
     public List<CardDTO> getPagedCards(String sort, int page, int size) {
@@ -169,27 +176,29 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
-
-    //제목으로 검색하기
-    public List<CardDTO> searchCards(String sort, int page, int size, String search) {
+    //타이틀, 닉네임으로 검색하기
+    public List<CardDTO> searchCardsByTitleOrNickname(String sort, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CardEntity> entityPage;
 
+        // 1. 닉네임에 포함되는 멤버 리스트 조회
+        List<MemberEntity> members = memberRepository.findByNicknameContainingIgnoreCase(search);
+        List<Integer> memberIds = members.stream()
+                                         .map(MemberEntity::getId)
+                                         .collect(Collectors.toList());
+
+        // 2. 제목 포함 또는 멤버 ID 중 하나 일치하는 카드 검색
+        Page<CardEntity> entityPage;
         if ("latest".equalsIgnoreCase(sort)) {
-            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrMemberIdInOrderByCreatedDateDesc(
+                search, memberIds, pageable);
         } else {
-            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByLikeDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrMemberIdInOrderByLikeDesc(
+                search, memberIds, pageable);
         }
 
         return entityPage.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-    //cardId와 일치하는 데이터 가져오기
-	public CardEntity findCardById(Integer cardId) {
-		return cardRepository.findById(cardId).orElse(null);		
-	}
-
-    
     
 }

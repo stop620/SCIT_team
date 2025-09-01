@@ -11,7 +11,7 @@ function renderCard(cardData) {
     document.getElementById('cardLike').innerText = cardData.like || "";
 }
 
-/*$(document).ready(function() {
+$(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
 
@@ -38,7 +38,7 @@ function renderCard(cardData) {
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }
-});*/
+});
 
 // 시간 변환 헬퍼 함수
 const parseTime = (timeString) => {

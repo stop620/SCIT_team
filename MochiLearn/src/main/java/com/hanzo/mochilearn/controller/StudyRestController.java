@@ -42,12 +42,15 @@ public class StudyRestController {
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestParam(name="size", defaultValue = "12") int size,
             @RequestParam(name ="search", defaultValue = "") String search) {
+
         if (search == null || search.isEmpty()) {
             return cardService.getPagedCards(sort, page, size);
-       } else {
-            return cardService.searchCards(sort, page, size, search);
         }
+
+        // 통합검색: 제목 또는 닉네임(멤버) 포함 검색
+        return cardService.searchCardsByTitleOrNickname(sort, page, size, search);
     }
+
     @GetMapping("/api/study/card")
     public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
     	CardEntity cardEntity = cardService.findCardById(cardId);
