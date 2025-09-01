@@ -95,6 +95,12 @@ body {
     color: var(--mochi-gray-dark);
 }
 
+/* quiz */
+
+.quizCard{
+	cursor:pointer;
+}
+
 /* Footer Section */
 .main-footer {
     background-color: white;
