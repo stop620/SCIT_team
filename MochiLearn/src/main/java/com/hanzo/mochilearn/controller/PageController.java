@@ -1,6 +1,5 @@
 package com.hanzo.mochilearn.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -29,9 +28,9 @@ public class PageController {
     
 
     @GetMapping("study")
-    public String studyPage(Model model) {
-        List<CardDTO> cards = new ArrayList<>();
-        model.addAttribute("cards", cards);
+    public String studyPage() {
+//        List<CardDTO> cards = new ArrayList<>();
+//        model.addAttribute("cards", cards);
         return "page/studyPage";
     }
 
