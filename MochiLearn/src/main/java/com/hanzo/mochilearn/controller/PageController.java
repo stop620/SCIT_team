@@ -59,4 +59,41 @@ public class PageController {
     public String writePage() {
         return "page/writePage";
     }
+
+    @GetMapping("/test/home")
+    public String testHome() {
+        return "page/testHome";
+    }
+
+    @GetMapping("/test/best")
+    public String testBest() {
+        return "page/testBest";
+    }
+
+    @GetMapping("/test/study")
+    public String testStudy() {
+        return "page/testStudy";
+    }
+
+	@GetMapping({"wordCard2","wordCard1"})
+	public String wordCard() {
+		return "page/wordCardPage";
+	}
+	
+	@GetMapping("addWordCard")
+	public String addWord() {
+		return "page/addWordCardPage";
+	}
+	
+	@PostMapping("addWordCard")
+	public String addWordCard() {
+		return "page/wordPage";
+	}
+	
+	@GetMapping("quizCardPage")
+	public String quizCardPage() {
+
+		return "page/quizCardPage";
+	}
+
 }

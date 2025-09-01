@@ -36,7 +36,7 @@ public class CardService {
     private final SentenceRepository sentenceRepository;
 
     // 학습카드 DB에 저장
-    public void save(CardDTO cardDto, int memberId) throws Exception {
+    public Integer save(CardDTO cardDto, int memberId) throws Exception {
 
         CardEntity cardEntity = CardEntity.builder()
                 .title(cardDto.getTitle())
@@ -79,7 +79,7 @@ public class CardService {
                 savedCard.addSection(section); //카드 <> 섹션 연관 관계 설정
                 SectionEntity savedSection = sectionRepository.save(section);
 
-                log.info("  Saved Section : {}", savedSection);
+                log.info("Saved Section : {}", savedSection);
 
                 if (sectionDto.getSentences() != null) {
                     for (SentenceDTO sentenceDto : sectionDto.getSentences()) {
@@ -99,6 +99,9 @@ public class CardService {
                     log.info("    Saved {} sentences for Section ID: {}", sectionDto.getSentences().size(), savedSection.getId());
                 }
             }
+            return cardEntity.getId();
+        } else {
+            throw new Exception();
         }
     }
 

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/main.css}">
+
+<!-- 나눔바른고딕 
+    font-family: 'NanumBarunGothicUltraLight';
+    font-family: 'NanumBarunGothicLight';
+    font-family: 'NanumBarunGothic';
+    font-family: 'NanumBarunGothicBold';
+-->
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+
+<!-- noto sans jpn-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordCardPage</title>
+</head>
+<body>
+    <div th:replace="~{navigation::navigation}"></div>
+    <div class="container">
+        <div class="containerHeader">
+            <div class="navbar_btn">
+                <a href="#">←</a>
+            </div>
+            <h1>JLPT N2</h1>
+            <div class="navbar_btn">
+                <a href="#">↪</a>
+            </div>
+        </div>
+        <div class="wordPageContent">
+            <div class="word">
+                <span>憧れる</span>
+            </div>
+            <div class="meaning">
+                <span>あこがれる / 동경하다 </span>
+            </div>
+            <div class="example">
+                <span>未知みちの世界せかいに憧あこがれる</span>
+                <br>
+                <span>미지의 세계를 동경하다</span>
+            </div>
+        </div>
+        
+        <div class="wordPageContent">
+            <div class="word">
+                <span>味わう</span>
+            </div>
+            <div class="meaning">
+                <span>あじわう / 맛보다 </span>
+            </div>
+            <div class="example">
+                <span>塩しお加減かげんはどうかと味あじわう</span><br>
+                <span>간이 어떤가 맛보다</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

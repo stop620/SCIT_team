@@ -2,6 +2,7 @@
 let player; // 유튜브 플레이어
 let timelineTimeout;
 const timelines = [];
+let quiz = [];
 let currentTranscript = [];
 let currentTranscriptIndex = 0;
 let subtitleInterval;
@@ -57,6 +58,7 @@ const updateSingleTranscriptLine = () => {
 
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
+
         document.getElementById('japanese-line').textContent = item.japanese;
         document.getElementById('korean-line').textContent = item.korean;
         document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
@@ -139,6 +141,7 @@ const startTimelinePlayback = (timeline) => {
         }, 100);
 
         currentTranscript = timeline.transcript;
+        console.log('currentTranscript: ' + currentTranscript);
         currentTranscriptIndex = 0;
         updateSingleTranscriptLine();
 
@@ -185,8 +188,21 @@ const pollForResult = (jobId) => {
                 setTimeout(() => pollForResult(jobId), 2000);
             } else if (statusData.status === 'COMPLETED') { // 완료된 결과 받은 경우
                 targetTimeline.status = 'COMPLETED';
-                targetTimeline.transcript = statusData.result;
+                targetTimeline.transcript = statusData.result.sentences;
+
+                console.log(statusData.result);
+                console.log(targetTimeline.transcript);
+
+                if (statusData.result && statusData.result.quizSentences) {
+                    quiz = quiz.concat(statusData.result.quizSentences);
+                    console.log(quiz);
+                }
+
+                console.log("Updated timelines:", timelines);
+                console.log("Updated quiz array:", quiz);
+
                 renderTimelines();
+
             } else if (statusData.status === 'FAILED') { // 실패
                 targetTimeline.status = 'FAILED';
                 renderTimelines();
@@ -324,21 +340,26 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('제목, URL, 난이도, 장르를 모두 선택하고, 하나 이상의 학습 구간을 추가해주세요.');
             return;
         }
+        console.log(completedSections);
 
-        const cardData = {
-            title: title,
-            url: url,
-            level: level,
-            tag: tag,
-            sections: completedSections
-        };
+        const saveData = {
+                "card": {
+                    title: title,
+                    url: url,
+                    level: level,
+                    tag: tag,
+                    sections: completedSections,
+                },
+                "quiz": quiz
 
-        console.log('Saving Card Data:', JSON.stringify(cardData, null, 2));
+            };
+
+        console.log('Saving Card Data:', JSON.stringify(saveData, null, 2));
 
         fetch('/mochilearn/api/study/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cardData)
+            body: JSON.stringify(saveData)
         })
             .then(response => response.ok ? response.json() : Promise.reject(response.json()))
             .then(data => {

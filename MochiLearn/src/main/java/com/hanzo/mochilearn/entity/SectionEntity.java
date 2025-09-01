@@ -32,7 +32,7 @@ public class SectionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "section_id")
-    private int id;
+    private Integer id;
 
     // @JoinColumn: 외래 키(FK) 컬럼을 지정합니다.
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,13 +40,13 @@ public class SectionEntity {
     private CardEntity card;
 
     @Column(name = "start_seconds", nullable = false)
-    private float startSeconds;
+    private Float startSeconds;
 
     @Column(name = "end_seconds", nullable = false)
-    private float endSeconds;
+    private Float endSeconds;
 
     @Column(name = "section_num", nullable = false)
-    private int sectionNum;
+    private Integer sectionNum;
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SentenceEntity> sentences = new ArrayList<>();

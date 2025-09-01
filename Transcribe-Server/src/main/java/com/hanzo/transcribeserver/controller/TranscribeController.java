@@ -1,9 +1,10 @@
 package com.hanzo.transcribeserver.controller;
 
 
+import com.hanzo.transcribeserver.dto.GeminiResponseDTO;
 import com.hanzo.transcribeserver.service.TranscribeService;
 import com.hanzo.transcribeserver.dto.RequestDTO;
-import com.hanzo.transcribeserver.dto.ResponseDTO;
+import com.hanzo.transcribeserver.dto.SentenceDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,9 +32,8 @@ public class TranscribeController {
 
         try {
 
-            List<ResponseDTO> transcription = transcribeService.processTranscription(requestDto.getUrl(), requestDto.getStart(), requestDto.getEnd());
-
-            log.info("자막 추출 성공. 결과를 반환합니다.");
+            GeminiResponseDTO transcription = transcribeService.processTranscription(requestDto.getUrl(), requestDto.getStart(), requestDto.getEnd());
+            log.debug("자막 추출 성공. 결과를 반환합니다. {}",transcription);
             log.debug("[작업 종료 스레드] : {}", Thread.currentThread().getName());
 
             return ResponseEntity.ok(transcription);

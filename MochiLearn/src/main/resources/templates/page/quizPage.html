@@ -1,19 +1,45 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://thymeleaf.org">
-<link rel="stylesheet" th:href="@{/css/main.css}">
-<!-- 나눔바른고딕 
-font-family: 'NanumBarunGothicUltraLight';
-font-family: 'NanumBarunGothicLight';
-font-family: 'NanumBarunGothic';
-font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+<!--<link rel="stylesheet" th:href="@{/css/main.css}">-->
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+<link rel="stylesheet" th:href="@{/css/common.css}">
 
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
-
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        //에러 무시해도 됩니다. 
+        var wordPageUrl = [[@{/page/word}]];
+        var quizPageUrl = [[@{/page/quizCardPage}]];
+            
+    	window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            const quizCard1 = document.getElementById("quizCard1");
+            const quizCard2 = document.getElementById("quizCard2");
+            const quizCard3 = document.getElementById("quizCard3");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+            quizCard1.onclick = function(){
+                console.log(this);
+            	quizOpen(1);
+            };
+            quizCard2.onclick = function(){
+                console.log(this);
+                quizOpen(2);
+            };
+            quizCard3.onclick = function(){
+                console.log(this);
+                quizOpen(3);
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+        };
+        function quizOpen(level){
+        	location.href = quizPageUrl + "?level=" + level;
+        };
+        /*]]>*/
+</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,6 +48,19 @@ font-family: 'NanumBarunGothicBold';
 <body>
     <div th:replace="~{navigation::navigation}"></div>
 
-    quiz
+    <div class="container">
+        <h2>QUIZ</h2>
+        <div class="quizContainer">
+            <div class="quizCard" id="quizCard1">
+                <h3>초</h3>
+            </div>
+            <div class="quizCard" id="quizCard2">
+                <h3>중</h3>
+            </div>
+            <div class="quizCard" id="quizCard3">
+                <h3>고</h3>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="thymeleaf.org">
+
+<!-- css -->
+<link rel="stylesheet" th:href="@{/css/main.css}">
+<link rel="stylesheet" th:href="@{/css/studyCardPage.css}">
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script th:src="@{/js/studyCardPage.js}"></script>
+<script th:inline="javascript">
+function wordPopup(){
+	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+}
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>studyCardPage</title>
+</head>
+<body>
+    <div th:replace="~{navigation::navigation}"></div>
+    <main>
+        <div class="main-grid">
+            <div class="left-column">
+                <div>
+                    <h1>キミの記憶</h1>
+                </div>
+                <div class="tags">
+                    <div class="tag-item">중급</div>
+                    <div class="tag-item">애니</div>
+                    <div class="tag-item">일상회화</div>
+                </div>
+                <div class="buttonContainer">
+                    <!-- 별 모양으로 최초에는 색이 안들어와 있다가
+                    추천 버튼을 눌렀을 시에 노란색으로 변한다
+                    텍스트는 현재 추천 수를 표시-->
+                    <input type="button" value="☆" id="favBtn"/>
+                    <!-- 현재 추천 수 db에서 불러 온다 -->
+                    <span id="favNum">1125</span>
+                </div>
+                <div class="playerContainer">
+                    <div id="player"></div>
+                </div>
+                <div>
+                    <!-- 추후에 db에서 링크 가져온 후에 readonly 해놓기 -->
+                    <input
+                            id="url-input"
+                            type="text"
+                            class="input-field"
+                            placeholder="학습할 YouTube 영상 URL을 입력하세요."
+                    />
+                </div>
+                <div class="container">
+                    타임라인
+                </div>
+                <div class="buttonContainer">
+                    <!-- js/css로 현재 언어에 맞게 하이라이트를 주기 -->
+                    <button id="langChange">한 / <strong>일</strong></button>
+                </div>
+                
+                <div class="wordSelector">
+                </div>
+                <div class="container">
+                    <div class="jp">
+                        <p>風の声 光の粒 まどろむ君にそそぐ</p>
+                        <p>忘れない 優しい微笑み 哀しさ隠した瞳を</p>
+                        <p>願うこと (辛くても) 立ち向かう勇気 君に貰っただから 行くね</p>
+                    </div>
+                    <div class="kr hidden">
+                        <p>바람의 목소리와 빛의 알갱이가 잠자는 당신에게 내리고</p>
+                        <p>잊지 않아요, 상냥한 미소를 슬픔을 숨긴 눈동자를</p>
+                        <p>바랐던 (괴롭더라도) 맞서는 용기 당신에게 받았으니까 가도록 할게요</p>
+                    </div>
+                </div>
+                <!-- 아직 작동 안합니다 -->
+                <div class="buttonContainer btnRight">
+                    <button>이전</button>
+                    <button>다음</button>
+                </div>
+
+                <div class="container">
+                    <div>
+                        따라읽기
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="container">
+                    학습 구간 목록
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

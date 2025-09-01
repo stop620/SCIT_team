@@ -1,0 +1,148 @@
+<!--
+<!doctype html>
+<html lang="ko" xmlns:th="http://thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/main.css}">
+<link rel="stylesheet" th:href="@{/css/quiz.css}">
+&lt;!&ndash; 나눔바른고딕
+font-family: 'NanumBarunGothicUltraLight';
+font-family: 'NanumBarunGothicLight';
+font-family: 'NanumBarunGothic';
+font-family: 'NanumBarunGothicBold';
+&ndash;&gt;
+<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
+
+&lt;!&ndash; noto sans jpn&ndash;&gt;
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<script defer th:src="@{/js/dragAndDrop.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        //에러 무시해도 됩니다. 
+        var wordPageUrl = [[@{/page/word}]];
+        window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+        }
+        /*]]>*/
+</script>
+
+&lt;!&ndash; chart.js &ndash;&gt;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>quiz card page</title>
+</head>
+<body>
+    <div th:replace="~{navigation::navigation}"></div>
+    <form>
+        
+
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <span>01/10</span>
+                <span>未知の世界に憧れる</span>
+                <input type="text" id="answer1" name="answer1" placeholder="요미가나를 입력하세요" required>
+            </div>
+        </div>
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <span>02/10</span>
+                <span>未知の世界に_____</span>
+                <input type="radio" id="answer2" name="answer2" value="あこがれる" required>
+                <label for="answer2">1.憧れる</label>
+                <input type="radio" id="answer2-2" name="answer2" value="あじわう" required>
+                <label for="answer2-2">2.味わう</label>
+            </div>
+        </div>
+        <div class="quizCardContainer">
+            <div class="quizCardContent">
+                <p>03/10</p>
+                <div class="quizCategoryBlank">
+                    <div class="quizBlank"></div>
+                    <div class="quizFilled">はどうかと</div>
+                    <div class="quizBlank"></div>
+                </div>
+                <div class="quizBlankWordPool">
+                    <div class="wordPoolItem" draggable="true">塩加減</div>
+                    <div class="wordPoolItem" draggable="true">味わう</div>
+                    <div class="wordPoolItem" draggable="true">未知</div>
+                    <div class="wordPoolItem" draggable="true">憧れる</div>
+                    <div class="wordPoolItem" draggable="true">世界</div>
+                    <div class="wordPoolItem" draggable="true">未知</div>
+                </div>
+                &lt;!&ndash; quizCardPage.html, form 태그 안에 추가 &ndash;&gt;
+                <button type="button" id="resetDragDropBtn">초기화</button>
+            </div>
+        </div>
+
+        <button type="submit">퀴즈 제출</button>
+    </form>
+
+</body>
+</html>-->
+<!doctype html>
+<html lang="ko"
+      xmlns:th="www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MochiLearn - 퀴즈 풀기</title>
+    <!-- 결과 원 그래프용 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/quizForm.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/quizForm.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+<body>
+<div th:replace="~{navigation::navigation}"></div>
+
+<main>
+    <div id="quiz-view" class="quiz-container">
+        <div class="quiz-header">
+            <div id="progress-text" class="progress-text"></div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+        <div id="korean-hint" class="korean-hint">퀴즈를 불러오는 중입니다...</div>
+        <div id="quiz-area" class="quiz-area"></div>
+        <div class="action-container">
+            <button id="check-btn" class="action-btn">정답 확인</button>
+            <button id="next-btn" class="action-btn">다음 문제</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+    </div>
+
+    <div id="result-view" class="result-container hidden">
+        <div class="result-header">
+            <h1>퀴즈 결과</h1>
+            <p id="score-text"></p>
+        </div>
+        <div class="chart-container">
+            <canvas id="result-chart"></canvas>
+            <div id="chart-score"></div>
+        </div>
+        <div id="incorrect-notes" class="incorrect-notes">
+            <h2>오답 노트</h2>
+            <div id="incorrect-list"></div>
+        </div>
+        <div class="result-actions">
+            <button id="retry-btn" class="action-btn">다시 풀기</button>
+            <button id="exit-btn" class="action-btn">나가기</button>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

@@ -3,35 +3,22 @@
 
 <!-- css -->
 <link rel="stylesheet" href="css/main.css">
-
-<!-- 나눔바른고딕 
-    font-family: 'NanumBarunGothicUltraLight';
-    font-family: 'NanumBarunGothicLight';
-    font-family: 'NanumBarunGothic';
-    font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
-
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
-        //에러 무시해도 됩니다. 
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl,"aa", "_self", "width=400,height=600");
-        }
-        /*]]>*/
+window.onload = function(){
+    var cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            window.location.href = [[@{/page/studyCardPage}]]; // studyCardPage.html로 이동
+        });
+    });
+}
+
+function wordPopup(){
+	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+}  
+
 </script>
 
 <head>
@@ -61,7 +48,6 @@
                 <div class="card_info">
                     <h3>비디오 제목</h3>
                     <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
-                    <button>시청하기</button>
                 </div>
             </div>
             <div class="card">
@@ -71,7 +57,6 @@
                 <div class="card_info">
                     <h3>비디오 제목</h3>
                     <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
-                    <button>시청하기</button>
                 </div>
             </div>
             <div class="card">
@@ -81,7 +66,6 @@
                 <div class="card_info">
                     <h3>비디오 제목</h3>
                     <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
-                    <button>시청하기</button>
                 </div>
             </div>
             <div class="card">
@@ -91,7 +75,6 @@
                 <div class="card_info">
                     <h3>비디오 제목</h3>
                     <p>비디오 설명이 여기에 들어갑니다. 이 비디오는 일본어 학습에 도움이 됩니다.</p>
-                    <button>시청하기</button>
                 </div>
             </div>
             
