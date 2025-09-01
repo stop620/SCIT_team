@@ -2,14 +2,14 @@ package com.hanzo.mochilearn.service;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +25,7 @@ import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -200,5 +201,31 @@ public class CardService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-    
+    public Page<CardDTO> searchCardsByTags(List<String> tags, int page, int size, String sort) {
+        Sort sortOrder;
+
+        if ("latest".equalsIgnoreCase(sort)) {
+            sortOrder = Sort.by(Sort.Direction.DESC, "createdDate");
+        } else { // 기본 인기순
+            sortOrder = Sort.by(Sort.Direction.DESC, "like");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
+
+        Specification<CardEntity> spec = (root, query, cb) -> {
+            if (tags == null || tags.isEmpty()) {
+                return cb.conjunction();
+            }
+            Predicate predicate = cb.disjunction();
+            for (String tag : tags) {
+                predicate = cb.or(predicate,
+                        cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
+            }
+            return predicate;
+        };
+
+        Page<CardEntity> cardPage = cardRepository.findAll(spec, pageable);
+
+        return cardPage.map(this::toDTO);
+    }
 }

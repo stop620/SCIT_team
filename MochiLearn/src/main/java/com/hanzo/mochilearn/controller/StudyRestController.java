@@ -4,6 +4,7 @@ package com.hanzo.mochilearn.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,17 @@ public class StudyRestController {
         // 통합검색: 제목 또는 닉네임(멤버) 포함 검색
         return cardService.searchCardsByTitleOrNickname(sort, page, size, search);
     }
+    //태그필터링
+    @PostMapping("/api/study/filterByTags")
+    public Page<CardDTO> filterCardsByTags(
+            @RequestBody List<String> tags,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size,
+            @RequestParam(name = "sort", defaultValue = "popular") String sort) {
+
+        return cardService.searchCardsByTags(tags, page, size, sort);
+    }
+
 
     @GetMapping("/api/study/card")
     public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
@@ -59,6 +71,7 @@ public class StudyRestController {
         return cardDTO;
     	
     }
+    
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional

@@ -24,6 +24,7 @@ public class PageController {
 //        model.addAttribute("cards", cards);
         return "page/studyPage";
     }
+    
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
