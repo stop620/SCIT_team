@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentQuizIndex = -1;
     let userAnswer = [];
     let userResults = [];
+    let originalWordBankHTML = ''; // 초기화 기능을 위한 원본 단어 목록 HTML 저장
 
     // --- DOM 요소 ---
     const quizView = document.getElementById('quiz-view');
@@ -62,39 +63,44 @@ document.addEventListener('DOMContentLoaded', () => {
         koreanHint.textContent = quiz.korean;
 
         switch (quiz.quizType) {
-            case 'SHUFFLE': renderScrambleQuiz(quiz); break;
-            case 'BLANK': renderFillInBlankQuiz(quiz); break;
+            case 'SHUFFLE': renderDraggableQuiz(quiz, 'SHUFFLE'); break;
+            case 'BLANK': renderDraggableQuiz(quiz, 'BLANK'); break;
             case 'CHOICE': renderMultipleChoiceQuiz(quiz); break;
         }
     };
 
-    const renderScrambleQuiz = (quiz) => {
+    const renderDraggableQuiz = (quiz, type) => {
         let blankCounter = 0;
-        const answerHTML = quiz.shuffleAnswer.map(() => `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`).join('');
-        quizArea.innerHTML = `<div id="answer-area" class="answer-area">${answerHTML}</div><div id="word-bank" class="word-bank"></div>`;
+        let answerHTML = '';
+        let choices = [];
+
+        if (type === 'SHUFFLE') {
+            answerHTML = quiz.shuffleAnswer.map(() => `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`).join('');
+            choices = quiz.shuffledSentence;
+            userAnswer = Array(quiz.shuffleAnswer.length).fill(null);
+        } else { // BLANK
+            answerHTML = quiz.blankSentence.map(part =>
+                part === '______'
+                    ? `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+                    : `<span class="blank-word">${part}</span>`
+            ).join('');
+            choices = quiz.blankChoices;
+            userAnswer = Array(quiz.blankAnswer.length).fill(null);
+        }
+
+        quizArea.innerHTML = `
+            <div id="answer-area" class="answer-area">${answerHTML}</div>
+            <div id="word-bank" class="quizBlankWordPool"></div>
+            <button id="resetDragDropBtn" class="reset-btn">초기화</button>
+        `;
+
         const wordBank = document.getElementById('word-bank');
-        quiz.shuffledSentence.forEach((word, index) => {
+        choices.forEach((word, index) => {
             const btn = createWordButton(word, `bank-word-${index}`);
             wordBank.appendChild(btn);
         });
-        userAnswer = Array(blankCounter).fill(null);
-        setupInteractions();
-    };
 
-    const renderFillInBlankQuiz = (quiz) => {
-        let blankCounter = 0;
-        const sentenceHTML = quiz.blankSentence.map(part =>
-            part === '______'
-                ? `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`
-                : `<span class="blank-word">${part}</span>`
-        ).join('');
-        quizArea.innerHTML = `<div class="blank-sentence">${sentenceHTML}</div><div id="word-bank" class="blank-choices"></div>`;
-        const choicesContainer = document.getElementById('word-bank');
-        quiz.blankChoices.forEach((choice, index) => {
-            const btn = createWordButton(choice, `bank-word-${index}`);
-            choicesContainer.appendChild(btn);
-        });
-        userAnswer = Array(blankCounter).fill(null);
+        originalWordBankHTML = wordBank.innerHTML; // 초기화용 HTML 저장
         setupInteractions();
     };
 
@@ -113,7 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 상호작용 로직 ---
     const createWordButton = (word, id) => {
         const btn = document.createElement('button');
-        btn.className = 'word-btn';
+
+        btn.className = 'wordPoolItem';
         btn.textContent = word;
         btn.id = id;
         btn.draggable = true;
@@ -130,65 +137,115 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 드래그 앤 드롭 및 클릭 통합 로직 ---
     const setupInteractions = () => {
         const wordBank = document.getElementById('word-bank');
-        const answerArea = document.getElementById('answer-area') || document.querySelector('.blank-sentence');
+        const answerArea = document.getElementById('answer-area');
+        const resetBtn = document.getElementById('resetDragDropBtn');
 
-        // 클릭 이벤트 처리
+        // 클릭 이벤트 처리 (단어 선택)
         wordBank.addEventListener('click', (e) => {
-            if (e.target.classList.contains('word-btn') && !e.target.classList.contains('used')) {
-                const firstEmptyBlank = answerArea.querySelector('.blank-space:not(:has(*))');
+            if (e.target.classList.contains('wordPoolItem')) {
+                const firstEmptyBlank = answerArea.querySelector('.quizBlank:not(:has(*))');
                 if (firstEmptyBlank) {
                     moveWordToBlank(e.target, firstEmptyBlank);
                 }
             }
         });
 
+        // 클릭 이벤트 처리 (단어 초기화)
+        answerArea.addEventListener('click', (e) => {
+            if (e.target.classList.contains('wordPoolItem')) {
+                moveWordToBank(e.target);
+            }
+        });
+
         // 드래그 앤 드롭 이벤트 처리
-        const draggables = wordBank.querySelectorAll('.word-btn');
-        const dropzones = answerArea.querySelectorAll('.blank-space');
+        const draggables = document.querySelectorAll('.wordPoolItem');
+        const droppables = document.querySelectorAll('.quizBlank');
 
-        draggables.forEach(draggable => {
-            draggable.addEventListener('dragstart', (e) => {
-                e.target.classList.add('dragging');
-                e.dataTransfer.setData('text/plain', e.target.id);
-            });
-            draggable.addEventListener('dragend', (e) => {
-                e.target.classList.remove('dragging');
-            });
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', dragStart);
+            item.addEventListener('dragend', dragEnd);
         });
 
-        dropzones.forEach(dropzone => {
-            dropzone.addEventListener('dragover', e => {
-                e.preventDefault();
-                if (!dropzone.hasChildNodes()) e.target.classList.add('drag-over');
-            });
-            dropzone.addEventListener('dragleave', e => e.target.classList.remove('drag-over'));
-            dropzone.addEventListener('drop', e => {
-                e.preventDefault();
-                e.target.classList.remove('drag-over');
-                const id = e.dataTransfer.getData('text/plain');
-                const draggable = document.getElementById(id);
-                if (dropzone.hasChildNodes() || !draggable || draggable.classList.contains('used')) return;
-                moveWordToBlank(draggable, dropzone);
-            });
+        droppables.forEach(item => {
+            item.addEventListener('dragover', dragOver);
+            item.addEventListener('dragleave', dragLeave);
+            item.addEventListener('drop', dragDrop);
         });
+
+        // 초기화 버튼 이벤트
+        resetBtn.addEventListener('click', resetDraggableQuiz);
     };
+
+    function dragStart(ev) {
+        ev.dataTransfer.effectAllowed = "move";
+        ev.dataTransfer.setData("text/plain", ev.target.id);
+        ev.target.classList.add('dragging');
+    }
+
+    function dragEnd(ev) {
+        ev.target.classList.remove('dragging');
+    }
+
+    function dragOver(ev) {
+        ev.preventDefault();
+        const dropzone = ev.currentTarget;
+        if (!dropzone.hasChildNodes()) {
+            dropzone.classList.add('drag-over');
+        }
+    }
+
+    function dragLeave(ev) {
+        ev.currentTarget.classList.remove('drag-over');
+    }
+
+    function dragDrop(ev) {
+        ev.preventDefault();
+        const dropzone = ev.currentTarget;
+        const draggingItemId = ev.dataTransfer.getData("text/plain");
+        const draggingItem = document.getElementById(draggingItemId);
+
+        dropzone.classList.remove('drag-over');
+
+        // 빈칸에만 드롭 가능하도록 수정
+        if (draggingItem && !dropzone.hasChildNodes()) {
+            moveWordToBlank(draggingItem, dropzone);
+        }
+    }
 
     const moveWordToBlank = (wordButton, blankSpace) => {
         blankSpace.appendChild(wordButton);
-        wordButton.classList.add('used'); // 선택지에서 숨기기 위해 'used' 클래스 추가
         const blankIndex = parseInt(blankSpace.dataset.blankIndex);
         userAnswer[blankIndex] = wordButton.textContent;
-
-        wordButton.onclick = () => moveWordToBank(wordButton, blankSpace);
     };
 
-    const moveWordToBank = (wordButton, blankSpace) => {
+    const moveWordToBank = (wordButton) => {
         const wordBank = document.getElementById('word-bank');
+
+        // 정답 배열에서 해당 단어 제거
+        const wordToRemove = wordButton.textContent;
+        const indexInAnswer = userAnswer.findIndex(ans => ans === wordToRemove);
+        if(indexInAnswer > -1) userAnswer[indexInAnswer] = null;
+
         wordBank.appendChild(wordButton);
-        wordButton.classList.remove('used'); // 선택지에서 다시 보이도록 'used' 클래스 제거
-        const blankIndex = parseInt(blankSpace.dataset.blankIndex);
-        userAnswer[blankIndex] = null;
-        wordButton.onclick = null;
+    };
+
+    const resetDraggableQuiz = () => {
+        const wordBank = document.getElementById('word-bank');
+        const answerArea = document.getElementById('answer-area');
+
+        // 모든 단어를 word-bank로 되돌림
+        answerArea.querySelectorAll('.wordPoolItem').forEach(item => {
+            wordBank.appendChild(item);
+        });
+
+        // 원래 순서대로 복원
+        wordBank.innerHTML = originalWordBankHTML;
+
+        // 정답 배열 초기화
+        userAnswer.fill(null);
+
+        // 이벤트 리스너 다시 연결
+        setupInteractions();
     };
 
 
@@ -294,7 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 이벤트 리스너 ---
     checkBtn.addEventListener('click', checkAnswer);
     nextBtn.addEventListener('click', nextQuestion);
-    retryBtn.addEventListener('click', startQuiz);
+    retryBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('quizFinished');
+        startQuiz();
+    });
     exitBtn.addEventListener('click', () => {
         alert('나가기 버튼 클릭됨');
     });

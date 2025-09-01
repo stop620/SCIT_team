@@ -1,7 +1,6 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.service.CardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,19 +55,9 @@ public class PageController {
         return "page/writePage";
     }
 
-    @GetMapping("/test/home")
-    public String testHome() {
-        return "page/testHome";
-    }
-
-    @GetMapping("/test/best")
-    public String testBest() {
-        return "page/testBest";
-    }
-
-    @GetMapping("/test/study")
-    public String testStudy() {
-        return "page/testStudy";
+    @GetMapping("/best")
+    public String bestPage() {
+        return "page/bestPage";
     }
 
 	@GetMapping({"wordCard2","wordCard1"})
