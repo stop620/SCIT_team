@@ -160,9 +160,7 @@ function startTimelinePlayback(timeline) {
 
         timelineTimeout = setInterval(() => {
             if (player && typeof player.getCurrentTime === 'function') {
-                const currentTime = player.getCurrentTime();
-                if (currentTime >= timeline.end_seconds) {
-                    console.log(`⏹️ 타임라인 종료 시점 도달(${timeline.end_seconds}초), 재생 일시정지`);
+                if (player.getCurrentTime() >= timeline.end_seconds) {
                     player.pauseVideo();
                     clearInterval(timelineTimeout);
                 }

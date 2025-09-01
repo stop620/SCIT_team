@@ -48,6 +48,7 @@ public class StudyRestController {
             return cardService.searchCards(sort, page, size, search);
         }
     }
+    
     @GetMapping("/api/study/card")
     public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
     	CardEntity cardEntity = cardService.findCardById(cardId);
