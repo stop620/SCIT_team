@@ -35,12 +35,78 @@
         <button id="next-btn" class="transcript-nav-btn">▶</button>
     </div>
     <div id="transcript-index"></div>
-</div>      
+</div>
+    <!-- 임시 말하기 기능 공간 -->
+    <div class="card">
+        <input type="button" value="시작" id="startButton">
+        <input type="button" value="정지" id="stopButton">
+    </div>
 </main>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
+    // 임시 말하기 기능 자바스크립트
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    startButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+            audioChunks = []; // 녹음 시작 시 배열 초기화
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                console.log(audioBlob.size);
+                // 서버로 음성 파일 전송
+                const formData = new FormData();
+                formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
+                formData.append('referenceText', '私は学生です。'); // 평가할 문장
+
+                try {
+                    const response = await fetch('http://localhost:5001/api/speech', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Pronunciation Assessment Result:', result);
+                        alert(`정확도: ${result.accuracyScore}, 유창성: ${result.fluencyScore}`);
+                    } else {
+                        console.error('Server error:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                }
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            console.log("녹음 시작");
+
+        } catch (err) {
+            console.error("마이크 접근에 실패했습니다:", err);
+        }
+    });
+
+    stopButton.addEventListener('click', () => {
+        mediaRecorder.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        console.log("녹음 중지");
+    });
+
 let player = null;  // 유튜브 플레이어 객체
 let card = null;    // 카드 데이터
 
