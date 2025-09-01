@@ -40,7 +40,7 @@ public class TranscriptController {
 
     // 2. 결과 확인 API - jobId로 결과 조회
     @GetMapping("/api/transcribe/status/{jobId}")
-    public ResponseEntity<JobStatusDTO> getTranscriptionStatus(@PathVariable String jobId) {
+    public ResponseEntity<JobStatusDTO> getTranscriptionStatus(@PathVariable("jobId") String jobId) {
 
         // jobId로 현재 상태 반환
         JobStatusDTO status = transcriptService.getJobStatus(jobId);
