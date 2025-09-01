@@ -45,7 +45,6 @@ form{
 }
 .quizCategoryBlank{
     display: flex;
-    margin: 10px;
 }
 
 .quizBlank{
@@ -55,7 +54,7 @@ form{
     height: 25px;
     border: 1px solid #333;
     border-radius: 5px;
-    margin: 10px;
+    margin: 10px 0;
     padding: 10px;
 }
 
@@ -65,7 +64,6 @@ form{
     height: 25px;
     margin: 10px 0;
     padding: 10px;
-    margin: 10px;
 }
 
 .quizBlankWordPool{
@@ -78,7 +76,6 @@ form{
     justify-items: center;
     align-items: center;
     align-content: center;
-    margin: 10px;
 }
 
 .wordPoolItem{

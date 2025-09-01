@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MochiLearn - 日本語学習</title>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mochi-pink: #FFB6C1;
+            --mochi-mint: #3ED6D0;
+            --mochi-blue: #32D9FF;
+            --mochi-gray-light: #F5F5F5;
+            --mochi-gray-dark: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--mochi-gray-dark);
+            background-color: var(--mochi-gray-light);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        /* Header Section */
+        .main-header {
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .main-header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-image {
+            height: 3rem; /* Adjust height to fit the header */
+            width: auto;
+        }
+
+        .nav-links {
+            display: none;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--mochi-gray-dark);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--mochi-mint);
+        }
+
+        .cta-btn {
+            background-color: var(--mochi-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            background-color: var(--mochi-mint);
+        }
+
+        .mobile-menu-btn {
+            display: block;
+            color: var(--mochi-gray-dark);
+        }
+
+        /* Hero Carousel Section */
+        .hero-carousel {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            white-space: nowrap; /* Prevent items from wrapping */
+        }
+
+        .carousel-slide {
+            flex-shrink: 0;
+            width: 100%;
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        .slide-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-text {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--mochi-pink);
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--mochi-gray-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-cta {
+            background-color: var(--mochi-blue);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .hero-cta:hover {
+            background-color: var(--mochi-mint);
+            transform: scale(1.05);
+        }
+
+        .hero-image-placeholder {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .placeholder-box {
+            width: 16rem;
+            height: 16rem;
+            border-radius: 9999px;
+            background-color: var(--mochi-gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mochi-gray-dark);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            50% { opacity: .5; }
+        }
+
+        .carousel-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .thumbnail-item {
+            background-color: var(--mochi-mint);
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            position: relative;
+            border-radius: 0.5rem;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 1rem;
+        }
+
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.6);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .indicator-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--mochi-mint);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            opacity: 0.5;
+        }
+
+        .indicator-btn.active {
+            opacity: 1;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding-top: 4rem;
+            padding-bottom: 6rem;
+        }
+
+        .features-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--mochi-mint);
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap; /* Changed to wrap */
+            justify-content: center; /* Center items on all screens */
+            gap: 2rem; /* Adjusted gap for better spacing */
+        }
+
+        .feature-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.3s ease;
+            text-align: center;
+            width: 100%;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-container {
+            width: 4rem;
+            height: 4rem;
+            margin: 0 auto 1rem auto;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-container span {
+            color: white;
+            font-size: 1.875rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+            font-size: 0.875rem;
+        }
+
+        /* Footer Section */
+        .main-footer {
+            background-color: white;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .main-footer-content {
+            text-align: center;
+            color: var(--mochi-gray-dark);
+            font-size: 0.875rem;
+        }
+
+        .footer-links a {
+            color: var(--mochi-gray-dark);
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--mochi-mint);
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: none;
+            }
+
+            .carousel-slide {
+                padding-top: 6rem;
+                padding-bottom: 6rem;
+            }
+
+            .slide-content {
+                flex-direction: row;
+                text-align: left;
+                align-items: center;
+                justify-content: space-evenly;
+            }
+
+            .hero-text {
+                width: 50%;
+                margin-right: 2rem;
+                margin-bottom: 0;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.25rem;
+            }
+
+            .hero-image-placeholder, .thumbnail-section {
+                width: 50%;
+                justify-content: center;
+            }
+            .carousel-thumbnails {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: none;
+                justify-content: center;
+            }
+
+            .placeholder-box {
+                width: 24rem;
+                height: 24rem;
+            }
+
+            .features-grid {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: nowrap; /* Reset wrap for desktop */
+            }
+
+            .feature-card {
+                width: calc(33.333% - 1rem); /* Distribute items evenly with spacing */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<header class="main-header">
+    <nav class="container">
+        <!-- Logo -->
+        <a th:href="@{/page/test/home}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <!-- Navigation links -->
+        <div class="nav-links">
+            <a th:href="@{/page/test/study}" class="nav-link">학습하기</a>
+            <a href="#" class="nav-link">퀴즈풀기</a>
+            <a href="#" class="nav-link">마이페이지</a>
+            <a href="#" class="nav-link">단어장</a>
+            <a href="#" class="nav-link">로그인</a>
+            <a th:href="@{/page/test/best}" class="cta-btn">시작하기</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+    </nav>
+</header>
+
+<!-- Hero Carousel Section -->
+<section class="hero-carousel" id="heroCarousel">
+    <div class="carousel-track" id="carouselTrack">
+        <!-- Slide 1: Original Mochi content -->
+        <div class="carousel-slide container">
+            <div class="slide-content">
+                <!-- Text content -->
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        귀여운 모찌와<br>함께하는 일본어 학습!
+                    </h1>
+                    <p class="hero-subtitle">
+                        짧은 영상과 실용적인 문장으로 즐겁게 배우는, 초보자도 쉽게 이용 가능한 일본어 학습 플랫폼입니다.
+                    </p>
+                    <a href="#" class="hero-cta">
+                        무료로 시작하기
+                    </a>
+                </div>
+                <!-- Image placeholder -->
+                <div class="hero-image-placeholder">
+                    <div class="placeholder-box">
+                        [스마트폰으로 영상을 보는 모찌 캐릭터 이미지]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Video thumbnails -->
+        <div class="carousel-slide container">
+            <div class="slide-content">
+                <!-- Text content -->
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        영상으로 쉽게<br>보고 듣는 일본어!
+                    </h1>
+                    <p class="hero-subtitle">
+                        드라마, 애니메이션, 영화 등 다양한 콘텐츠로 살아있는 일본어를 경험하세요.
+                    </p>
+                    <a href="#" class="hero-cta">
+                        지금 바로 시작하기
+                    </a>
+                </div>
+                <!-- Thumbnail placeholder -->
+                <div class="hero-image-placeholder thumbnail-section">
+                    <div class="carousel-thumbnails">
+                        <div class="thumbnail-item"></div>
+                        <div class="thumbnail-item"></div>
+                        <div class="thumbnail-item"></div>
+                        <div class="thumbnail-item"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Quiz section -->
+        <div class="carousel-slide container">
+            <div class="slide-content">
+                <!-- Text content -->
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        재미있는 퀴즈로<br>실력 다지기!
+                    </h1>
+                    <p class="hero-subtitle">
+                        배운 표현을 퀴즈로 복습하며, 나의 실력이 얼마나 늘었는지 바로 확인해 보세요.
+                    </p>
+                    <a href="#" class="hero-cta">
+                        퀴즈 풀어보기
+                    </a>
+                </div>
+                <!-- Quiz image placeholder -->
+                <div class="hero-image-placeholder">
+                    <div class="placeholder-box" style="background-color: var(--mochi-pink);">
+                        [퀴즈 아이콘이 있는 모찌 캐릭터 이미지]
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="carousel-nav">
+        <button class="nav-btn prev-btn" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="nav-btn next-btn" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+    <div class="carousel-indicators" id="carouselIndicators"></div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="features-title">MochiLearn의 특별한 기능</h2>
+        <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+                <div class="icon-container" style="background-color: var(--mochi-pink);">
+                    <!-- Icon placeholder -->
+                    <span>💡</span>
+                </div>
+                <h3 class="feature-title">영상 기반 학습</h3>
+                <p class="feature-description">재미있는 일본어 영상으로 원어민 표현을 자연스럽게 익히세요.</p>
+            </div>
+            <!-- Feature 2 -->
+            <div class="feature-card">
+                <div class="icon-container" style="background-color: var(--mochi-mint);">
+                    <!-- Icon placeholder -->
+                    <span>🗣️</span>
+                </div>
+                <h3 class="feature-title">반복 연습 시스템</h3>
+                <p class="feature-description">모르는 문장만 쏙쏙 골라 무한 반복으로 완벽하게 마스터하세요.</p>
+            </div>
+            <!-- Feature 3 -->
+            <div class="feature-card">
+                <div class="icon-container" style="background-color: var(--mochi-blue);">
+                    <!-- Icon placeholder -->
+                    <span>📝</span>
+                </div>
+                <h3 class="feature-title">문장 스크립트</h3>
+                <p class="feature-description">모든 영상에 스크립트가 제공되어 문맥을 정확히 이해할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer Section -->
+<footer class="main-footer">
+    <div class="container main-footer-content">
+        <p style="margin-bottom: 0.5rem;">&copy; 2025 MochiLearn. All Rights Reserved.</p>
+        <div style="margin-top: 1rem; margin-bottom: 1rem;">
+            <a href="#" class="footer-links">개인정보처리방침</a>
+            <span style="margin: 0 1rem;">|</span>
+            <a href="#" class="footer-links">이용약관</a>
+            <span style="margin: 0 1rem;">|</span>
+            <a href="#" class="footer-links">고객센터</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
+    const totalSlides = slides.length;
+    const track = document.getElementById('carouselTrack');
+    let autoSlideInterval;
+
+    function updateIndicators() {
+        const indicators = document.querySelectorAll('.indicator-btn');
+        indicators.forEach((btn, index) => {
+            if (index === currentSlide) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    function moveSlide(direction) {
+        currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+        const offset = -currentSlide * 100;
+        track.style.transform = `translateX(${offset}%)`;
+        updateIndicators();
+    }
+
+    function goToSlide(index) {
+        currentSlide = index;
+        const offset = -currentSlide * 100;
+        track.style.transform = `translateX(${offset}%)`;
+        updateIndicators();
+    }
+
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(() => {
+            moveSlide(1);
+        }, 5000); // 5초마다 자동 슬라이드
+    }
+
+    function stopAutoSlide() {
+        clearInterval(autoSlideInterval);
+    }
+
+    // Initialize indicators
+    document.addEventListener('DOMContentLoaded', () => {
+        const indicatorsContainer = document.getElementById('carouselIndicators');
+        for (let i = 0; i < totalSlides; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'indicator-btn';
+            btn.onclick = () => goToSlide(i);
+            indicatorsContainer.appendChild(btn);
+        }
+        updateIndicators();
+        startAutoSlide();
+    });
+
+    const carousel = document.getElementById('heroCarousel');
+    carousel.addEventListener('mouseenter', stopAutoSlide);
+    carousel.addEventListener('mouseleave', startAutoSlide);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+/*Color pallete : https://colorhunt.co/palette/ffdcdcfff2ebffe8cdffd6ba*/
+
+/* tags */
+
+/* 컬러 팔레트*/
+:root {
+    --mochi-pink: #FFB6C1;
+    --mochi-mint: #3ED6D0;
+    --mochi-blue: #32D9FF;
+    --mochi-gray-light: #F5F5F5;
+    --mochi-gray-dark: #333333;
+}
+
+/* 좌우 여백을 위한 기본 컨테이너 크기 */
+.container {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/*body:lang(ko) {
+    font-family: 'NanumBarunGothic', sans-serif;
+}*/
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--mochi-gray-dark);
+    background-color: var(--mochi-gray-light);
+    margin: 0;
+    padding: 0;
+}
+
+/* Header Section */
+.main-header {
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.main-header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-image {
+    height: 3rem;
+    width: auto;
+}
+
+.nav-links {
+    display: none;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-link {
+    color: var(--mochi-gray-dark);
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    color: var(--mochi-mint);
+}
+
+.cta-btn {
+    background-color: var(--mochi-blue);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.cta-btn:hover {
+    background-color: var(--mochi-mint);
+}
+
+.mobile-menu-btn {
+    display: block;
+    color: var(--mochi-gray-dark);
+}
+
+/* Footer Section */
+.main-footer {
+    background-color: white;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.main-footer-content {
+    text-align: center;
+    color: var(--mochi-gray-dark);
+    font-size: 0.875rem;
+}
+
+.footer-links a {
+    color: var(--mochi-gray-dark);
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: var(--mochi-mint);
+}
+
+@media (min-width: 768px) {
+    .nav-links {
+        display: flex;
+    }
+
+    .mobile-menu-btn {
+        display: none;
+    }
+}

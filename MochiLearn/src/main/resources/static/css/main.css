@@ -2,11 +2,14 @@
 
 /* tags */
 
+body:lang(ko) {
+	font-family: 'NanumBarunGothic', sans-serif;
+}
+
 body {
     background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-    font-family: "Pretendard JP Variable", "Pretendard JP", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Hiragino Sans", "Apple SD Gothic Neo", Meiryo, "Noto Sans JP", "Noto Sans KR", "Malgun Gothic", Osaka, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 }
 
 ul li{
@@ -37,7 +40,7 @@ nav{
 .navbar ul{
     padding: 0;
     margin: 0;
-}   
+}
 .navbar li{
     display: inline-block;
     padding: 10px 20px;
@@ -47,7 +50,7 @@ nav{
     padding: 10px 20px;
     font-weight: bold;
     font-family: 'Noto Sans JP', sans-serif;
-}   
+}
 .navbar_btnContainer{
     display: flex;
     align-items: right;
@@ -58,7 +61,7 @@ nav{
     padding: 10px 20px;
     background-color: #007bff;
     border-radius: 5px;
-    text-decoration: none;  
+    text-decoration: none;
     cursor: pointer;
 }
 .navbar_btn a{
@@ -95,7 +98,6 @@ nav{
     border-radius: 5px;
     padding: 10px;
     text-align: center;
-    cursor: pointer;
 }
 
 .card img{
@@ -132,14 +134,12 @@ nav{
     background-color: #007bff;
     color: white;
     border-radius: 5px;
-    text-decoration: none;
-    cursor: pointer;
+    text-decoration: none;  
 }
 
 .addBtn a{
     color: white;
     text-decoration: none;
-    cursor: pointer;
 }
 
 .searchBox input[type="text"]{
@@ -182,32 +182,7 @@ nav{
     width: 100%;
 }
 
-.containerHeader{
-    width: 100%;
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 20px;
-}
-
-.containerHeader h1{
-    width: 50%;
-    display : inline-block;
-    text-align: center;
-}
-
-.containerHeader .navbar_btn{
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    line-height: 30px;
-    background-color: #007bff;
-    color: white;
-    border-radius: 5px;
-    text-decoration: none;
-}
-
-.wordContainer {
+.wordContainer{
     background-color: #FFF2EB;
     width: 66%;
     display: grid;
@@ -217,65 +192,7 @@ nav{
     align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
 }
 
-.wordList, .addWordList {
-    width: 75%;
-    height: 75px;
-    margin: 10px auto;
-    display: flex;
-    justify-content: center; /* 내부 wordCard를 가로 중앙 정렬 */
-    align-items: center;     /* 내부 wordCard를 세로 중앙 정렬 */
-    padding: 20px;
-    background-color: #FFE8CD;
-}
-
-.wordCard {
-    width: 80%;
-    text-align: center;
-    background-color: #FFE8CD;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.wordPageContent{
-    display: grid;
-    width: 80%;
-    background-color: #FFE8CD;
-    grid-template-rows: repeat(3, 1fr);
-    align-items: center;
-    justify-items: center;
-    margin: 10px;
-    padding : 10px;
-}
-.word,.meaning,.example{
-    width: 100%;
-    text-align: left;
-}
-
-.word span{
-    font-size: 1.4em;
-    margin: 10px;
-    padding: 10px;
-}
-.meaning span,.example span{
-    font-size: 1.2em;
-    margin: 10px;
-    padding: 10px;
-}
-.wordCard h1 {
-    font-size: 1.5em;
-}
-
-.wordCard h3 {
-    font-size: 1em;
-}
-
-.wordCard a{
-    font-weight: bolder;
-    font-size: 1.4em;
-}
-
-.quizList{
+.wordList,.addWordList{
     width: 66%;
     margin: 10px auto;
     flex-wrap: wrap;
@@ -284,25 +201,8 @@ nav{
     background-color: #FFE8CD;
 }
 
-.quizContainer{
-    width: 70%;
-    display: grid;
-    align-items: center;
-    justify-items: center;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    background-color: #FFF2EB;
-}
-
-.quizCard{
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 10px;
+.wordList,.addWordList h2{
     text-align: center;
-    margin: 10px;
-    width: 175px;
-    height: 100px;
 }
 
 .quizContainer .quizCard{

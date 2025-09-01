@@ -1,17 +1,29 @@
-<html xmlns:th="http://thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-<script th:inline="javascript">
-function wordPopup(){
-	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-}
-</script>
-<header th:fragment="navigation">
 
-    <nav class="navbar">
-        <div class="navbar_logo">
+<header th:fragment="navigation" class="main-header">
+    <nav class="container">
+        <!-- Logo -->
+        <a th:href="@{/}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <!-- Navigation links -->
+        <div class="nav-links">
+            <a th:href="@{/page/study}" class="nav-link">학습하기</a>
+            <a th:href="@{/page/quiz}" class="nav-link">퀴즈풀기</a>
+            <a th:href="@{/page/mypage}" class="nav-link">마이페이지</a>
+            <a th:href="@{/page/word}" class="nav-link">단어장</a>
+            <a th:href="@{/page/login}" class="nav-link">로그인</a>
+            <a th:href="@{/page/test/best}" class="cta-btn">시작하기</a>
+        </div>
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+
+        <!--<div class="navbar_logo">
             <a th:href="@{/}">
-            	もちLearn
+                もちLearn
                 <img src="">
             </a>
         </div>
@@ -19,17 +31,20 @@ function wordPopup(){
             <li><a th:href="@{/page/study}">학습</a></li>
             <li><a th:href="@{/page/quiz}">퀴즈</a></li>
             <li><a th:href="@{/page/mypage}">마이페이지</a></li>
+            <li><a th:href="@{/page/test/home}">테스트</a></li>
+
         </ul>
         <div class="navbar_btnContainer">
-            <div class="navbar_btn" id="wordPageBtn"
-            th:onclick="wordPopup()">
+            &lt;!&ndash; 단어장 페이지는 Modal로 이동 &ndash;&gt;
+            <div class="navbar_btn" id="wordPageBtn">
                 <a>단어장</a>
             </div>
             <div class="navbar_btn" id="loginBtn">
                 <a th:href="@{/page/login}">로그인</a>
                 <button style="display:none">로그아웃</button>
             </div>
-        </div>
+        </div>-->
+
     </nav>
 </header>
 </body>

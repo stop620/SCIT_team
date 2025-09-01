@@ -1,9 +1,11 @@
 package com.hanzo.transcribeserver.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class ResponseDTO { // 요청 응답 dto
+@NoArgsConstructor
+public class SentenceDTO { // 요청 응답 dto
 
     private int index;
     private float time;

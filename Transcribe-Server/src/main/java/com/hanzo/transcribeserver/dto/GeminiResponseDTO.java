@@ -1,6 +1,6 @@
-package com.hanzo.mochilearn.dto;
+package com.hanzo.transcribeserver.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +8,12 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class TranscriptResponseDTO { // 요청 응답 dto
+public class GeminiResponseDTO {
 
+    @SerializedName("transcriptions")
     private List<SentenceDTO> sentences;
+
     private int level;
+    @SerializedName("quiz_sentences")
     private List<QuizDTO> quizSentences;
 }

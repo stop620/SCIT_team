@@ -59,7 +59,7 @@ public class TranscriptService {
             log.info("AI 서버에 작업 요청 전송 (Job ID: {}): URL={}", jobId, url);
 
             // RestTemplate을 사용하여 transcribe 서버에 POST 요청 전송
-            ResponseEntity<List<TranscriptResponseDTO>> response = restTemplate.exchange(
+            ResponseEntity<TranscriptResponseDTO> response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     entity,

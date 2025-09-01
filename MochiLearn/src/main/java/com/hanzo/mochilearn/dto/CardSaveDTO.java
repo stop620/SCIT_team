@@ -8,9 +8,10 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class TranscriptResponseDTO { // 요청 응답 dto
+public class CardSaveDTO {
 
-    private List<SentenceDTO> sentences;
-    private int level;
-    private List<QuizDTO> quizSentences;
+    @JsonProperty("card")
+    private CardDTO cardDTO;
+    @JsonProperty("quiz")
+    private List<QuizDTO> quizDtoList;
 }

@@ -1,237 +1,75 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="thymeleaf.org">
 <head>
-<meta charset="UTF-8" />
-<title>학습 카드 상세</title>
-<link rel="stylesheet" th:href="@{/css/nav.css}" />
-<link rel="stylesheet" th:href="@{/css/main.css}" />
-<link rel="stylesheet" th:href="@{/css/write.css}"/>
+    <meta charset="UTF-8" />
+    <title>학습 카드 상세</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+
+    <style>
+        body {
+            max-width: 800px;
+            margin: 40px auto;
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+        }
+        .card-detail {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+        }
+        .card-detail img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .card-detail h1 {
+            font-size: 1.8em;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .card-detail p {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.4;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 10px 18px;
+            text-decoration: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .back-btn:hover {
+            background-color: #357ABD;
+        }
+    </style>
 </head>
 <body>
-<div th:replace="~{navigation::navigation}"></div>
-<main>
-<h1 id="cardTitle"></h1>
-<h1 id="cardLike"></h1>
-<div class="card">
-    <div class="timeline-header">
-        <h3 class="card-title">학습 구간 목록</h3>
-        <span id="selected-section-display"></span>
+    <div th:replace="~{navigation::navigation}"></div>
+
+    <div class="card-detail" th:if="${card}">
+        <!-- 썸네일 이미지 -->
+        <img th:src="${card.url != null} ? ${card.url} : @{/images/default-thumbnail.png}" alt="카드 이미지" />
+
+        <!-- 카드 제목 -->
+        <h1 th:text="${card.title}">카드 제목</h1>
+
+        <!-- 뒤로 가기 버튼 -->
+        <a href="/study" class="back-btn">목록으로 돌아가기</a>
     </div>
-    <div id="timeline-buttons-container">
-        <!-- 섹션 버튼 생성 위치 -->
-    </div>
-</div>
-<div id="player-container" class="player-container">
-    <div id="player"></div>
-</div>
-<!-- 자막 공간 -->
-<div id="transcript-container" class="card transcript-container">
-    <div class="transcript-header">
-        <button id="prev-btn" class="transcript-nav-btn">◀</button>
-        <div class="transcript-text">
-            <p id="japanese-line">자막이 여기에 표시됩니다.</p>
-            <p id="korean-line">구간을 추가하고 버튼을 눌러주세요.</p>
-        </div>
-        <button id="next-btn" class="transcript-nav-btn">▶</button>
-    </div>
-    <div id="transcript-index"></div>
-</div>      
-</main>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script>
-let player = null;  // 유튜브 플레이어 객체
-let card = null;    // 카드 데이터
-
-// 자막 및 타임라인 전역 변수
-let currentTranscript = [];
-let currentTranscriptIndex = 0;
-let timelineTimeout = null;
-let subtitleInterval = null;
-
-function renderCard(cardData) {
-    document.getElementById('cardTitle').innerText = cardData.title || "";
-    document.getElementById('cardLike').innerText = cardData.like || "";
-}
-
-function renderSectionButtons(sections) {
-    const container = document.getElementById('timeline-buttons-container');
-    container.innerHTML = '';  // 초기화
-
-    sections.forEach(section => {
-        const button = document.createElement('button');
-        button.className = 'timeline-button';
-        button.textContent = section.section_num || section.sectionNum || "구간";
-        button.setAttribute('data-section-id', section.id);
-
-        button.addEventListener('click', () => {
-            console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
-            document.getElementById('selected-section-display').innerText = `선택된 구간: ${section.section_num || section.sectionNum}`;
-            startTimelinePlayback(section);
-        });
-
-        container.appendChild(button);
-    });
-}
-
-const extractVideoId = (url) => {
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-};
-
-
-
-// YouTube API 준비 콜백
-function onYouTubeIframeAPIReady() {
-    if (card && card.videoId) {
-        createPlayer(card.videoId);
-    }
-}
-
-function createPlayer(videoId) {
-    if (player) {
-        player.destroy();
-    }
-    player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: videoId,
-        playerVars: { playsinline: 1, controls: 1, rel: 0 },
-        events: {
-            onReady: () => {
-                console.log('플레이어 준비 완료');
-            },
-            onStateChange: event => {
-                console.log('플레이어 상태 변경:', event.data);
-            }
-        }
-    });
-}
-
-function parseAITime(timeStr) {
-    // "HH:MM:SS" 또는 "MM:SS" 형태 → 초 변환
-    const parts = timeStr.split(':').map(Number);
-    if(parts.length === 3) {
-        return parts[0] * 3600 + parts[1] * 60 + parts[2];
-    } else if(parts.length === 2) {
-        return parts[0] * 60 + parts[1];
-    }
-    return 0;
-}
-
-function updateSingleTranscriptLine() {
-    if (currentTranscript.length > 0) {
-        const item = currentTranscript[currentTranscriptIndex];
-        document.getElementById('japanese-line').textContent = item.japanese || "";
-        document.getElementById('korean-line').textContent = item.korean || "";
-        document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
-    }
-}
-
-function changeTranscriptIndex(direction) {
-    if (currentTranscript.length === 0) return;
-    currentTranscriptIndex = (currentTranscriptIndex + direction + currentTranscript.length) % currentTranscript.length;
-    updateSingleTranscriptLine();
-}
-
-document.getElementById('prev-btn').addEventListener('click', () => changeTranscriptIndex(-1));
-document.getElementById('next-btn').addEventListener('click', () => changeTranscriptIndex(1));
-
-function startTimelinePlayback(timeline) {
-	
-    console.log("▶️ 타임라인 재생 시작:", timeline);
-
-    document.getElementById('selected-section-display').textContent = `- ${timeline.label || timeline.section_num || "구간"}`;
-
-    if (player) {
-        console.log(`⏩ 영상 위치 이동: ${timeline.start_seconds}초부터 재생`);
-
-        clearInterval(timelineTimeout);
-        clearInterval(subtitleInterval);
-
-        player.playVideo();
-
-        // 재생 시작 후 약간 지연후 seekTo 호출 권장
-        setTimeout(() => {
-            player.seekTo(timeline.start_seconds, true);
-        }, 200);
-
-        timelineTimeout = setInterval(() => {
-            if (player && typeof player.getCurrentTime === 'function') {
-                if (player.getCurrentTime() >= timeline.end_seconds) {
-                    player.pauseVideo();
-                    clearInterval(timelineTimeout);
-                }
-            }
-        }, 100);
-
-        currentTranscript = timeline.sentences || [];
-        currentTranscriptIndex = 0;
-        updateSingleTranscriptLine();
-
-        subtitleInterval = setInterval(() => {
-            if (!player || typeof player.getCurrentTime !== 'function') {
-                clearInterval(subtitleInterval);
-                return;
-            }
-            const currentTime = player.getCurrentTime();
-            if (currentTime < timeline.start_seconds || currentTime > timeline.end_seconds) {
-                clearInterval(subtitleInterval);
-                return;
-            }
-            const relativeTime = currentTime - timeline.start_seconds;
-
-            let newIndex = 0;
-            for (let i = 0; i < currentTranscript.length; i++) {
-                const itemTime = parseAITime(currentTranscript[i].time);
-                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
-
-                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
-                    newIndex = i;
-                    break;
-                }
-            }
-            if (newIndex !== currentTranscriptIndex) {
-                currentTranscriptIndex = newIndex;
-                console.log(`📝 자막 인덱스 변경: ${currentTranscriptIndex}, 자막 내용:`, currentTranscript[currentTranscriptIndex]);
-                updateSingleTranscriptLine();
-            }
-        }, 100);
-    } else {
-        console.warn("⚠️ YouTube 플레이어가 생성되어 있지 않음");
-    }
-}
-
-$(document).ready(function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const cardId = urlParams.get('cardId');
-
-    console.log("🏷️ URL에서 추출한 cardId:", cardId);
-
-    if (cardId) {
-        $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
-        .done(function(cardData) {
-            console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
-            card = cardData;
-            card.videoId = extractVideoId(card.url);
-            renderCard(card);
-            renderSectionButtons(card.sections);
-
-            if (typeof YT !== 'undefined' && YT && YT.Player) {
-                createPlayer(card.videoId);
-            } else {
-                console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
-            }
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("❌ API 호출 실패:", textStatus, errorThrown);
-        });
-    } else {
-        console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
-    }
-});
-</script>
+    
 </body>
 </html>
