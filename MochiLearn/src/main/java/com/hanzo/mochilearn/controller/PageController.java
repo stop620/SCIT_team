@@ -32,9 +32,7 @@ public class PageController {
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        CardEntity entity = cardService.getCardById(cardId);
-        CardDTO dto = cardService.toDTO(entity);
-        model.addAttribute("card", dto);
+        model.addAttribute("cardId", cardId);
         return "page/studyCard";
     }
 
