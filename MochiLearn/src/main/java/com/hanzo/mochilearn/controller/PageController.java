@@ -90,7 +90,6 @@ public class PageController {
 	
 	@GetMapping("quizCardPage")
 	public String quizCardPage() {
-
 		return "page/quizCardPage";
 	}
 

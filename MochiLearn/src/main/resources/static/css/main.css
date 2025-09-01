@@ -1,11 +1,6 @@
 /*Color pallete : https://colorhunt.co/palette/ffdcdcfff2ebffe8cdffd6ba*/
 
 /* tags */
-
-body:lang(ko) {
-	font-family: 'NanumBarunGothic', sans-serif;
-}
-
 body {
     background-color: #f8f9fa;
     margin: 0;

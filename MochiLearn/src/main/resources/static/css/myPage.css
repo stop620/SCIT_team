@@ -1,3 +1,11 @@
+:root {
+    --mochi-pink: #FFB6C1;
+    --mochi-mint: #3ED6D0;
+    --mochi-blue: #32D9FF;
+    --mochi-gray-light: #F5F5F5;
+    --mochi-gray-dark: #333333;
+}
+
 main{
     max-width: 80%;
     padding:1.5em;
@@ -27,7 +35,7 @@ main{
     }
     
     .left-column{
-        background-color: gainsboro;
+        background-color: var(--mochi-gray-dark);
         grid-column: 1;
         max-width: 100%;
         min-height: 100%;
@@ -54,7 +62,7 @@ main{
 .dashboardMenu{
     text-decoration: none;
     font-size: 20px;
-    color: #000;
+    color: var(--mochi-gray-light);
     border: none;
     background: none;
     text-align: left;
@@ -69,7 +77,7 @@ main{
     display: flex;
     width: 80px;
     height: 80px;
-    border: solid 3px red;
+    border: solid 3px var(--mochi-mint);
     border-radius: 40px;
     justify-content: center;
     align-content: center;
@@ -83,7 +91,7 @@ main{
 }
 
 .right-column .mainContainer{
-    background-color: #eee;
+    background-color: var(--mochi-gray-light);
 }
 
 .mainContainer{
@@ -137,7 +145,7 @@ th,td {
     padding: 6px 15px;
 }
 th {
-    background: #42444e;
+    background: var(--mochi-gray-dark);
     color: #fff;
     text-align: left;
 }
@@ -164,7 +172,7 @@ td:first-child {
     border-left: 1px solid #c6c9cc;
 }
 tr:nth-child(even) td {
-    background: #eaeaed;
+    background: var(--mochi-gray-light);
 }
 tr:last-child td:first-child {
     border-bottom-left-radius: 6px;
@@ -176,14 +184,14 @@ tr:last-child td:last-child {
 /* Calender Style */
 
 .calendar-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            animation: fadeIn 0.5s ease-in;
-        }
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    max-width: 500px;
+    width: 100%;
+    animation: fadeIn 0.5s ease-in;
+}
 
 @keyframes fadeIn {
     from {
@@ -202,11 +210,11 @@ tr:last-child td:last-child {
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--mochi-gray-light);
 }
 
 .nav-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--mochi-blue) 0%, var(--mochi-mint) 100%);
     color: white;
     border: none;
     border-radius: 50%;
@@ -222,7 +230,7 @@ tr:last-child td:last-child {
 
 .nav-btn:hover {
     transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 15px rgba(62, 214, 208, 0.3);
 }
 
 .nav-btn:active {
@@ -232,7 +240,7 @@ tr:last-child td:last-child {
 .current-month {
     font-size: 24px;
     font-weight: bold;
-    color: #333;
+    color: var(--mochi-gray-dark);
     text-align: center;
     min-width: 200px;
 }
@@ -241,13 +249,13 @@ tr:last-child td:last-child {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
-    background: #f8f9fa;
+    background: var(--mochi-gray-light);
     border-radius: 10px;
     padding: 10px;
 }
 
 .day-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--mochi-mint) 0%, var(--mochi-blue) 100%);
     color: white;
     padding: 15px 8px;
     text-align: center;
@@ -271,47 +279,47 @@ tr:last-child td:last-child {
 }
 
 .day-cell:hover {
-    background: #e3f2fd;
+    background: rgba(62, 214, 208, 0.1);
     transform: scale(1.05);
 }
 
 .day-cell.other-month {
     color: #ccc;
-    background: #f8f9fa;
+    background: var(--mochi-gray-light);
 }
 
 .day-cell.today {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    background: linear-gradient(135deg, var(--mochi-pink) 0%, #ff9eb5 100%);
     color: white;
     font-weight: bold;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 182, 193, 0.4);
 }
 
 .day-cell.today:hover {
-    background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
+    background: linear-gradient(135deg, #ff9eb5 0%, #ff87a3 100%);
 }
 
 .day-cell.selected {
-    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    background: linear-gradient(135deg, var(--mochi-mint) 0%, var(--mochi-blue) 100%);
     color: white;
     font-weight: bold;
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 12px rgba(62, 214, 208, 0.4);
 }
 
 .calendar-info {
     margin-top: 20px;
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--mochi-gray-light);
     border-radius: 10px;
     text-align: center;
-    color: #666;
+    color: var(--mochi-gray-dark);
     font-size: 14px;
 }
 
 .today-info {
     margin-top: 10px;
     font-size: 16px;
-    color: #333;
+    color: var(--mochi-gray-dark);
     font-weight: bold;
 }
 

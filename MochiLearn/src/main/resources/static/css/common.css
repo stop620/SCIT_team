@@ -12,7 +12,7 @@
 }
 
 /* 좌우 여백을 위한 기본 컨테이너 크기 */
-.container {
+nav.container {
     max-width: 1280px;
     margin-left: auto;
     margin-right: auto;
@@ -25,11 +25,24 @@
 }*/
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
     color: var(--mochi-gray-dark);
     background-color: var(--mochi-gray-light);
     margin: 0;
     padding: 0;
+}
+
+.container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+
+.wrapper{
+    width: 100%;
+    display: block;
 }
 
 /* Header Section */
@@ -97,6 +110,45 @@ body {
 
 /* quiz */
 
+.wordContainer{
+    background-color: var(--mochi-gray-light);
+    width: 66%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
+    align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
+}
+
+.wordList,.addWordList{
+    width: 66%;
+    text-align: center;
+    margin: 10px auto;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: var(--mochi-mint);
+}
+
+.wordList,.addWordList h2,a{
+    text-decoration: none;
+    color: var(--mochi-gray-dark);
+}
+
+.quizContainer .quizCard{
+    cursor: pointer;
+    border: 2px solid var(--mochi-blue);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.quizContainer .quizCard:hover{
+    background-color: rgba(50, 217, 255, 0.1); /* mochi-blue의 연한 버전 */
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(50, 217, 255, 0.3);
+}
+
 .quizCard{
 	cursor:pointer;
 }
@@ -133,3 +185,228 @@ body {
         display: none;
     }
 }
+
+/* ======== */
+/*Color pallete : https://colorhunt.co/palette/ffdcdcfff2ebffe8cdffd6ba*/
+
+/* tags */
+body {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+ul li{
+    list-style: none;
+}
+a:link{
+    color :black;
+    text-decoration: none;
+}
+a:visited{
+    color :black;
+    text-decoration: none;
+}
+
+
+/* nav */
+
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+.navbar ul{
+    padding: 0;
+    margin: 0;
+}
+.navbar li{
+    display: inline-block;
+    padding: 10px 20px;
+}
+.navbar_logo{
+    display: inline-block;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+.navbar_btnContainer{
+    display: flex;
+    align-items: right;
+}
+.navbar_btn{
+    display: inline-block;
+    margin-right: 5px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.navbar_btn a{
+    color: white;
+    text-decoration: none;
+}
+.navbar_menu a:hover{
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+}
+
+/* card / cardlist */
+
+.fav_cardlist,.recommend_cardlist{
+    width: 66%;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #FFE8CD;
+}
+
+.cardlist{
+    display: grid;
+    background-color: #FFF2EB;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap:10px;
+    padding: 15px;
+}
+
+.card img{
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.list_title{
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+/* studyPage */
+
+.studyHeader{
+    background-color: #FFF2EB;
+    padding: 20px;
+    text-align: center;
+}
+
+.searchBox{
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.addBtn{
+    display: inline-block;
+    justify-content: right;
+    margin: 20px 0;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;  
+}
+
+.addBtn a{
+    color: white;
+    text-decoration: none;
+}
+
+.searchBox input[type="text"]{
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.searchBox button{
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.category{
+    margin:10px 0;
+    height: 20px;
+}
+
+.category select{
+	float:right;
+}
+
+.studyContent{
+    width: 70%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.wordContainer{
+    width: 66%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;   /* 각 셀의 내용을 가로 중앙 정렬 */
+    align-items: center;     /* 각 셀의 내용을 세로 중앙 정렬 */
+}
+
+.wordList,.addWordList{
+    width: 66%;
+    margin: 10px auto;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.wordList,.addWordList h2{
+    text-align: center;
+}
+
+.quizContainer .quizCard{
+	cursor:pointer;
+}
+
+.wordExplain{
+    width: 100%;
+    text-align: left;
+    padding: 10px;
+}
+
+.addCardForm{
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF2EB;
+}
+
+.addCardForm input[type="text"]{
+    width: 300px;
+    padding: 5px;
+    margin: 5px;
+}
+
+.addCardForm input[type="submit"]{
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
