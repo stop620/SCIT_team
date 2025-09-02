@@ -4,6 +4,7 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.DeltaType;
 import com.github.difflib.patch.Patch;
+import com.hanzo.transcribeserver.dto.SpeechResponseDTO;
 import com.hanzo.transcribeserver.service.SpeechService;
 import com.microsoft.cognitiveservices.speech.*;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
@@ -37,12 +38,14 @@ public class SpeechController {
     private final SpeechService speechService;
 
     @PostMapping("/api/speech")
-    public Map<String, Object> assessPronunciation(@RequestParam("audioFile") MultipartFile file,
+    public SpeechResponseDTO assessPronunciation(@RequestParam("audioFile") MultipartFile file,
                                                    @RequestParam("referenceText") String referenceText) throws Exception {
         log.debug("요청수신");
 
-        speechService.pronunciationAssessment(file, referenceText);
+        SpeechResponseDTO result = speechService.pronunciationAssessment(file, referenceText);
 
-        return null;
+        log.debug("result: {}", result);
+
+        return result;
     }
 }

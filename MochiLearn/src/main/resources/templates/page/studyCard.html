@@ -70,7 +70,7 @@
                 // 서버로 음성 파일 전송
                 const formData = new FormData();
                 formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
-                formData.append('referenceText', '私は韓国人です。'); // 평가할 문장
+                formData.append('referenceText', '最近ついてないわって顔をしているそこのあなた。'); // 평가할 문장
 
                 try {
                     const response = await fetch('http://localhost:5001/api/speech', {
@@ -142,7 +142,8 @@ function renderSectionButtons(sections) {
 }
 
 const extractVideoId = (url) => {
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    // 일반 영상과 쇼츠 영상 URL을 모두 처리하도록 정규식 수정
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };

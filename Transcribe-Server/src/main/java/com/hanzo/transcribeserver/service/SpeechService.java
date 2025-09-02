@@ -1,9 +1,9 @@
 package com.hanzo.transcribeserver.service;
 
-import com.github.difflib.DiffUtils;
-import com.github.difflib.patch.AbstractDelta;
-import com.github.difflib.patch.DeltaType;
-import com.github.difflib.patch.Patch;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import com.hanzo.transcribeserver.dto.SpeechResponseDTO;
+import com.hanzo.transcribeserver.dto.Word;
 import com.microsoft.cognitiveservices.speech.*;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +18,9 @@ import javax.json.JsonReader;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,54 +29,78 @@ public class SpeechService {
     @Value("${azure.api.key}")
     private String azureKey;
 
-    @Value("${azure.api.url}")
-    private String azureApiUrl;
-
     private static final String speechRegion = "koreacentral";
-    private static Semaphore stopRecognitionSemaphore;
 
-    // Word 객체는 샘플 코드에서와 동일하게 별도로 정의 필요
-    static class Word {
-        String word;
-        String errorType;
-        double accuracyScore;
-
-        Word(String word, String errorType) {
-            this.word = word;
-            this.errorType = errorType;
-        }
-
-        Word(String word, String errorType, double accuracyScore) {
-            this.word = word;
-            this.errorType = errorType;
-            this.accuracyScore = accuracyScore;
-        }
+    // Gson 파싱용 내부 클래스
+    private static class PronunciationAssessmentResponse {
+        @SerializedName("NBest")
+        private List<NBest> nBest;
     }
+    private static class NBest {
+        @SerializedName("Words")
+        private List<JsonWord> words;
+    }
+    private static class JsonWord {
+        @SerializedName("Word")
+        private String word;
+        @SerializedName("Duration")
+        private Long duration;
+        @SerializedName("PronunciationAssessment")
+        private PronunciationAssessment pronAssessment;
+    }
+    private static class PronunciationAssessment {
+        @SerializedName("ErrorType")
+        private String errorType;
+        @SerializedName("AccuracyScore")
+        private Double accuracyScore;
+    }
+    // 내부 클래스 끝
 
-    public void pronunciationAssessment(MultipartFile file, String referenceText) throws ExecutionException, InterruptedException {
-
-        // api Key, service region 설정
-        SpeechConfig config = SpeechConfig.fromSubscription(azureKey, speechRegion);
-        String lang = "ja-JP";      // 일본어 설정
+    // 오디오 처리, ai 호출 결과 반환 메인 메소드
+    public SpeechResponseDTO  pronunciationAssessment(MultipartFile file, String referenceText) throws IOException, InterruptedException, ExecutionException {
 
         //ffmpeg로 wav 파일로 변환
         Path tempDir = null;
         try {
             tempDir = Files.createTempDirectory("speech-audio-");
             log.info("임시 디렉토리 생성: {}", tempDir);
+            File wavFile = convertAudio(tempDir, file);
 
-        } catch (Exception e) {}
+            SpeechResponseDTO speechResponseDTO = callAzureApi(wavFile, referenceText);
+
+            log.debug("speechResponseDTO: {}", speechResponseDTO);
+
+            return speechResponseDTO;
+
+        } finally {
+            if (tempDir != null) {
+                try {
+                    Files.walk(tempDir)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                    log.info("임시 디렉토리 삭제 완료: {}", tempDir);
+                } catch (IOException e) {
+                    log.error("임시 디렉토리 삭제 실패: {}", tempDir, e);
+                }
+            }
+        }
+    }
+
+    private File convertAudio(Path tempDir, MultipartFile originalFile) throws IOException, InterruptedException {
+
         File webmFile = tempDir.resolve("audio.webm").toFile();
         File wavFile = tempDir.resolve("audio.wav").toFile();
+
         log.debug("임시파일생성");
 
         try (FileOutputStream fos = new FileOutputStream(webmFile)) {
-            fos.write(file.getBytes());
+            fos.write(originalFile.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // FFmpeg 명령어를 설정합니다.
+        // FFmpeg 명령어 설정
         ProcessBuilder ffmpegProcessBuilder = new ProcessBuilder(
                 "ffmpeg",
                 "-i", webmFile.getAbsolutePath(), // 입력 파일
@@ -88,14 +110,14 @@ public class SpeechService {
         );
         log.debug("ffmpeg설정");
 
-        // FFmpeg 프로세스를 실행하고 종료될 때까지 기다립니다.
+        // FFmpeg 프로세스를 실행하고 종료될 때까지 대기
         Process ffmpegProcess = null;
         try {
             ffmpegProcess = ffmpegProcessBuilder.start();
             int exitCode = ffmpegProcess.waitFor();
             log.debug("ffmpeg 종료코드: {}", exitCode);
-            if(exitCode != 0) {
-                // FFmpeg 변환 실패 시 에러 로그를 읽고 예외를 발생시킵니다.
+            if (exitCode != 0) {
+                // FFmpeg 변환 실패 시 에러 로그를 읽고 예외
                 try (InputStream errorStream = ffmpegProcess.getErrorStream()) {
                     String error = new String(errorStream.readAllBytes());
                     throw new RuntimeException("FFmpeg 변환 실패. 에러 코드: " + exitCode + ", 에러 메시지: " + error);
@@ -104,191 +126,144 @@ public class SpeechService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            if(ffmpegProcess != null) {
+            if (ffmpegProcess != null) {
                 ffmpegProcess.destroyForcibly();
             }
         }
 
         log.debug("ffmpeg완료");
 
-        // speech recognizer 생성
-        AudioConfig audioInput = AudioConfig.fromWavFileInput(wavFile.getAbsolutePath());
+        return wavFile;
+    }
 
-        stopRecognitionSemaphore = new Semaphore(0);
-        List<String> recognizedWords = new ArrayList<>();
-        List<Word> pronWords = new ArrayList<>();
-        List<Word> finalWords = new ArrayList<>();
-        List<Double> fluencyScores = new ArrayList<>();
-        List<Double> prosodyScores = new ArrayList<>();
-        List<Long> durations = new ArrayList<>();
+    // azure speech service ai 호출
+    private SpeechResponseDTO callAzureApi(File audioFile, String referenceText) throws ExecutionException, InterruptedException {
+
+        // speech recognizer
+        // api Key, service region 설정
+        SpeechConfig config = SpeechConfig.fromSubscription(azureKey, speechRegion);
+        String lang = "ja-JP";      // 일본어 설정
+        AudioConfig audioInput = AudioConfig.fromWavFileInput(audioFile.getAbsolutePath());
 
         SpeechRecognizer recognizer = new SpeechRecognizer(config, lang, audioInput);
-        {
-            // subscribes to events
-            recognizer.recognized.addEventListener((s, e) -> {
-                if(e.getResult().getReason() == ResultReason.RecognizedSpeech) {
-                    System.out.println("[RECOGNIZED] Text=" + e.getResult().getText());
-                    PronunciationAssessmentResult pronResult = PronunciationAssessmentResult.fromResult(e.getResult());
-                    System.out.println(
-                            String.format(
-                                    "    Accuracy score: %f, Prosody score: %f, Pronunciation score: %f, Completeness score : %f, FluencyScore: %f",
-                                    pronResult.getAccuracyScore(), pronResult.getProsodyScore(), pronResult.getPronunciationScore(),
-                                    pronResult.getCompletenessScore(), pronResult.getFluencyScore()));
-                    fluencyScores.add(pronResult.getFluencyScore());
-                    prosodyScores.add(pronResult.getProsodyScore());
 
-                    String jString = e.getResult().getProperties().getProperty(PropertyId.SpeechServiceResponse_JsonResult);
-                    JsonReader jsonReader = Json.createReader(new StringReader(jString));
-                    JsonObject jsonObject = jsonReader.readObject();
-                    jsonReader.close();
+        // 발음평가 구성
+        PronunciationAssessmentConfig pronunciationConfig = new PronunciationAssessmentConfig(referenceText,
+                PronunciationAssessmentGradingSystem.HundredMark, PronunciationAssessmentGranularity.Word, true);
 
-                    JsonArray nBestArray = jsonObject.getJsonArray("NBest");
 
-                    for (int i = 0; i < nBestArray.size(); i++) {
-                        JsonObject nBestItem = nBestArray.getJsonObject(i);
+        pronunciationConfig.applyTo(recognizer);
 
-                        JsonArray wordsArray = nBestItem.getJsonArray("Words");
-                        long durationSum = 0;
+        /**
+         * 일반모드구성
+         */
+        // 단일 인식 시작
+        SpeechRecognitionResult result = recognizer.recognizeOnceAsync().get();
 
-                        for (int j = 0; j < wordsArray.size(); j++) {
-                            JsonObject wordItem = wordsArray.getJsonObject(j);
-                            recognizedWords.add(wordItem.getString("Word"));
-                            durationSum += wordItem.getJsonNumber("Duration").longValue();
-
-                            JsonObject pronAssessment = wordItem.getJsonObject("PronunciationAssessment");
-                            pronWords.add(new Word(wordItem.getString("Word"), pronAssessment.getString("ErrorType"), pronAssessment.getJsonNumber("AccuracyScore").doubleValue()));
-                        }
-                        durations.add(durationSum);
-                    }
-                } else if (e.getResult().getReason() == ResultReason.NoMatch) {
-                    System.out.println("NOMATCH: Speech could not be recognized.");
-                }
-            });
-
-            recognizer.canceled.addEventListener((s, e) -> {
-                System.out.println("CANCELED: Reason=" + e.getReason());
-
-                if (e.getReason() == CancellationReason.Error) {
-                    System.out.println("CANCELED: ErrorCode=" + e.getErrorCode());
-                    System.out.println("CANCELED: ErrorDetails=" + e.getErrorDetails());
-                    System.out.println("CANCELED: Did you update the subscription info?");
-                }
-
-                stopRecognitionSemaphore.release();
-            });
-
-            recognizer.sessionStarted.addEventListener((s, e) -> {
-                System.out.println("\n    Session started event.");
-            });
-
-            recognizer.sessionStopped.addEventListener((s, e) -> {
-                System.out.println("\n    Session stopped event.");
-            });
-
-            boolean enableMiscue = true;
-            // The reference matches the input wave named YourAudioFile.wav.
-            // String referenceText = "写真や文書数表などオフラインのものもあればインターネット銀行やネットショッピングソーシャルネットワークサービスなどオンラインサービスのアカウントもあるわ";
-
-            // Create pronunciation assessment config, set grading system, granularity and if enable miscue based on your requirement.
-            PronunciationAssessmentConfig pronunciationConfig = new PronunciationAssessmentConfig(referenceText,
-                    PronunciationAssessmentGradingSystem.HundredMark, PronunciationAssessmentGranularity.Phoneme, enableMiscue);
-
-            pronunciationConfig.enableProsodyAssessment();
-
-            pronunciationConfig.applyTo(recognizer);
-
-            // Starts continuous recognition. Uses stopContinuousRecognitionAsync() to stop recognition.
-            recognizer.startContinuousRecognitionAsync().get();
-
-            // Waits for completion.
-            stopRecognitionSemaphore.acquire();
-
-            recognizer.stopContinuousRecognitionAsync().get();
-
-            // For continuous pronunciation assessment mode, the service won't return the words with `Insertion` or `Omission`
-            // even if miscue is enabled.
-            // We need to compare with the reference text after received all recognized words to get these error words.
-            String[] referenceWords = referenceText.toLowerCase().split(" ");
-            for (int j = 0; j < referenceWords.length; j++) {
-                referenceWords[j] = referenceWords[j].replaceAll("^\\p{Punct}+|\\p{Punct}+$","");
-            }
-
-            if (enableMiscue) {
-                Patch<String> diff = DiffUtils.diff(Arrays.asList(referenceWords), recognizedWords, true);
-
-                int currentIdx = 0;
-                for (AbstractDelta<String> d : diff.getDeltas()) {
-                    if (d.getType() == DeltaType.EQUAL) {
-                        for (int i = currentIdx; i < currentIdx + d.getSource().size(); i++) {
-                            finalWords.add(pronWords.get(i));
-                        }
-                        currentIdx += d.getTarget().size();
-                    }
-                    if (d.getType() == DeltaType.DELETE || d.getType() == DeltaType.CHANGE) {
-                        for (String w : d.getSource().getLines()) {
-                            finalWords.add(new Word(w, "Omission"));
-                        }
-                    }
-                    if (d.getType() == DeltaType.INSERT || d.getType() == DeltaType.CHANGE) {
-                        for (int i = currentIdx; i < currentIdx + d.getTarget().size(); i++) {
-                            Word w = pronWords.get(i);
-                            w.errorType = "Insertion";
-                            finalWords.add(w);
-                        }
-                        currentIdx += d.getTarget().size();
-                    }
-                }
-            }
-            else {
-                finalWords = pronWords;
-            }
-
-            //We can calculate whole accuracy by averaging
-            double totalAccuracyScore = 0;
-            int accuracyCount = 0;
-            int validCount = 0;
-            for (Word word : finalWords) {
-                if (!"Insertion".equals(word.errorType)) {
-                    totalAccuracyScore += word.accuracyScore;
-                    accuracyCount += 1;
-                }
-
-                if ("None".equals(word.errorType)) {
-                    validCount += 1;
-                }
-            }
-            double accuracyScore = totalAccuracyScore / accuracyCount;
-
-            //Re-calculate fluency score
-            double fluencyScoreSum = 0;
-            long durationSum = 0;
-            for (int i = 0; i < durations.size(); i++) {
-                fluencyScoreSum += fluencyScores.get(i)*durations.get(i);
-                durationSum += durations.get(i);
-            }
-            double fluencyScore = fluencyScoreSum / durationSum;
-
-            //Re-calculate prosody score
-            double prosodyScoreSum = 0;
-            for (int i = 0; i < prosodyScores.size(); i++) {
-                prosodyScoreSum += prosodyScores.get(i);
-            }
-            double prosodyScore = prosodyScoreSum / prosodyScores.size();
-
-            // Calculate whole completeness score
-            double completenessScore = (double)validCount / referenceWords.length * 100;
-            completenessScore = completenessScore <= 100 ? completenessScore : 100;
-
-            System.out.println("Paragraph accuracy score: " + accuracyScore + " prosody score: " + prosodyScore +
-                    ", completeness score: " +completenessScore +
-                    " , fluency score: " + fluencyScore);
-            for (Word w : finalWords) {
-                System.out.println(" word: " + w.word + "\taccuracy score: " +
-                        w.accuracyScore + "\terror type: " + w.errorType);
-            }
+        if (result.getReason() != ResultReason.RecognizedSpeech) {
+            log.warn("음성 인식 실패: {}", result.getReason());
+            return new SpeechResponseDTO(result.getReason().toString());
         }
+
+        String jString = result.getProperties().getProperty(PropertyId.SpeechServiceResponse_JsonResult);
+        if (jString == null) {
+            log.warn("인식 결과 JSON이 null입니다.");
+            return new SpeechResponseDTO(result.getReason().toString());
+        }
+
+        JsonReader jsonReader = Json.createReader(new StringReader(jString));
+        JsonObject jsonObject = jsonReader.readObject();
+        jsonReader.close();
+
+        JsonArray nBestArray = jsonObject.getJsonArray("NBest");
+
+        if (nBestArray == null || nBestArray.isEmpty()) {
+            log.warn("인식은 성공했으나 NBest 배열이 비어있습니다.");
+            return new SpeechResponseDTO(result.getReason().toString());
+        }
+
+        JsonObject nBestItem = nBestArray.getJsonObject(0);
+        JsonArray wordsArray = nBestItem.getJsonArray("Words");
+
+        if (wordsArray == null || wordsArray.isEmpty()) {
+            log.warn("인식은 성공했으나 Words 배열이 비어있습니다.");
+            return new SpeechResponseDTO(result.getReason().toString());
+        }
+
+        List<String> recognizedWords = new ArrayList<>();
+        List<Word> pronWords = new ArrayList<>();
+
+        for (int j = 0; j < wordsArray.size(); j++) {
+            JsonObject wordItem = wordsArray.getJsonObject(j);
+            recognizedWords.add(wordItem.getString("Word"));
+
+            JsonObject pronAssessment = wordItem.getJsonObject("PronunciationAssessment");
+
+            String errorType = null;
+            double accuracyScore = 0.0;
+
+            if (pronAssessment != null) {
+                errorType = pronAssessment.getString("ErrorType", "None");
+                javax.json.JsonNumber accuracyScoreJson = pronAssessment.getJsonNumber("AccuracyScore");
+                if (accuracyScoreJson != null) {
+                    accuracyScore = accuracyScoreJson.doubleValue();
+                }
+            } else {
+                log.warn("PronunciationAssessment 객체가 누락되었습니다.");
+                errorType = "No Assessment";
+            }
+            pronWords.add(new Word(wordItem.getString("Word"), errorType, accuracyScore));
+        }
+
+        // Fluency score는 문장 단위로 가져옴
+        PronunciationAssessmentResult pronResult = PronunciationAssessmentResult.fromResult(result);
+        double fluencyScore = pronResult.getFluencyScore();
+
+        // Omission, Insertion 등 모든 오류를 포함한 finalWords를 직접 구성
+        List<Word> finalWords = new ArrayList<>();
+        // pronWords에 Insertion/Omission 정보가 포함되어 있음
+        finalWords.addAll(pronWords);
+
+
+        // 최종 점수 계산 로직
+        SpeechResponseDTO finalResult = calculateFinalScores(referenceText, finalWords, fluencyScore);
+
         config.close();
         audioInput.close();
         recognizer.close();
+
+        return finalResult;
+    }
+
+    //최종 점수 계산 메서드 (finalWords를 직접 받음)
+    private SpeechResponseDTO calculateFinalScores(String referenceText, List<Word> finalWords, double fluencyScore) {
+        String[] referenceWords = referenceText.toLowerCase().split(" ");
+
+        double totalAccuracyScore = 0;
+        int accuracyCount = 0;
+        int validCount = 0;
+        for (Word word : finalWords) {
+            if (!"Insertion".equals(word.getErrorType())) {
+                totalAccuracyScore += word.getAccuracyScore();
+                accuracyCount += 1;
+            }
+            if ("None".equals(word.getErrorType())) {
+                validCount += 1;
+            }
+        }
+        double accuracyScore = accuracyCount > 0 ? totalAccuracyScore / accuracyCount : 0;
+        double completenessScore = (double) validCount / referenceWords.length * 100;
+        completenessScore = completenessScore <= 100 ? completenessScore : 100;
+
+        SpeechResponseDTO resultDto = new SpeechResponseDTO();
+        resultDto.setAccuracyScore((float) accuracyScore);
+        resultDto.setCompletenessScore((float) completenessScore);
+        resultDto.setFluencyScore((float) fluencyScore);
+
+        // List<Word>를 그대로 DTO에 설정
+        resultDto.setWords(finalWords);
+
+        return resultDto;
     }
 }
+

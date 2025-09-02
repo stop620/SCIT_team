@@ -270,22 +270,30 @@
 	            });
 	        });
 	    });
-		function getYoutubeThumbnail(youtubeUrl) {
-		    let videoId = '';
-		    if (!youtubeUrl) {
-		        return '/images/default-thumbnail.png';  // URL이 없으면 기본 이미지 반환
-		    }
-	
-		    if (youtubeUrl.includes('youtu.be/')) {
-		        videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
-		    } else if (youtubeUrl.includes('v=')) {
-		        videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
-		    }
-		    if (videoId) {
-		        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-		    }
-	
-		    return '/images/default-thumbnail.png';
+		function getYoutubeThumbnail(youtubeUrl) {		// 쇼츠 처리 가능하게 수정
+			let videoId = '';
+			if (!youtubeUrl) {
+				return '/images/default-thumbnail.png';  // URL이 없으면 기본 이미지 반환
+			}
+
+			// 쇼츠 URL (youtube.com/shorts/) 처리
+			if (youtubeUrl.includes('youtube.com/shorts/')) {
+				videoId = youtubeUrl.split('youtube.com/shorts/')[1].split(/[?&]/)[0];
+			}
+			// 짧은 URL (youtu.be/) 처리
+			else if (youtubeUrl.includes('youtu.be/')) {
+				videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
+			}
+			// 일반 URL (v=) 처리
+			else if (youtubeUrl.includes('v=')) {
+				videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
+			}
+
+			if (videoId) {
+				return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+			}
+
+			return '/images/default-thumbnail.png';
 		}
 
 		let page = 0;
