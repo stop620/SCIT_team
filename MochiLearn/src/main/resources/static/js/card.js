@@ -170,16 +170,25 @@ function renderSectionButtons(sections) {
 
         button.addEventListener('click', () => {
             console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
-            startTimelinePlayback(section);
+
+            // section 객체 내에 sentence 배열이 바로 있다고 가정
+            const transcript = section.sentences || [];  // sentences 배열이 section 안에 있음
+
+            startTimelinePlayback({
+                start: section.start_seconds,
+                end: section.end_seconds,
+                transcript: transcript,
+            });
         });
 
         container.appendChild(button);
     });
 }
 
+
 // 핵심 로직 함수 - 타임라인 재생, 자동정지, 자막 전환
 const startTimelinePlayback = (timeline) => {
-
+	console.log("▶ startTimelinePlayback 실행, timeline 데이터:", timeline);
     if (player) {
         player.seekTo(timeline.start, true);
         player.playVideo();
