@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +18,15 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
 import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +39,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
+    private final MemberRepository memberRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -151,7 +157,10 @@ public class CardService {
     	
     	return dto;
     }
-
+    //cardId와 일치하는 데이터 가져오기
+  	public CardEntity findCardById(Integer cardId) {
+  		return cardRepository.findById(cardId).orElse(null);		
+  	}
     
     //페이지 불러오기
     public List<CardDTO> getPagedCards(String sort, int page, int size) {
@@ -169,27 +178,62 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
-
-    //제목으로 검색하기
-    public List<CardDTO> searchCards(String sort, int page, int size, String search) {
+    //타이틀, 닉네임으로 검색하기
+    public List<CardDTO> searchCardsByTitleOrNickname(String sort, int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CardEntity> entityPage;
 
+        // 1. 닉네임에 포함되는 멤버 리스트 조회
+        List<MemberEntity> members = memberRepository.findByNicknameContainingIgnoreCase(search);
+        List<Integer> memberIds = members.stream()
+                                         .map(MemberEntity::getId)
+                                         .collect(Collectors.toList());
+
+        // 2. 제목 포함 또는 멤버 ID 중 하나 일치하는 카드 검색
+        Page<CardEntity> entityPage;
         if ("latest".equalsIgnoreCase(sort)) {
-            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByCreatedDateDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrMemberIdInOrderByCreatedDateDesc(
+                search, memberIds, pageable);
         } else {
-            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrderByLikeDesc(search, pageable);
+            entityPage = cardRepository.findByTitleContainingIgnoreCaseOrMemberIdInOrderByLikeDesc(
+                search, memberIds, pageable);
         }
 
         return entityPage.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
-    //cardId와 일치하는 데이터 가져오기
-	public CardEntity findCardById(Integer cardId) {
-		return cardRepository.findById(cardId).orElse(null);		
-	}
+    public Page<CardDTO> searchCardsByTags(List<String> tags, int page, int size, String sort) {
+        Sort sortOrder;
 
-    
-    
+        if ("latest".equalsIgnoreCase(sort)) {
+            sortOrder = Sort.by(Sort.Direction.DESC, "createdDate");
+        } else { // 기본 인기순
+            sortOrder = Sort.by(Sort.Direction.DESC, "like");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
+
+        Specification<CardEntity> spec = (root, query, cb) -> {
+            if (tags == null || tags.isEmpty()) {
+                return cb.conjunction();
+            }
+            Predicate predicate = cb.disjunction();
+            for (String tag : tags) {
+                predicate = cb.or(predicate,
+                        cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
+            }
+            return predicate;
+        };
+
+        Page<CardEntity> cardPage = cardRepository.findAll(spec, pageable);
+
+        return cardPage.map(this::toDTO);
+    }
+    public boolean deleteCardById(Integer cardId) {
+        if (cardRepository.existsById(cardId)) {
+            cardRepository.deleteById(cardId);
+            return true;
+        }
+        return false;
+    }
 }
