@@ -39,12 +39,12 @@ main {
 @keyframes flash-green { 50% { background-color: #d3f9d8; } }
 @keyframes flash-red { 50% { background-color: #ffe3e3; } }
 
-/* 1 & 2. 드래그 앤 드롭 스타일*/
+/* 1. 순서 섞기 퀴즈 스타일 */
 .answer-area {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0;
+    gap: 10px;
     padding: 1rem;
     border: 2px dashed #ced4da;
     border-radius: 8px;
@@ -52,6 +52,29 @@ main {
     align-items: center;
     margin-bottom: 1rem;
 }
+
+/* 2. 빈칸 채우기 퀴즈 스타일 (수정됨) */
+.blank-sentence {
+    padding: 1rem;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+    min-height: 50px;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    line-height: 2.5rem;
+    text-align: center;
+}
+.blank-sentence .quizBlank,
+.blank-sentence .blank-word {
+    display: inline-block; /* 자연스러운 문장 흐름을 위해 inline-block 사용 */
+    vertical-align: bottom; /* 텍스트와 밑줄의 기준선 정렬 */
+    /*margin: 0 2px;*/ /* 단어와 빈칸 사이의 최소 간격 */
+}
+.blank-word {
+    color: #495057;
+}
+
+/* 드래그 앤 드롭 공통 스타일 */
 .quizBlankWordPool {
     display: flex;
     flex-wrap: wrap;
@@ -73,14 +96,25 @@ main {
     user-select: none;
 }
 .wordPoolItem:hover {
-    background-color: #e9ecef; transform: translateY(-2px);
+    background-color: #e9ecef;
+    transform: translateY(-2px);
 }
 .wordPoolItem.dragging {
-    opacity: 0.75;
+    opacity: 0.5;
 }
-.quizBlank { border-bottom: 2px solid #4c6ef5; min-width: 80px; height: 40px; display: inline-flex; justify-content: center; align-items: center; margin: 0 8px; transition: background-color 0.2s; }
-.quizBlank.drag-over { background-color: #edf2ff; }
-.blank-word { color: #495057; font-size: 1.5rem; display: inline-flex; align-items: center; height: 40px; padding: 0; }
+.quizBlank {
+    border-bottom: 2px solid #4c6ef5;
+    min-width: 80px;
+    height: 40px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 8px;
+    transition: background-color 0.2s;
+}
+.quizBlank.drag-over {
+    background-color: #edf2ff;
+}
 
 /* 빈칸에 들어간 단어 스타일 */
 .quizBlank .wordPoolItem {
@@ -91,6 +125,7 @@ main {
     padding: 0;
     cursor: pointer;
     transform: none;
+    font-size: 1.5rem; /* 문장과 같은 크기로 표시 */
 }
 .quizBlank .wordPoolItem:hover {
     background: none;

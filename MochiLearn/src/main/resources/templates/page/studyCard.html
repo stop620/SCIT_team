@@ -70,7 +70,7 @@
                 // 서버로 음성 파일 전송
                 const formData = new FormData();
                 formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
-                formData.append('referenceText', '私は学生です。'); // 평가할 문장
+                formData.append('referenceText', '私は韓国人です。'); // 평가할 문장
 
                 try {
                     const response = await fetch('http://localhost:5001/api/speech', {

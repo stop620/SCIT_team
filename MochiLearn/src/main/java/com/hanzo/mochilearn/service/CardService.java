@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hanzo.mochilearn.entity.MemberEntity;
+import com.hanzo.mochilearn.repository.MemberRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class CardService {
 
+    private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
@@ -112,6 +116,18 @@ public class CardService {
                 .map(this::toSimpleDTO)
                 .collect(Collectors.toList());
                
+    }
+
+    // 멤버의 모든 카드 로드(섹션 데이터 제외)
+    public List<CardDTO> getAllCards (Integer memberId) throws EntityNotFoundException {
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(()-> new EntityNotFoundException("Member with ID: " + memberId + " not found"));
+
+        return cardRepository.findAllByMemberId(memberId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+
     }
     
     public CardDTO toSimpleDTO(CardEntity entity) {

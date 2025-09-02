@@ -1,17 +1,14 @@
 package com.hanzo.mochilearn.controller;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
@@ -28,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class StudyRestController {
+public class  StudyRestController {
 
     private final CardService cardService;
     private final SentenceService sentenceService;
@@ -76,6 +73,11 @@ public class StudyRestController {
         }
     }
     
-    
-    
+    // 마이페이지 유저Id의 카드 데이터 주는 api
+    @GetMapping("/api/study/mycard/{memberId}")
+    public List<CardDTO> getMyCards(@PathVariable("memberId") Integer memberId) {
+
+        List<CardDTO> memberCardList = cardService.getAllCards(memberId);
+        return memberCardList;
+    }
 }
