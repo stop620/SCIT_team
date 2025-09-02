@@ -26,3 +26,11 @@
     font-size : 32px;
     font-weight: 600;
 }
+
+.wordContainer{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
