@@ -57,7 +57,15 @@ $(document).ready(function() {
 		        }
 		    });
 		});
+				// 이전 자막 버튼
+		        document.getElementById('prev-btn').addEventListener('click', () => {
+		            changeTranscriptIndex(-1);
+		        });
 
+		        // 다음 자막 버튼
+		        document.getElementById('next-btn').addEventListener('click', () => {
+		            changeTranscriptIndex(1);
+		        });
 		
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
@@ -140,45 +148,19 @@ const handleDeleteTimeline = (indexToDelete) => {
     renderTimelines();
 };
 
-// 타임라인 버튼 생성
 const renderTimelines = () => {
     const timelineContainer = document.getElementById('timeline-buttons-container');
     timelineContainer.innerHTML = '';
-    timelines.forEach((timeline, index) => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'timeline-button-wrapper';
 
+    // timeline 배열 반복하면서 각 타임라인과 연동되는 버튼 생성 (버튼 클릭 시 재생 기능 등)
+    timelines.forEach((timeline, index) => {
         const button = document.createElement('button');
         button.className = 'timeline-button';
-        button.setAttribute('aria-label', timeline.label);
+        button.textContent = `타임라인 ${index + 1}`;
+        // 버튼 클릭 시 타임라인 재생 함수 호출 (연결 기능 유지)
+        button.onclick = () => startTimelinePlayback(timeline);
 
-        button.classList.remove('loading', 'failed', 'completed');
-
-        if (timeline.status === 'PROCESSING') {
-            button.disabled = true;
-            button.classList.add('loading');
-            button.innerHTML = `<svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-        } else {
-            button.innerHTML = `<span class="timeline-button-label">${index + 1}</span>`;
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'timeline-delete-button';
-            deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-            deleteButton.onclick = (e) => {
-                e.stopPropagation();
-                handleDeleteTimeline(index);
-            };
-            wrapper.appendChild(deleteButton);
-
-            if (timeline.status === 'FAILED') {
-                button.disabled = true;
-                button.classList.add('failed');
-            } else { // COMPLETED
-                button.classList.add('completed');
-                button.onclick = () => startTimelinePlayback(timeline);
-            }
-        }
-        wrapper.appendChild(button);
-        timelineContainer.appendChild(wrapper);
+        timelineContainer.appendChild(button);
     });
 };
 
