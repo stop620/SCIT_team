@@ -14,6 +14,7 @@ function renderCard(cardData) {
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
+	
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
@@ -35,6 +36,29 @@ $(document).ready(function() {
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("❌ API 호출 실패:", textStatus, errorThrown);
         });
+		// 삭제 버튼에 이벤트 리스너 연결 (DOMContentLoaded 또는 다른 초기화 구간에 넣으세요)
+		document.getElementById('delete-button').addEventListener('click', () => {
+		    const urlParams = new URLSearchParams(window.location.search);
+		    const cardId = urlParams.get('cardId');
+			
+			if (!confirm("카드를 삭제하시겠습니까?")) {
+			        return; // 사용자가 취소하면 아무 동작 안 함
+			    }
+		    $.ajax({
+		        url: `/mochilearn/api/study/card/${cardId}`, // 경로 변수 방식 URL
+		        type: 'DELETE',
+		        success: function(response) {
+		            alert("카드가 삭제되었습니다.");
+					window.location.href = "/mochilearn/page/study";  // studyPage로 이동
+
+		        },
+		        error: function(xhr, status, error) {
+		            alert("카드 삭제에 실패했습니다.");
+		        }
+		    });
+		});
+
+		
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }

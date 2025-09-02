@@ -3,6 +3,7 @@ package com.hanzo.mochilearn.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -227,5 +228,12 @@ public class CardService {
         Page<CardEntity> cardPage = cardRepository.findAll(spec, pageable);
 
         return cardPage.map(this::toDTO);
+    }
+    public boolean deleteCardById(Integer cardId) {
+        if (cardRepository.existsById(cardId)) {
+            cardRepository.deleteById(cardId);
+            return true;
+        }
+        return false;
     }
 }

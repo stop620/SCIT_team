@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -91,7 +93,14 @@ public class StudyRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
-    
-    
+    @DeleteMapping("/api/study/card/{cardId}")
+    public String deleteCard(@PathVariable("cardId") Integer cardId) {
+        boolean deleted = cardService.deleteCardById(cardId);
+        if (deleted) {
+            return "삭제 성공";
+        } else {
+            return "삭제 실패: 해당 카드 없음";
+        }
+    }
     
 }
