@@ -49,6 +49,11 @@ main{
         justify-content: center;
         align-content: center;
     }
+    
+    .dashboard {
+        position: sticky;
+        top: 2rem;
+    }
 }
 
 .dashboard{
