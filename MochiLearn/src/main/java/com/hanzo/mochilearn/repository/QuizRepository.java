@@ -1,13 +1,13 @@
 package com.hanzo.mochilearn.repository;
 
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.QuizEntity;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.hanzo.mochilearn.entity.QuizEntity;
 
 @Repository
 public interface QuizRepository extends JpaRepository<QuizEntity, Integer> {

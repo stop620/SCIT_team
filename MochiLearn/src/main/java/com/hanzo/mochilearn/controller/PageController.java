@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.service.CardService;
 
 @Controller
 @RequestMapping("page")
 public class PageController {
 
-	/*
     private final CardService cardService;
 
     public PageController(CardService cardService) {
         this.cardService = cardService;
     }
-	*/
+
     @GetMapping("study")
     public String studyPage(Model model) {
         List<CardDTO> cards = new ArrayList<>();
@@ -33,9 +33,9 @@ public class PageController {
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        //CardEntity entity = cardService.getCardById(cardId);
-        //CardDTO dto = cardService.toDTO(entity);
-        //model.addAttribute("card", dto);
+        CardEntity entity = cardService.getCardById(cardId);
+        CardDTO dto = cardService.toDTO(entity);
+        model.addAttribute("card", dto);
         return "page/studyCard";
     }
 
