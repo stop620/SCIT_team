@@ -43,7 +43,6 @@ public class CardService {
     private final CardRepository cardRepository;
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
-    private final MemberRepository memberRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
