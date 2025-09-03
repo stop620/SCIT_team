@@ -1,13 +1,12 @@
 package com.hanzo.mochilearn.controller;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.hanzo.mochilearn.dto.CardSaveDTO;
 import com.hanzo.mochilearn.service.QuizService;
-import com.hanzo.mochilearn.service.SentenceService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +17,7 @@ import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.SentenceService;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class  StudyRestController {
+public class StudyRestController {
 
     private final CardService cardService;
+    private final QuizService quizService;
     private final SentenceService sentenceService;
     private final CardRepository cardRepository;
     private final SentenceRepository sentenceRepository;
-    private final QuizService quizService;
-
+    
     // 학습 카드 로드
     @GetMapping("/api/study/load")
     public List<CardDTO> getCards(
@@ -42,12 +42,26 @@ public class  StudyRestController {
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestParam(name="size", defaultValue = "12") int size,
             @RequestParam(name ="search", defaultValue = "") String search) {
+
         if (search == null || search.isEmpty()) {
             return cardService.getPagedCards(sort, page, size);
-       } else {
-            return cardService.searchCards(sort, page, size, search);
         }
+
+        // 통합검색: 제목 또는 닉네임(멤버) 포함 검색
+        return cardService.searchCardsByTitleOrNickname(sort, page, size, search);
     }
+    //태그필터링
+    @PostMapping("/api/study/filterByTags")
+    public Page<CardDTO> filterCardsByTags(
+            @RequestBody List<String> tags,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "12") int size,
+            @RequestParam(name = "sort", defaultValue = "popular") String sort) {
+
+        return cardService.searchCardsByTags(tags, page, size, sort);
+    }
+
+
     @GetMapping("/api/study/card")
     public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
     	CardEntity cardEntity = cardService.findCardById(cardId);
@@ -56,11 +70,12 @@ public class  StudyRestController {
         return cardDTO;
     	
     }
+
     // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
     @PostMapping("/api/study/save")
     @Transactional
     public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
-        log.info("저장할 학습 카드 데이터 : {}", cardSaveDto);
+        log.info("저장할 학습 카드 데이터 : {}", cardSaveDto.getCardDTO());
 
         try {
             // Card 엔티티 생성 및 저장
@@ -76,7 +91,17 @@ public class  StudyRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
-    
+
+    @DeleteMapping("/api/study/card/{cardId}")
+    public String deleteCard(@PathVariable("cardId") Integer cardId) {
+        boolean deleted = cardService.deleteCardById(cardId);
+        if (deleted) {
+            return "삭제 성공";
+        } else {
+            return "삭제 실패: 해당 카드 없음";
+        }
+    }
+
     // 마이페이지 유저Id의 카드 데이터 주는 api
     @GetMapping("/api/study/mycard/{memberId}")
     public List<CardDTO> getMyCards(@PathVariable("memberId") Integer memberId) {
