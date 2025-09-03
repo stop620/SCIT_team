@@ -26,6 +26,10 @@ public class WebSecurityConfig {
             , "/member/joinForm"        //회원가입
             , "/member/join"
             , "/member/loginForm"
+            , "/page/**"            // 임시 제외
+            , "/api/study/load"     // 카드 목록 api
+            , "/api/study/card"     // 카드 세부 요청 api
+            , "/api/quiz/**"           // 퀴즈 문제 요청 api
     };
 
     @Bean
