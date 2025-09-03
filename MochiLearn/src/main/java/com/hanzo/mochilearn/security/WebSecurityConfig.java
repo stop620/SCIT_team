@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults())
+//            .httpBasic(Customizer.withDefaults())
             .formLogin(formLogin -> formLogin
                     .loginPage("/member/loginForm")
                     .usernameParameter("id")

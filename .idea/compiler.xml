@@ -10,12 +10,9 @@
         <module name="MochiLearn.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel target="17" />
   </component>
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="MochiLearn" options="-parameters -parameters" />
-      <module name="MochiLearn.main" options="-parameters -parameters" />
-      <module name="MochiLearn.test" options="-parameters -parameters" />
-    </option>
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters -parameters" />
   </component>
 </project>

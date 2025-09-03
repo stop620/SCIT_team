@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/MochiLearn.main.iml" filepath="$PROJECT_DIR$/.idea/modules/MochiLearn.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/mochi.iml" filepath="$PROJECT_DIR$/.idea/mochi.iml" />
     </modules>
   </component>
 </project>

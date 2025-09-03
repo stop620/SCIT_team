@@ -1,6 +1,6 @@
 package com.hanzo.mochilearn.service;
 
-import com.hanzo.mochilearn.repo.MemberRepository;
+import com.hanzo.mochilearn.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

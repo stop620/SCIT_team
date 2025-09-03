@@ -1,7 +1,7 @@
 package com.hanzo.mochilearn.security;
 
 import com.hanzo.mochilearn.entity.MemberEntity;
-import com.hanzo.mochilearn.repo.MemberRepository;
+import com.hanzo.mochilearn.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,7 +33,7 @@ public class AuthenticatedUserDetailsService implements UserDetailsService {
                 .id(memberEntity.getUserId())
                 .password(memberEntity.getPassword())
                 .name(memberEntity.getName())
-                .role(memberEntity.getRole())
+                .role(memberEntity.getRole().name())
                 .build();
 		
 		log.debug("인증정보 : {}", user);
