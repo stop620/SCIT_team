@@ -35,14 +35,276 @@
         <button id="next-btn" class="transcript-nav-btn">▶</button>
     </div>
     <div id="transcript-index"></div>
-</div>      
+</div>
+    <!-- 임시 말하기 기능 공간 -->
+    <div class="card">
+        <input type="button" value="시작" id="startButton">
+        <input type="button" value="정지" id="stopButton">
+    </div>
 </main>
 <button id="delete-button" class="delete-button">삭제하기</button>
 <button id="edit-button" class="edit-button">수정하기</button>
 
-
 </body>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    // 임시 말하기 기능 자바스크립트
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    startButton.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+            audioChunks = []; // 녹음 시작 시 배열 초기화
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                console.log(audioBlob.size);
+                // 서버로 음성 파일 전송
+                const formData = new FormData();
+                formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
+                formData.append('referenceText', '最近ついてないわって顔をしているそこのあなた。'); // 평가할 문장
+
+                try {
+                    const response = await fetch('http://localhost:5001/api/speech', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Pronunciation Assessment Result:', result);
+                        alert(`정확도: ${result.accuracyScore}, 유창성: ${result.fluencyScore}`);
+                    } else {
+                        console.error('Server error:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                }
+            };
+
+            mediaRecorder.start();
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            console.log("녹음 시작");
+
+        } catch (err) {
+            console.error("마이크 접근에 실패했습니다:", err);
+        }
+    });
+
+    stopButton.addEventListener('click', () => {
+        mediaRecorder.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        console.log("녹음 중지");
+    });
+
+let player = null;  // 유튜브 플레이어 객체
+let card = null;    // 카드 데이터
+
+// 자막 및 타임라인 전역 변수
+let currentTranscript = [];
+let currentTranscriptIndex = 0;
+let timelineTimeout = null;
+let subtitleInterval = null;
+
+function renderCard(cardData) {
+    document.getElementById('cardTitle').innerText = cardData.title || "";
+    document.getElementById('cardLike').innerText = cardData.like || "";
+}
+
+function renderSectionButtons(sections) {
+    const container = document.getElementById('timeline-buttons-container');
+    container.innerHTML = '';  // 초기화
+
+    sections.forEach(section => {
+        const button = document.createElement('button');
+        button.className = 'timeline-button';
+        button.textContent = section.section_num || section.sectionNum || "구간";
+        button.setAttribute('data-section-id', section.id);
+
+        button.addEventListener('click', () => {
+            console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
+            document.getElementById('selected-section-display').innerText = `선택된 구간: ${section.section_num || section.sectionNum}`;
+            startTimelinePlayback(section);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+const extractVideoId = (url) => {
+    // 일반 영상과 쇼츠 영상 URL을 모두 처리하도록 정규식 수정
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+};
+
+
+
+// YouTube API 준비 콜백
+function onYouTubeIframeAPIReady() {
+    if (card && card.videoId) {
+        createPlayer(card.videoId);
+    }
+}
+
+function createPlayer(videoId) {
+    if (player) {
+        player.destroy();
+    }
+    player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: videoId,
+        playerVars: { playsinline: 1, controls: 1, rel: 0 },
+        events: {
+            onReady: () => {
+                console.log('플레이어 준비 완료');
+            },
+            onStateChange: event => {
+                console.log('플레이어 상태 변경:', event.data);
+            }
+        }
+    });
+}
+
+function parseAITime(timeStr) {
+    // "HH:MM:SS" 또는 "MM:SS" 형태 → 초 변환
+    const parts = timeStr.split(':').map(Number);
+    if(parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if(parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+    }
+    return 0;
+}
+
+function updateSingleTranscriptLine() {
+    if (currentTranscript.length > 0) {
+        const item = currentTranscript[currentTranscriptIndex];
+        document.getElementById('japanese-line').textContent = item.japanese || "";
+        document.getElementById('korean-line').textContent = item.korean || "";
+        document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
+    }
+}
+
+function changeTranscriptIndex(direction) {
+    if (currentTranscript.length === 0) return;
+    currentTranscriptIndex = (currentTranscriptIndex + direction + currentTranscript.length) % currentTranscript.length;
+    updateSingleTranscriptLine();
+}
+
+document.getElementById('prev-btn').addEventListener('click', () => changeTranscriptIndex(-1));
+document.getElementById('next-btn').addEventListener('click', () => changeTranscriptIndex(1));
+
+function startTimelinePlayback(timeline) {
+	
+    console.log("▶️ 타임라인 재생 시작:", timeline);
+
+    document.getElementById('selected-section-display').textContent = `- ${timeline.label || timeline.section_num || "구간"}`;
+
+    if (player) {
+        console.log(`⏩ 영상 위치 이동: ${timeline.start_seconds}초부터 재생`);
+
+        clearInterval(timelineTimeout);
+        clearInterval(subtitleInterval);
+
+        player.playVideo();
+
+        // 재생 시작 후 약간 지연후 seekTo 호출 권장
+        setTimeout(() => {
+            player.seekTo(timeline.start_seconds, true);
+        }, 200);
+
+        timelineTimeout = setInterval(() => {
+            if (player && typeof player.getCurrentTime === 'function') {
+                const currentTime = player.getCurrentTime();
+                if (currentTime >= timeline.end_seconds) {
+                    console.log(`⏹️ 타임라인 종료 시점 도달(${timeline.end_seconds}초), 재생 일시정지`);
+                    player.pauseVideo();
+                    clearInterval(timelineTimeout);
+                }
+            }
+        }, 100);
+
+        currentTranscript = timeline.sentences || [];
+        currentTranscriptIndex = 0;
+        updateSingleTranscriptLine();
+
+        subtitleInterval = setInterval(() => {
+            if (!player || typeof player.getCurrentTime !== 'function') {
+                clearInterval(subtitleInterval);
+                return;
+            }
+            const currentTime = player.getCurrentTime();
+            if (currentTime < timeline.start_seconds || currentTime > timeline.end_seconds) {
+                clearInterval(subtitleInterval);
+                return;
+            }
+            const relativeTime = currentTime - timeline.start_seconds;
+
+            let newIndex = 0;
+            for (let i = 0; i < currentTranscript.length; i++) {
+                const itemTime = parseAITime(currentTranscript[i].time);
+                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
+
+                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
+                    newIndex = i;
+                    break;
+                }
+            }
+            if (newIndex !== currentTranscriptIndex) {
+                currentTranscriptIndex = newIndex;
+                console.log(`📝 자막 인덱스 변경: ${currentTranscriptIndex}, 자막 내용:`, currentTranscript[currentTranscriptIndex]);
+                updateSingleTranscriptLine();
+            }
+        }, 100);
+    } else {
+        console.warn("⚠️ YouTube 플레이어가 생성되어 있지 않음");
+    }
+}
+
+$(document).ready(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cardId = urlParams.get('cardId');
+
+    console.log("🏷️ URL에서 추출한 cardId:", cardId);
+
+    if (cardId) {
+        $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
+        .done(function(cardData) {
+            console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
+            card = cardData;
+            card.videoId = extractVideoId(card.url);
+            renderCard(card);
+            renderSectionButtons(card.sections);
+
+            if (typeof YT !== 'undefined' && YT && YT.Player) {
+                createPlayer(card.videoId);
+            } else {
+                console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
+            }
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error("❌ API 호출 실패:", textStatus, errorThrown);
+        });
+    } else {
+        console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
+    }
+});
+</script>
+</body>
 <script th:src="@{/js/card.js}"></script>
 </html>

@@ -9,97 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <style>
-        :root {
-            --mochi-pink: #FFB6C1;
-            --mochi-mint: #3ED6D0;
-            --mochi-blue: #32D9FF;
-            --mochi-gray-light: #F5F5F5;
-            --mochi-gray-dark: #333333;
-            /* Difficulty-based colors */
-            --mochi-level-beginner: #FFB6C1;
-            --mochi-level-intermediate: #3ED6D0;
-            --mochi-level-advanced: #C8A2C8;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--mochi-gray-dark);
-            background-color: var(--mochi-gray-light);
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        /* Header Section (from previous request) */
-        .main-header {
-            background-color: white;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        }
-
-        .main-header nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .logo-image {
-            height: 3rem; /* Adjust height to fit the header */
-            width: auto;
-        }
-
-        .nav-links {
-            display: none;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .nav-link {
-            color: var(--mochi-gray-dark);
-            transition: color 0.3s ease;
-            text-decoration: none;
-        }
-
-        .nav-link:hover {
-            color: var(--mochi-mint);
-        }
-
-        .cta-btn {
-            background-color: var(--mochi-blue);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .cta-btn:hover {
-            background-color: var(--mochi-mint);
-        }
-
-        .mobile-menu-btn {
-            display: block;
-            color: var(--mochi-gray-dark);
-        }
 
         /* Main Content Section */
         .main-content {
@@ -233,29 +145,6 @@
             margin: 2rem auto;
         }
 
-        /* Footer Section (from previous request) */
-        .main-footer {
-            background-color: white;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-
-        .main-footer-content {
-            text-align: center;
-            color: var(--mochi-gray-dark);
-            font-size: 0.875rem;
-        }
-
-        .footer-links a {
-            color: var(--mochi-gray-dark);
-            transition: color 0.3s ease;
-            text-decoration: none;
-        }
-
-        .footer-links a:hover {
-            color: var(--mochi-mint);
-        }
-
         /* Responsive Design */
         @media (min-width: 768px) {
             .nav-links {
@@ -269,29 +158,9 @@
     </style>
 </head>
 <body>
+<!-- 네비게이션 -->
+<div th:replace="~{navigation::navigation}"></div>
 
-<!-- Header Section (from previous request) -->
-<header class="main-header">
-    <nav class="container">
-        <!-- Logo -->
-        <a th:href="@{/page/test/home}" class="logo">
-            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
-        </a>
-        <!-- Navigation links -->
-        <div class="nav-links">
-            <a th:href="@{/page/test/study}" class="nav-link">학습하기</a>
-            <a href="#" class="nav-link">퀴즈풀기</a>
-            <a href="#" class="nav-link">마이페이지</a>
-            <a href="#" class="nav-link">단어장</a>
-            <a href="#" class="nav-link">로그인</a>
-            <a th:href="@{/page/test/best}" class="cta-btn">시작하기</a>
-        </div>
-        <!-- Mobile menu button -->
-        <button class="mobile-menu-btn focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-        </button>
-    </nav>
-</header>
 
 <!-- Main Content Section -->
 <main class="main-content container">
@@ -472,19 +341,9 @@
     </section>
 </main>
 
-<!-- Footer Section (from previous request) -->
-<footer class="main-footer">
-    <div class="container main-footer-content">
-        <p style="margin-bottom: 0.5rem;">&copy; 2025 MochiLearn. All Rights Reserved.</p>
-        <div style="margin-top: 1rem; margin-bottom: 1rem;">
-            <a href="#" class="footer-links">개인정보처리방침</a>
-            <span style="margin: 0 1rem;">|</span>
-            <a href="#" class="footer-links">이용약관</a>
-            <span style="margin: 0 1rem;">|</span>
-            <a href="#" class="footer-links">고객센터</a>
-        </div>
-    </div>
-</footer>
+<!-- Footer -->
+<div th:replace="~{footer::footer}"></div>
+
 
 </body>
 </html>

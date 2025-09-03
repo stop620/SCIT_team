@@ -1,5 +1,8 @@
 package com.hanzo.mochilearn.controller;
 
+import com.hanzo.mochilearn.dto.CardDTO;
+import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.service.CardService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,16 +10,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
 
-@Slf4j
-@RequiredArgsConstructor
 @Controller
 @RequestMapping("page")
 public class PageController {
 
-    
+    private final CardService cardService;
+
+    public PageController(CardService cardService) {
+        this.cardService = cardService;
+    }
 
     @GetMapping("study")
     public String studyPage() {
@@ -24,7 +29,6 @@ public class PageController {
 //        model.addAttribute("cards", cards);
         return "page/studyPage";
     }
-    
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
@@ -52,19 +56,9 @@ public class PageController {
         return "page/writePage";
     }
 
-    @GetMapping("/test/home")
-    public String testHome() {
-        return "page/testHome";
-    }
-
-    @GetMapping("/test/best")
-    public String testBest() {
-        return "page/testBest";
-    }
-
-    @GetMapping("/test/study")
-    public String testStudy() {
-        return "page/testStudy";
+    @GetMapping("/best")
+    public String bestPage() {
+        return "page/bestPage";
     }
 
 	@GetMapping({"wordCard2","wordCard1"})

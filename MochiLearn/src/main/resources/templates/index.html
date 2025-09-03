@@ -14,6 +14,22 @@
         <link rel="stylesheet" th:href="@{/css/common.css}">
 
         <script th:src="@{/js/index.js}"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            //에러 무시해도 됩니다.
+            var wordPageUrl = [[@{/page/word}]];
+            window.onload = function() {
+                console.log("Navigation script loaded");
+                const wordPageBtn = document.getElementById("wordPageBtn");
+                wordPageBtn.onclick = function() {
+                    wordPage();
+                };
+            };
+            function wordPage() {
+                window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+            }
+            /*]]>*/
+        </script>
     </head>
     <body>
 
@@ -35,7 +51,7 @@
                                 <p class="hero-subtitle">
                                     짧은 영상과 실용적인 문장으로 즐겁게 배우는, 초보자도 쉽게 이용 가능한 일본어 학습 플랫폼입니다.
                                 </p>
-                                <a th:href="@{/page/test/best}" class="hero-cta">
+                                <a th:href="@{/page/best}" class="hero-cta">
                                     무료로 시작하기
                                 </a>
                             </div>
@@ -59,7 +75,7 @@
                                 <p class="hero-subtitle">
                                     드라마, 애니메이션, 영화 등 다양한 콘텐츠로 살아있는 일본어를 경험하세요.
                                 </p>
-                                <a th:href="@{/page/test/best}" class="hero-cta">
+                                <a th:href="@{/page/best}" class="hero-cta">
                                     무료로 시작하기
                                 </a>
                             </div>
@@ -146,19 +162,7 @@
             </div>
         </section>
 
-        <!-- Footer Section -->
-        <footer class="main-footer">
-            <div class="container main-footer-content">
-                <p style="margin-bottom: 0.5rem;">&copy; 2025 MochiLearn. All Rights Reserved.</p>
-                <div style="margin-top: 1rem; margin-bottom: 1rem;">
-                    <a href="#" class="footer-links">개인정보처리방침</a>
-                    <span style="margin: 0 1rem;">|</span>
-                    <a href="#" class="footer-links">이용약관</a>
-                    <span style="margin: 0 1rem;">|</span>
-                    <a href="#" class="footer-links">고객센터</a>
-                </div>
-            </div>
-        </footer>
-
+        <!-- footer -->
+        <div th:replace="~{footer::footer}"></div>
     </body>
 </html>
