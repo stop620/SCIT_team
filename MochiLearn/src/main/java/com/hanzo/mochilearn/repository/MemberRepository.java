@@ -7,8 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.hanzo.mochilearn.entity.MemberEntity;
 
+import java.util.Optional;
+
 
 @Repository
 public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
 	List<MemberEntity> findByNicknameContainingIgnoreCase(String nickname);
+
+    Optional<MemberEntity> findByUserId(String userId);
 }
