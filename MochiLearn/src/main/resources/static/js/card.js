@@ -88,9 +88,9 @@ const parseAITime = (timeValue) => {
     return 0;
 };
 
-// YouTube 관련 함수
 const extractVideoId = (url) => {
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    // 일반 영상과 쇼츠 영상 URL을 모두 처리하도록 정규식 수정
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };
