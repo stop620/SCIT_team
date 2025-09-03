@@ -92,6 +92,14 @@
     justify-content: center;
     color: var(--mochi-gray-dark);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    overflow: hidden;
+}
+
+.hero-image-item{
+    top: 22%;
+    width: 300px;
+    object-fit: cover;
+    position: absolute;
 }
 
 @keyframes pulse {
