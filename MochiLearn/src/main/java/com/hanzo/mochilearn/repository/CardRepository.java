@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import com.hanzo.mochilearn.entity.CardEntity;
 
+import java.util.List;
+import java.util.Optional;
+
 
 @Repository
 public interface CardRepository extends JpaRepository<CardEntity, Integer> {
@@ -24,7 +27,7 @@ public interface CardRepository extends JpaRepository<CardEntity, Integer> {
 
     // 제목 포함 + 인기순 정렬
     Page<CardEntity> findByTitleContainingIgnoreCaseOrderByLikeDesc(String title, Pageable pageable);
-    
-    
 
+
+    List<CardEntity> findAllByMemberId(Integer memberId);
 }

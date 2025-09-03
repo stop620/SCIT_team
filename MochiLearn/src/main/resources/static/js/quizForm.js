@@ -1,12 +1,10 @@
-let isFinished = false;
-let isLoaded = false;
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 전역 변수 및 상태 관리 ---
     let quizzes = [];
     let currentQuizIndex = -1;
     let userAnswer = [];
     let userResults = [];
+    let isRetryMode = false;
 
     // --- DOM 요소 ---
     const quizView = document.getElementById('quiz-view');
@@ -29,21 +27,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const level = params.get("level");
     console.log('선택한 퀴즈 난이도: ', level);
 
-    // --- 데이터 로딩 ---
-    function loadQuizzes()  {
-        if(isLoaded != true) {
+    // --- 데이터 로딩 (sessionStorage 적용) ---
+    function loadQuizzes() {
+        const storedQuizzes = sessionStorage.getItem('quizzes');
+        if (storedQuizzes && isRetryMode) {
+            quizzes = JSON.parse(storedQuizzes);
+            startQuiz();
+        } else {
             fetch(`/mochilearn/api/quiz?level=${level}`)
                 .then(response => response.json())
                 .then(data => {
                     quizzes = data;
                     console.log(quizzes);
-                    isLoaded = true;
+                    isRetryMode = false; // 다시풀기 모드 해제
+                    sessionStorage.setItem('quizzes', JSON.stringify(data));
+
                     startQuiz();
                 });
-        } else {
-            startQuiz();
         }
-    };
+    }
 
     const startQuiz = () => {
         currentQuizIndex = -1;
@@ -62,40 +64,54 @@ document.addEventListener('DOMContentLoaded', () => {
         koreanHint.textContent = quiz.korean;
 
         switch (quiz.quizType) {
-            case 'SHUFFLE': renderScrambleQuiz(quiz); break;
-            case 'BLANK': renderFillInBlankQuiz(quiz); break;
-            case 'CHOICE': renderMultipleChoiceQuiz(quiz); break;
+            case 'SHUFFLE':
+            case 'BLANK':
+                renderDragDropQuiz(quiz.quizType, quiz);
+                break;
+            case 'CHOICE':
+                renderMultipleChoiceQuiz(quiz);
+                break;
         }
     };
 
-    const renderScrambleQuiz = (quiz) => {
+    const renderDragDropQuiz = (type, quiz) => {
         let blankCounter = 0;
-        const answerHTML = quiz.shuffleAnswer.map(() => `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`).join('');
-        quizArea.innerHTML = `<div id="answer-area" class="answer-area">${answerHTML}</div><div id="word-bank" class="word-bank"></div>`;
-        const wordBank = document.getElementById('word-bank');
-        quiz.shuffledSentence.forEach((word, index) => {
-            const btn = createWordButton(word, `bank-word-${index}`);
-            wordBank.appendChild(btn);
-        });
-        userAnswer = Array(blankCounter).fill(null);
-        setupInteractions();
-    };
+        let answerHTML = '';
+        let choices = [];
+        let answerAreaContainerClass = 'answer-area';
 
-    const renderFillInBlankQuiz = (quiz) => {
-        let blankCounter = 0;
-        const sentenceHTML = quiz.blankSentence.map(part =>
-            part === '______'
-                ? `<span class="blank-space" data-blank-index="${blankCounter++}"></span>`
-                : `<span class="blank-word">${part}</span>`
-        ).join('');
-        quizArea.innerHTML = `<div class="blank-sentence">${sentenceHTML}</div><div id="word-bank" class="blank-choices"></div>`;
-        const choicesContainer = document.getElementById('word-bank');
-        quiz.blankChoices.forEach((choice, index) => {
-            const btn = createWordButton(choice, `bank-word-${index}`);
-            choicesContainer.appendChild(btn);
+        if (type === 'SHUFFLE') {
+            answerHTML = quiz.suffleAnswer.map(() => `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`).join('');
+            choices = quiz.shuffledSentence;
+            userAnswer = Array(quiz.suffleAnswer.length).fill(null);
+        } else { // BLANK
+            answerAreaContainerClass = 'blank-sentence';
+            answerHTML = quiz.blankSentence.map(part =>
+                part === '______'
+                    ? `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+                    : `<span class="blank-word">${part}</span>`
+            ).join('');
+            choices = quiz.blankChoices;
+            userAnswer = Array(quiz.blankAnswer.length).fill(null);
+        }
+
+        quizArea.innerHTML = `
+            <div class="${answerAreaContainerClass}">${answerHTML}</div>
+            <div class="quizBlankWordPool"></div>
+            <button id="resetDragDropBtn" class="reset-btn">초기화</button>
+        `;
+
+        const wordPool = quizArea.querySelector('.quizBlankWordPool');
+        choices.forEach((word, index) => {
+            const item = document.createElement('div');
+            item.className = 'wordPoolItem';
+            item.textContent = word;
+            item.draggable = true;
+            item.dataset.originalIndex = index; // 원래 순서를 저장
+            wordPool.appendChild(item);
         });
-        userAnswer = Array(blankCounter).fill(null);
-        setupInteractions();
+
+        setupDragDropInteractions();
     };
 
     const renderMultipleChoiceQuiz = (quiz) => {
@@ -110,15 +126,117 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- 상호작용 로직 ---
-    const createWordButton = (word, id) => {
-        const btn = document.createElement('button');
-        btn.className = 'word-btn';
-        btn.textContent = word;
-        btn.id = id;
-        btn.draggable = true;
-        return btn;
+    // --- 상호작용 로직 (이벤트 위임 방식) ---
+    const setupDragDropInteractions = () => {
+        const wordPool = quizArea.querySelector('.quizBlankWordPool');
+        const answerArea = quizArea.querySelector('.answer-area, .blank-sentence');
+        const draggables = quizArea.querySelectorAll('.wordPoolItem');
+        const dropzones = quizArea.querySelectorAll('.quizBlank');
+        const resetBtn = quizArea.querySelector('#resetDragDropBtn');
+
+        // 클릭 이벤트 (이벤트 위임)
+        quizArea.addEventListener('click', (e) => {
+            if (e.target.classList.contains('wordPoolItem')) {
+                const wordItem = e.target;
+                if (wordItem.parentElement === wordPool) {
+                    // 선택지에 있을 때 -> 빈칸으로 이동
+                    const firstEmptyBlank = answerArea.querySelector('.quizBlank:not(:has(*))');
+                    if (firstEmptyBlank) {
+                        placeWord(wordItem, firstEmptyBlank);
+                    }
+                } else {
+                    // 빈칸에 있을 때 -> 선택지로 이동
+                    returnWordToPool(wordItem);
+                }
+            }
+        });
+
+        // 드래그 앤 드롭 이벤트
+        draggables.forEach(item => {
+            item.addEventListener('dragstart', dragStart);
+            item.addEventListener('dragend', dragEnd);
+        });
+
+        dropzones.forEach(item => {
+            item.addEventListener('dragover', dragOver);
+            item.addEventListener('dragleave', dragLeave);
+            item.addEventListener('drop', drop);
+        });
+
+        // 초기화 버튼 이벤트
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                // 모든 단어를 순서대로 wordPool로 되돌림
+                const allWords = Array.from(quizArea.querySelectorAll('.wordPoolItem'));
+                allWords.sort((a, b) => a.dataset.originalIndex - b.dataset.originalIndex);
+                allWords.forEach(word => wordPool.appendChild(word));
+
+                // 정답 배열 초기화
+                userAnswer.fill(null);
+            });
+        }
     };
+
+    function dragStart(ev) {
+        ev.target.classList.add('dragging');
+        ev.dataTransfer.setData("text/plain", ev.target.textContent); // ID 대신 텍스트를 사용
+    }
+
+    function dragEnd(ev) {
+        ev.target.classList.remove('dragging');
+    }
+
+    function dragOver(ev) {
+        ev.preventDefault();
+        if (ev.currentTarget.children.length === 0) {
+            ev.currentTarget.classList.add('drag-over');
+        }
+    }
+
+    function dragLeave(ev) {
+        ev.currentTarget.classList.remove('drag-over');
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        ev.currentTarget.classList.remove('drag-over');
+        const wordText = ev.dataTransfer.getData("text/plain");
+        const draggingItem = Array.from(quizArea.querySelectorAll('.wordPoolItem')).find(d => d.textContent === wordText);
+
+        if (draggingItem && ev.currentTarget.children.length === 0) {
+            placeWord(draggingItem, ev.currentTarget);
+        }
+    }
+
+    function placeWord(wordItem, blank) {
+        const blankIndex = parseInt(blank.dataset.blankIndex);
+        userAnswer[blankIndex] = wordItem.textContent;
+        blank.appendChild(wordItem);
+    }
+
+    function returnWordToPool(wordItem) {
+        const wordPool = quizArea.querySelector('.quizBlankWordPool');
+        const blank = wordItem.parentElement;
+        if (blank && blank.classList.contains('quizBlank')) {
+            const blankIndex = parseInt(blank.dataset.blankIndex);
+            userAnswer[blankIndex] = null;
+        }
+
+        // 원래 순서에 맞게 되돌리기
+        const originalIndex = parseInt(wordItem.dataset.originalIndex);
+        const itemsInPool = Array.from(wordPool.children);
+        let inserted = false;
+        for (let i = 0; i < itemsInPool.length; i++) {
+            if (parseInt(itemsInPool[i].dataset.originalIndex) > originalIndex) {
+                wordPool.insertBefore(wordItem, itemsInPool[i]);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) {
+            wordPool.appendChild(wordItem);
+        }
+    }
 
     const selectMultipleChoice = (button) => {
         const selected = document.querySelector('#choice-sentences .selected');
@@ -127,89 +245,36 @@ document.addEventListener('DOMContentLoaded', () => {
         userAnswer = [button.textContent];
     };
 
-    // --- 드래그 앤 드롭 및 클릭 통합 로직 ---
-    const setupInteractions = () => {
-        const wordBank = document.getElementById('word-bank');
-        const answerArea = document.getElementById('answer-area') || document.querySelector('.blank-sentence');
-
-        // 클릭 이벤트 처리
-        wordBank.addEventListener('click', (e) => {
-            if (e.target.classList.contains('word-btn') && !e.target.classList.contains('used')) {
-                const firstEmptyBlank = answerArea.querySelector('.blank-space:not(:has(*))');
-                if (firstEmptyBlank) {
-                    moveWordToBlank(e.target, firstEmptyBlank);
-                }
-            }
-        });
-
-        // 드래그 앤 드롭 이벤트 처리
-        const draggables = wordBank.querySelectorAll('.word-btn');
-        const dropzones = answerArea.querySelectorAll('.blank-space');
-
-        draggables.forEach(draggable => {
-            draggable.addEventListener('dragstart', (e) => {
-                e.target.classList.add('dragging');
-                e.dataTransfer.setData('text/plain', e.target.id);
-            });
-            draggable.addEventListener('dragend', (e) => {
-                e.target.classList.remove('dragging');
-            });
-        });
-
-        dropzones.forEach(dropzone => {
-            dropzone.addEventListener('dragover', e => {
-                e.preventDefault();
-                if (!dropzone.hasChildNodes()) e.target.classList.add('drag-over');
-            });
-            dropzone.addEventListener('dragleave', e => e.target.classList.remove('drag-over'));
-            dropzone.addEventListener('drop', e => {
-                e.preventDefault();
-                e.target.classList.remove('drag-over');
-                const id = e.dataTransfer.getData('text/plain');
-                const draggable = document.getElementById(id);
-                if (dropzone.hasChildNodes() || !draggable || draggable.classList.contains('used')) return;
-                moveWordToBlank(draggable, dropzone);
-            });
-        });
-    };
-
-    const moveWordToBlank = (wordButton, blankSpace) => {
-        blankSpace.appendChild(wordButton);
-        wordButton.classList.add('used'); // 선택지에서 숨기기 위해 'used' 클래스 추가
-        const blankIndex = parseInt(blankSpace.dataset.blankIndex);
-        userAnswer[blankIndex] = wordButton.textContent;
-
-        wordButton.onclick = () => moveWordToBank(wordButton, blankSpace);
-    };
-
-    const moveWordToBank = (wordButton, blankSpace) => {
-        const wordBank = document.getElementById('word-bank');
-        wordBank.appendChild(wordButton);
-        wordButton.classList.remove('used'); // 선택지에서 다시 보이도록 'used' 클래스 제거
-        const blankIndex = parseInt(blankSpace.dataset.blankIndex);
-        userAnswer[blankIndex] = null;
-        wordButton.onclick = null;
-    };
-
-
     // --- 정답 확인 및 다음 문제 ---
     const checkAnswer = () => {
+        const isAnswered = userAnswer.filter(val => val !== null).length > 0;
+        if (!isAnswered) {
+            feedback.textContent = '정답을 선택해주세요!';
+            feedback.className = 'feedback incorrect';
+            quizArea.animate([{ transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }], { duration: 150, iterations: 2, direction: 'alternate' });
+            return;
+        }
+
         const quiz = quizzes[currentQuizIndex];
         let isCorrect = false;
+        let correctAnswer;
 
         switch (quiz.quizType) {
             case 'SHUFFLE':
-                isCorrect = JSON.stringify(userAnswer) === JSON.stringify(quiz.shuffleAnswer);
+                correctAnswer = quiz.suffleAnswer;
+                isCorrect = JSON.stringify(userAnswer) === JSON.stringify(correctAnswer);
                 break;
             case 'BLANK':
-                isCorrect = JSON.stringify(userAnswer) === JSON.stringify(quiz.blankAnswer);
+                correctAnswer = quiz.blankAnswer;
+                isCorrect = JSON.stringify(userAnswer) === JSON.stringify(correctAnswer);
                 break;
             case 'CHOICE':
-                isCorrect = userAnswer[0] === quiz.choiceAnswer;
+                correctAnswer = quiz.choiceAnswer;
+                isCorrect = userAnswer[0] === correctAnswer;
                 break;
         }
 
-        userResults.push({ quiz, isCorrect, userAnswer: [...userAnswer] });
+        userResults.push({ quiz, isCorrect, userAnswer: [...userAnswer], correctAnswer });
 
         feedback.textContent = isCorrect ? '정답입니다!' : '틀렸습니다!';
         feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
@@ -225,6 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentQuizIndex >= quizzes.length - 1) {
             progressBar.style.width = '100%';
             progressText.textContent = `완료!`;
+            if (!isRetryMode) {
+                // 최초 완료 시에만 결과 저장
+                sendQuizResult();
+            }
             setTimeout(showResults, 500);
             return;
         }
@@ -250,25 +319,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const incorrectQuizzes = userResults.filter(r => !r.isCorrect);
         if (incorrectQuizzes.length > 0) {
             incorrectList.innerHTML = incorrectQuizzes.map(item => {
-                const quiz = item.quiz;
-                let correctAnswerText = '';
-                let userAnswerText = item.userAnswer.filter(Boolean).join('');
-
-                if (quiz.quizType === 'SHUFFLE') correctAnswerText = quiz.shuffleAnswer.join('');
-                if (quiz.quizType === 'BLANK') correctAnswerText = quiz.blankAnswer.join(', ');
-                if (quiz.quizType === 'CHOICE') correctAnswerText = quiz.choiceAnswer;
+                let userAnswerText = Array.isArray(item.userAnswer) ? item.userAnswer.filter(Boolean).join(' ') : item.userAnswer;
+                let correctAnswerText = Array.isArray(item.correctAnswer) ? item.correctAnswer.join('') : item.correctAnswer;
 
                 return `<div class="incorrect-item">
-                                <p class="korean">${quiz.korean}</p>
-                                <p class="user-answer">내 답안: ${userAnswerText || '(미입력)'}</p>
-                                <p class="correct-answer">정답: ${correctAnswerText}</p>
-                            </div>`;
+                            <p class="korean">${item.quiz.korean}</p>
+                            <p class="user-answer">내 답안: ${userAnswerText || '(미입력)'}</p>
+                            <p class="correct-answer">정답: ${correctAnswerText}</p>
+                        </div>`;
             }).join('');
         } else {
             incorrectList.innerHTML = '<p style="text-align:center;">틀린 문제가 없어요! 완벽해요! 🎉</p>';
         }
 
-        new Chart(resultChartCanvas, {
+        if(window.resultChart instanceof Chart) window.resultChart.destroy();
+        window.resultChart = new Chart(resultChartCanvas, {
             type: 'doughnut',
             data: {
                 labels: ['정답', '오답'],
@@ -279,25 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     borderWidth: 4,
                 }]
             },
-            options: {
-                responsive: true,
-                cutout: '70%',
-                plugins: { legend: { display: false }, tooltip: { enabled: false } }
-            }
+            options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
         });
-        if(isFinished != true) {
-            sendQuizResult();
-
-        }
     };
-
-    // --- 이벤트 리스너 ---
-    checkBtn.addEventListener('click', checkAnswer);
-    nextBtn.addEventListener('click', nextQuestion);
-    retryBtn.addEventListener('click', startQuiz);
-    exitBtn.addEventListener('click', () => {
-        alert('나가기 버튼 클릭됨');
-    });
 
     function sendQuizResult() {
         const resultData = userResults.map(result => {
@@ -305,8 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const quizId = quiz.quizId;
             const isCorrect = result.isCorrect;
             const userAnswer = result.userAnswer;
-
             let correctAnswer = [];
+
             switch (quiz.quizType) {
                 case 'SHUFFLE':
                     correctAnswer = quiz.shuffleAnswer || [];
@@ -346,6 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // --- 이벤트 리스너 ---
+    checkBtn.addEventListener('click', checkAnswer);
+    nextBtn.addEventListener('click', nextQuestion);
+    retryBtn.addEventListener('click', () => { isRetryMode = true; startQuiz(); });
+    exitBtn.addEventListener('click', () => { window.location.href = '/mochilearn/page/study'; }); // 예시: 학습 페이지로 이동
 
     // --- 초기화 ---
     loadQuizzes();

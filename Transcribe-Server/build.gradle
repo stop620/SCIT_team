@@ -41,6 +41,11 @@ dependencies {
 
     // google ai
     implementation 'com.google.genai:google-genai:1.13.0'
+
+    // azure ai
+    implementation group: 'com.microsoft.cognitiveservices.speech', name: 'client-sdk', version: "1.43.0", ext: "jar"
+    implementation "io.github.java-diff-utils:java-diff-utils:4.12"
+    implementation 'org.glassfish:javax.json:1.1.4'
 }
 
 tasks.named('test') {
