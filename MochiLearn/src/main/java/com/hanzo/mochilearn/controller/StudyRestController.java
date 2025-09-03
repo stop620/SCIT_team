@@ -1,9 +1,11 @@
 package com.hanzo.mochilearn.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,6 +107,17 @@ public class StudyRestController {
         } else {
             return "삭제 실패: 해당 카드 없음";
         }
+    }
+    
+
+    @PostMapping("/api/study/likes/toggle")
+    public ResponseEntity<Map<String, Object>> toggleLike(
+            @RequestParam("memberId") Integer memberId,
+            @RequestParam("cardId") Integer cardId) {
+        String state = cardService.toggleLike(memberId, cardId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("state", state);
+        return ResponseEntity.ok(result);
     }
     
 }

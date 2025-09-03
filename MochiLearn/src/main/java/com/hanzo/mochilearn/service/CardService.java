@@ -1,6 +1,7 @@
 package com.hanzo.mochilearn.service;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +19,12 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.entity.LikeEntity;
 import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
 import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.LikeRepository;
 import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
@@ -40,6 +43,7 @@ public class CardService {
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
     private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -235,5 +239,29 @@ public class CardService {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public String toggleLike(Integer memberId, Integer cardId) {
+        Optional<LikeEntity> existingLike = likeRepository.findByMemberIdAndCardId(memberId, cardId);
+        CardEntity card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found with id " + cardId));
+
+        if (existingLike.isPresent()) {
+            likeRepository.deleteByMemberIdAndCardId(memberId, cardId);
+            card.setLike(card.getLike() - 1);
+            cardRepository.save(card);
+            return "unliked";
+        } else {
+            LikeEntity like = LikeEntity.builder()
+                    .memberId(memberId)
+                    .cardId(cardId)
+                    .likeTime(LocalDateTime.now())
+                    .build();
+            likeRepository.save(like);
+            card.setLike(card.getLike() + 1);
+            cardRepository.save(card);
+            return "liked";
+        }
     }
 }

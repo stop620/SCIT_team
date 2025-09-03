@@ -14,9 +14,21 @@ function renderCard(cardData) {
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
-	
+
+    let liked = false;
+    let likeCount = 0;
+	//나증에 멤버아이디 받아오는걸루 수정하기~
+    const memberId = 1; // 로그인 세션 등에서 받아와야 함
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
+
+    function updateLikeButton() {
+        if (liked) {
+            $('#like-button').css('color', 'red');
+        } else {
+            $('#like-button').css('color', 'black');
+        }
+    }
 
     if (cardId) {
         $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
@@ -27,6 +39,12 @@ $(document).ready(function() {
             renderCard(card);
             renderSectionButtons(card.sections);
 
+            // 좋아요 수와 멤버 좋아요 상태 초기화
+            likeCount = card.like || 0;
+            liked = card.liked || false;
+            $('#cardLike').text(likeCount);
+            updateLikeButton();
+
             if (typeof YT !== 'undefined' && YT && YT.Player) {
                 createPlayer(card.videoId);
             } else {
@@ -36,37 +54,55 @@ $(document).ready(function() {
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("❌ API 호출 실패:", textStatus, errorThrown);
         });
-		// 삭제 버튼에 이벤트 리스너 연결 (DOMContentLoaded 또는 다른 초기화 구간에 넣으세요)
-		document.getElementById('delete-button').addEventListener('click', () => {
-		    const urlParams = new URLSearchParams(window.location.search);
-		    const cardId = urlParams.get('cardId');
-			
-			if (!confirm("카드를 삭제하시겠습니까?")) {
-			        return; // 사용자가 취소하면 아무 동작 안 함
-			    }
-		    $.ajax({
-		        url: `/mochilearn/api/study/card/${cardId}`, // 경로 변수 방식 URL
-		        type: 'DELETE',
-		        success: function(response) {
-		            alert("카드가 삭제되었습니다.");
-					window.location.href = "/mochilearn/page/study";  // studyPage로 이동
 
-		        },
-		        error: function(xhr, status, error) {
-		            alert("카드 삭제에 실패했습니다.");
-		        }
-		    });
-		});
-				// 이전 자막 버튼
-		        document.getElementById('prev-btn').addEventListener('click', () => {
-		            changeTranscriptIndex(-1);
-		        });
+        $('#like-button').click(function() {
+            // 낙관적 업데이트
+            liked = !liked;
+            likeCount += liked ? 1 : -1;
+            $('#cardLike').text(likeCount);
+            updateLikeButton();
 
-		        // 다음 자막 버튼
-		        document.getElementById('next-btn').addEventListener('click', () => {
-		            changeTranscriptIndex(1);
-		        });
-		
+            // 서버에 좋아요 토글 요청
+            $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId })
+            .done(function(response) {
+                if ((response === 'liked' && !liked) || (response === 'unliked' && liked)) {
+                    // 서버 상태와 UI 불일치 시 롤백
+                    liked = !liked;
+                    likeCount += liked ? 1 : -1;
+                    $('#cardLike').text(likeCount);
+                    updateLikeButton();
+                }
+            })
+            .fail(function() {
+                // 실패 시 롤백 및 알림
+                liked = !liked;
+                likeCount += liked ? 1 : -1;
+                $('#cardLike').text(likeCount);
+                updateLikeButton();
+                alert('좋아요 처리 중 오류가 발생했습니다.');
+            });
+        });
+
+        // 삭제 버튼 이벤트
+        $('#delete-button').click(function() {
+            if (!confirm("카드를 삭제하시겠습니까?")) return;
+            $.ajax({
+                url: `/mochilearn/api/study/card/${cardId}`,
+                type: 'DELETE',
+                success: function() {
+                    alert("카드가 삭제되었습니다.");
+                    window.location.href = "/mochilearn/page/study";
+                },
+                error: function() {
+                    alert("카드 삭제에 실패했습니다.");
+                }
+            });
+        });
+
+        // 자막 버튼 이벤트
+        $('#prev-btn').click(() => changeTranscriptIndex(-1));
+        $('#next-btn').click(() => changeTranscriptIndex(1));
+
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }
