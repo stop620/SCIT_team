@@ -41,6 +41,7 @@ public class PageController {
 
     @GetMapping("word")
     public String wordPage() {
+
         return "page/wordPage";
     }
 
