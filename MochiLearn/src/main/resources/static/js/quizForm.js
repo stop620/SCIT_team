@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkBtn.addEventListener('click', checkAnswer);
     nextBtn.addEventListener('click', nextQuestion);
     retryBtn.addEventListener('click', () => { isRetryMode = true; startQuiz(); });
-    exitBtn.addEventListener('click', () => { window.location.href = '/mochilearn/page/study'; }); // 예시: 학습 페이지로 이동
+    exitBtn.addEventListener('click', () => { window.location.href = '/mochilearn/page/quiz'; }); // 예시: 학습 페이지로 이동
 
     // --- 초기화 ---
     loadQuizzes();
