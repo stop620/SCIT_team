@@ -11,4 +11,5 @@ import com.hanzo.mochilearn.entity.LikeEntity;
 public interface LikeRepository extends JpaRepository<LikeEntity, Integer>{
 	Optional<LikeEntity> findByMemberIdAndCardId(Integer memberId, Integer cardId);
     void deleteByMemberIdAndCardId(Integer memberId, Integer cardId);
+	boolean existsByMemberIdAndCardId(Integer memberId, Integer cardId);
 }

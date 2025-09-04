@@ -5,6 +5,8 @@ const timelines = [];
 let currentTranscript = [];
 let currentTranscriptIndex = 0;
 let subtitleInterval;
+let liked = false;
+let likeCount = 0;
 
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
@@ -22,7 +24,7 @@ $(document).ready(function() {
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
 	function updateLikeButton() {
-	        $('#cardLike').text(likeCount);
+	        $('#cardLike').text(card.like);
 	        if (liked) {
 	            $('#like-button').css('color', 'red');
 	        } else {
@@ -31,7 +33,7 @@ $(document).ready(function() {
 	    }
 
     if (cardId) {
-        $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
+        $.get(`/mochilearn/api/study/card?cardId=${cardId}&memberId=${memberId}`)
         .done(function(cardData) {
             console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
 			
@@ -41,11 +43,10 @@ $(document).ready(function() {
             renderCard(card);
             renderSectionButtons(card.sections);
 
-			// 좋아요 수와 멤버 좋아요 상태 초기화
-						liked = card.liked || false;
-				        likeCount = card.like || 0;
-				        updateLikeButton();
-
+			liked = card.liked;  // 서버에서 내려줘야 함
+				
+			updateLikeButton();
+			
             if (typeof YT !== 'undefined' && YT && YT.Player) {
                 createPlayer(card.videoId);
             } else {
@@ -56,33 +57,33 @@ $(document).ready(function() {
             console.error("❌ API 호출 실패:", textStatus, errorThrown);
         });
 
-        $('#like-button').click(function() {
-            // 낙관적 업데이트
-            liked = !liked;
-            likeCount += liked ? 1 : -1;
-            $('#cardLike').text(likeCount);
-            updateLikeButton();
+		$('#like-button').click(function() {
+		    liked = !liked;
+		    card.like += liked ? 1 : -1;
+		    console.log("좋아요 버튼 클릭 - liked:", liked, ", likeCount:", card.like);
+		    $('#cardLike').text(card.like);
+		    updateLikeButton();
 
-            // 서버에 좋아요 토글 요청
-            $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId })
-            .done(function(response) {
-                if ((response === 'liked' && !liked) || (response === 'unliked' && liked)) {
-                    // 서버 상태와 UI 불일치 시 롤백
-                    liked = !liked;
-                    likeCount += liked ? 1 : -1;
-                    $('#cardLike').text(likeCount);
-                    updateLikeButton();
-                }
-            })
-            .fail(function() {
-                // 실패 시 롤백 및 알림
-                liked = !liked;
-                likeCount += liked ? 1 : -1;
-                $('#cardLike').text(likeCount);
-                updateLikeButton();
-                alert('좋아요 처리 중 오류가 발생했습니다.');
-            });
-        });
+		    $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId, liked: liked })
+		    .done(function(response) {
+		        console.log("좋아요 토글 API 응답:", response);
+		        if ((response.status === 'liked' && !liked) || (response.status === 'unliked' && liked)) {
+		            console.log("서버 상태와 UI 불일치 - 롤백 처리");
+		            liked = !liked;
+		            card.like += liked ? 1 : -1;
+		            $('#cardLike').text(card.like);
+		            updateLikeButton();
+		        }
+		    })
+		    .fail(function() {
+		        console.log("좋아요 토글 API 호출 실패");
+		        liked = !liked;
+		        card.like += liked ? 1 : -1;
+		        $('#cardLike').text(card.like);
+		        updateLikeButton();
+		        alert('좋아요 처리 중 오류가 발생했습니다.');
+		    });
+		});
 
         // 삭제 버튼 이벤트
         $('#delete-button').click(function() {

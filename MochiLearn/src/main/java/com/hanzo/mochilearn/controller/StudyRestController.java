@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +21,7 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.CardSaveDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.LikeRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 import com.hanzo.mochilearn.service.CardService;
 import com.hanzo.mochilearn.service.QuizService;
@@ -41,6 +41,7 @@ public class StudyRestController {
     private final QuizService quizService;
     private final SentenceService sentenceService;
     private final CardRepository cardRepository;
+    private final LikeRepository likeRepository;
     private final SentenceRepository sentenceRepository;
     
     // 학습 카드 로드
@@ -69,12 +70,16 @@ public class StudyRestController {
         return cardService.searchCardsByTags(tags, page, size, sort);
     }
 
-
+    //카드정보 불러오기
     @GetMapping("/api/study/card")
-    public CardDTO cardRead(@RequestParam("cardId") Integer cardId) {
+    public CardDTO cardRead(@RequestParam("cardId") Integer cardId,
+    						@RequestParam("memberId") Integer memberId) {
     	CardEntity cardEntity = cardService.findCardById(cardId);
     	CardDTO cardDTO = cardService.toSimpleDTO(cardEntity);
+    	boolean liked = likeRepository.existsByMemberIdAndCardId(memberId, cardId); // 좋아요 여부 검사
+        cardDTO.setLiked(liked);
         log.debug("CardDTO: {}", cardDTO);
+        
         return cardDTO;
     	
     }
@@ -109,15 +114,20 @@ public class StudyRestController {
         }
     }
     
-
+    //좋아요 api
     @PostMapping("/api/study/likes/toggle")
     public ResponseEntity<Map<String, Object>> toggleLike(
             @RequestParam("memberId") Integer memberId,
-            @RequestParam("cardId") Integer cardId) {
-        String state = cardService.toggleLike(memberId, cardId);
-        Map<String, Object> result = new HashMap<>();
-        result.put("state", state);
-        return ResponseEntity.ok(result);
+            @RequestParam("cardId") Integer cardId,
+            @RequestParam("liked") Boolean liked) {
+
+        boolean finalLiked = cardService.toggleLike(memberId, cardId, liked);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", finalLiked ? "liked" : "unliked"); // 여기서 사용
+        response.put("success", true);
+
+        return ResponseEntity.ok(response);
     }
     
 
