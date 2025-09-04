@@ -31,6 +31,7 @@ public class WebSecurityConfig {
             , "/api/study/card"     // 카드 세부 요청 api
             , "/api/quiz/**"           // 퀴즈 문제 요청 api
             , "/api/word/**"
+            , "/member/**"
     };
 
     @Bean

@@ -39,18 +39,23 @@
 					<td><input type="password" name="password"
 							   id="password"></td>
 				</tr>
-				<tr>
-					<td colspan="2">
-						<div class="errorMsg" th:if="${param.error}">
-							ID 또는 비밀번호가 틀립니다.
-						</div>
-					</td>
-				</tr>
+<!--				<tr>-->
+<!--					<td colspan="2">-->
+<!--						<div class="errorMsg" th:if="${param.error}">-->
+<!--							ID 또는 비밀번호가 틀립니다.-->
+<!--						</div>-->
+<!--					</td>-->
+<!--				</tr>-->
 				<tr>
 					<td colspan="2">
 						<input type="submit" value="Login">
 					</td>
 				</tr>
+                <tr>
+                    <td colspan="2">
+                        <a th:href="@{/member/joinForm}">가입</a>
+                    </td>
+                </tr>
 			</table>
 		</form>
 	</section>
