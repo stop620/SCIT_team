@@ -16,10 +16,10 @@
             <a class="nav-link" id="wordPageBtn">단어장</a>
             <a sec:authorize="!isAuthenticated()" class="nav-link" th:href="@{/member/loginForm}">로그인</a>
             <form th:action="@{/member/logout}" method="POST" sec:authorize="isAuthenticated()">
-                <a class="nav-link">로그아웃</a>
+                <button class="nav-link" type="submit">로그아웃</button>
             </form>
 <!--            <a th:href="@{/member/loginForm}" class="nav-link">로그인</a>-->
-            <a th:href="@{/page/test/best}" class="cta-btn">시작하기</a>
+            <a th:href="@{/page/best}" class="cta-btn">시작하기</a>
         </div>
         <!-- Mobile menu button -->
         <button class="mobile-menu-btn focus:outline-none">

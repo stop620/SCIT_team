@@ -20,18 +20,26 @@ public class WebSecurityConfig {
     //로그인 없이 접근 가능 경로
     private static final String[] PUBLIC_URLS = {
             "/"                     //root
-            , "/img/**"          //이미지 경로
+            , "/img/**"             //이미지 경로
             , "/css/**"             //CSS파일들
             , "/js/**"              //JavaSCript 파일들
-            , "/member/joinForm"        //회원가입
+
+            , "/member/joinForm"    //회원가입
             , "/member/join"
             , "/member/loginForm"
-            , "/page/**"            // 임시 제외
+
+            , "/page/best"          // 인기/최신 카드 페이지
+            , "/page/study"         // 전체 카드 페이지
+            , "/page/studyCard"     // 학습 카드 페이지
+
+            , "/api/study/load"     // 카드 목록 불러오기 api
+            , "/api/study/card"     // 카드 정보 불러오기 api
+            /*
             , "/api/study/load"     // 카드 목록 api
             , "/api/study/card"     // 카드 세부 요청 api
             , "/api/quiz/**"           // 퀴즈 문제 요청 api
             , "/api/word/**"
-            , "/member/**"
+            , "/member/**"*/
     };
 
     @Bean

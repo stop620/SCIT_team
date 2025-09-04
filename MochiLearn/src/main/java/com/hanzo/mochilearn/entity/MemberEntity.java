@@ -29,7 +29,7 @@ public class MemberEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
-    private Integer memberId;
+    private Integer id;
 
     @Column(name = "user_id", nullable = false, unique = true, length = 20)
     private String userId;
