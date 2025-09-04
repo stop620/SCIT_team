@@ -15,35 +15,36 @@ $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
 
-    let liked = false;
-    let likeCount = 0;
+    
 	//나증에 멤버아이디 받아오는걸루 수정하기~
     const memberId = 1; // 로그인 세션 등에서 받아와야 함
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
-    function updateLikeButton() {
-        if (liked) {
-            $('#like-button').css('color', 'red');
-        } else {
-            $('#like-button').css('color', 'black');
-        }
-    }
+	function updateLikeButton() {
+	        $('#cardLike').text(likeCount);
+	        if (liked) {
+	            $('#like-button').css('color', 'red');
+	        } else {
+	            $('#like-button').css('color', 'black');
+	        }
+	    }
 
     if (cardId) {
         $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
         .done(function(cardData) {
             console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
+			
+			
             card = cardData;
             card.videoId = extractVideoId(card.url);
             renderCard(card);
             renderSectionButtons(card.sections);
 
-            // 좋아요 수와 멤버 좋아요 상태 초기화
-            likeCount = card.like || 0;
-            liked = card.liked || false;
-            $('#cardLike').text(likeCount);
-            updateLikeButton();
+			// 좋아요 수와 멤버 좋아요 상태 초기화
+						liked = card.liked || false;
+				        likeCount = card.like || 0;
+				        updateLikeButton();
 
             if (typeof YT !== 'undefined' && YT && YT.Player) {
                 createPlayer(card.videoId);
