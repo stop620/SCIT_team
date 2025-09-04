@@ -26,6 +26,7 @@ public class WebSecurityConfig {
             , "/member/joinForm"        //회원가입
             , "/member/join"
             , "/member/loginForm"
+            , "/member/**"
     };
 
     @Bean
