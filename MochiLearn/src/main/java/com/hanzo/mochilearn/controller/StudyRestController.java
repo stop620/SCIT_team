@@ -120,4 +120,12 @@ public class StudyRestController {
         return ResponseEntity.ok(result);
     }
     
+
+    // 마이페이지 유저Id의 카드 데이터 주는 api
+    @GetMapping("/api/study/mycard/{memberId}")
+    public List<CardDTO> getMyCards(@PathVariable("memberId") Integer memberId) {
+
+        List<CardDTO> memberCardList = cardService.getAllCards(memberId);
+        return memberCardList;
+    }
 }

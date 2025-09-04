@@ -123,6 +123,18 @@ public class CardService {
                 .collect(Collectors.toList());
                
     }
+
+    // 멤버의 모든 카드 로드(섹션 데이터 제외)
+    public List<CardDTO> getAllCards (Integer memberId) throws EntityNotFoundException {
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(()-> new EntityNotFoundException("Member with ID: " + memberId + " not found"));
+
+        return cardRepository.findAllByMemberId(memberId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+
+    }
     
     public CardDTO toSimpleDTO(CardEntity entity) {
     	List<SectionDTO> sections = entity.getSections().stream()

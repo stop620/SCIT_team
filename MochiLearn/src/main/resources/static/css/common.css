@@ -9,6 +9,10 @@
     --mochi-blue: #32D9FF;
     --mochi-gray-light: #F5F5F5;
     --mochi-gray-dark: #333333;
+    /* 난이도 태그 색상 */
+    --mochi-level-beginner: #FFB6C1;
+    --mochi-level-intermediate: #3ED6D0;
+    --mochi-level-advanced: #C8A2C8;
 }
 
 /* 좌우 여백을 위한 기본 컨테이너 크기 */
