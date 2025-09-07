@@ -1,5 +1,6 @@
 package com.hanzo.mochilearn.dto;
 
+import com.hanzo.mochilearn.entity.MemberEntity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,19 +14,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberDTO {
-
-    Integer memberId;
-    String userId;
-    String password;
-    String name;
-    LocalDate birth;
-    String gender;
-    String email;
-    String phone;
-    String nickname;
-    LocalDateTime joinDate;
-    LocalDateTime updateDate;
-    LocalDateTime lastLoginDate;
-    String role;
-
+    private Integer id;
+    private String userId;
+    private String password;
+    private String name;
+    private LocalDate birth;
+    private String gender;
+    private String email;
+    private String phone;
+    private String nickname;
+    private LocalDateTime joinDate;
+    private LocalDateTime updateDate;
+    private LocalDateTime lastLoginDate;
+    private Role role;
 }

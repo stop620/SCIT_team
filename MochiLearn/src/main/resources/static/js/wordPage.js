@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     books = data.data;
                     console.log(books);
 
-                    sessionStorage.setItem('books', JSON.stringify(data));
+                    sessionStorage.setItem('books', JSON.stringify(data.data));
 
                     renderBooks();
                 })
@@ -46,6 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
             wordContainer.innerHTML += bookHtml;
         });
 
+        wordContainer.innerHTML +=
+            `<div class="addWordList">
+                <div class="wordCard">
+                    <a href="/mochilearn/page/addWordCard">단어장 추가</a>
+                </div>
+            </div>`;
 
     }
 

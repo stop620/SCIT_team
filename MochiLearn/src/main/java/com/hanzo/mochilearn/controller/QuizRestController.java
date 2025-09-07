@@ -4,6 +4,7 @@ import com.hanzo.mochilearn.dto.*;
 import com.hanzo.mochilearn.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class QuizRestController {
     private final QuizService quizService;
 
     @GetMapping("/api/quiz")
-    public List<QuizResponseDTO> getQuizzes(@RequestParam int level){
+    public List<QuizResponseDTO> getQuizzes(@RequestParam("level") int level){
 
         List<QuizResponseDTO> quizList = quizService.makeQuiz(level, 1);
 

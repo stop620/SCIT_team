@@ -3,6 +3,7 @@
 <!--<link rel="stylesheet" th:href="@{/css/main.css}">-->
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 <link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/quizPage.css}">
 
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -48,17 +49,19 @@
 <body>
     <div th:replace="~{navigation::navigation}"></div>
 
-    <div class="container">
+    <div class="quizPageContainer">
         <h2>QUIZ</h2>
-        <div class="quizContainer">
-            <div class="quizCard" id="quizCard1">
-                <h3>초</h3>
-            </div>
-            <div class="quizCard" id="quizCard2">
-                <h3>중</h3>
-            </div>
-            <div class="quizCard" id="quizCard3">
-                <h3>고</h3>
+        <div class="containerWrapper">
+            <div class="quizContainer">
+                <div class="quizCard" id="quizCard1">
+                    <h3>초</h3>
+                </div>
+                <div class="quizCard" id="quizCard2">
+                    <h3>중</h3>
+                </div>
+                <div class="quizCard" id="quizCard3">
+                    <h3>고</h3>
+                </div>
             </div>
         </div>
     </div>

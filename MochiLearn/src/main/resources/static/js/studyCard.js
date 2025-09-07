@@ -36,8 +36,7 @@ $(document).ready(function() {
         $.get(`/mochilearn/api/study/card?cardId=${cardId}&memberId=${memberId}`)
         .done(function(cardData) {
             console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
-			
-			
+
             card = cardData;
             card.videoId = extractVideoId(card.url);
             renderCard(card);

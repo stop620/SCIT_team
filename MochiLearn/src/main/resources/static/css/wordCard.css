@@ -1,0 +1,28 @@
+/* 단어장 */
+
+:root {
+    --mochi-pink: #FFB6C1;
+    --mochi-mint: #3ED6D0;
+    --mochi-blue: #32D9FF;
+    --mochi-gray-light: #F5F5F5;
+    --mochi-gray-dark: #333333;
+}
+
+.wordPageContent{
+    width: 50%;
+    justify-items: start;
+    align-items: start;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: var(--mochi-blue);
+    border-radius: 5px;
+}
+
+.word,.meaning,.example{
+    margin: 6px 0;
+}
+
+.word{
+    font-size : 32px;
+    font-weight: 600;
+}
