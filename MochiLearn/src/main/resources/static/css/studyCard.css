@@ -282,6 +282,14 @@ main {
     display: block;
 }
 
+.selected-token {
+    background-color: var(--mochi-pink);
+}
+
+.token-hover {
+    background-color: lightgrey;
+}
+
 /* 추가적인 반응형 처리 */
 @media (max-width: 1023px) {
     .main-grid {

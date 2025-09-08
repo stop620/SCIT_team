@@ -9,6 +9,16 @@ let liked = false;
 let likeCount = 0;
 let currentSectionStart = 0; // 현재 섹션 시작 시간 저장 변수 추가
 
+// 임시 말하기 기능 전역 변수
+const startButton = document.getElementById('startButton');
+const stopButton = document.getElementById('stopButton');
+let mediaRecorder;
+let audioChunks = [];
+
+// 언어 바꾸기 전역 변수
+const langChange = document.getElementById('langChange');
+
+
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
     document.getElementById('cardLike').innerText = cardData.like || "";
@@ -138,6 +148,10 @@ $(document).ready(function() {
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }
+
+    //언어 변환 
+    langChange.onclick = function(){ langChangeFunction(); };
+
 });
 
 // 시간 변환 헬퍼 함수
@@ -157,7 +171,7 @@ const parseAITime = (timeValue) => {
 };
 
 const extractVideoId = (url) => {
-	const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };
@@ -190,10 +204,26 @@ const onPlayerStateChange = (event) => {
 // UI 렌더링 함수
 const updateSingleTranscriptLine = () => {
     const transcriptContainer = document.getElementById('transcript-container');
+    const japaneseLineElement = document.getElementById('japanese-line');
     transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
+    japaneseLineElement.innerHTML = '';
+
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
-        document.getElementById('japanese-line').textContent = item.japanese;
+
+        if (item.japaneseTokens && Array.isArray(item.japaneseTokens)) {
+            item.japaneseTokens.forEach((token, index) => {
+                const span = document.createElement('span');
+                span.textContent = token.surface;
+                span.className = 'japanese-token';
+                span.dataset.index = index;
+                span.tokenData = token;
+                japaneseLineElement.appendChild(span);
+            });
+        } else {
+            japaneseLineElement.textContent = item.japanese;
+        }
+
         document.getElementById('korean-line').textContent = item.korean;
         document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
     }
@@ -318,3 +348,94 @@ const startTimelinePlayback = (timeline) => {
         }, 100);
     }
 };
+
+
+// 말하기 기능 이벤트 리스너
+startButton.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+        audioChunks = []; // 녹음 시작 시 배열 초기화
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            console.log(audioBlob.size);
+            // 서버로 음성 파일 전송
+            const formData = new FormData();
+            formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
+            formData.append('referenceText', '最近ついてないわって顔をしているそこのあなた。'); // 평가할 문장
+
+            try {
+                const response = await fetch('http://localhost:5001/api/speech', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Pronunciation Assessment Result:', result);
+                    alert(`정확도: ${result.accuracyScore}, 유창성: ${result.fluencyScore}`);
+                } else {
+                    console.error('Server error:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            }
+        };
+
+        mediaRecorder.start();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        console.log("녹음 시작");
+
+    } catch (err) {
+        console.error("마이크 접근에 실패했습니다:", err);
+    }
+});
+
+stopButton.addEventListener('click', () => {
+    mediaRecorder.stop();
+    startButton.disabled = false;
+    stopButton.disabled = true;
+    console.log("녹음 중지");
+});
+
+// 언어 변환 함수
+function langChangeFunction(){
+    let langChange = document.getElementById('langChange');
+    let jp = document.querySelector('.jp')
+    let kr = document.querySelector('.kr');
+    let now;  // 0: 둘 다, 1: 일본어만, 2: 한국어만
+
+    if(!kr.classList.contains('hidden') && !jp.classList.contains('hidden')){
+        now = 0;
+    }else if(kr.classList.contains('hidden')){
+        now = 1;
+    } else {
+        now = 2;
+    }
+
+    console.log(now + ':now' + ' change Language');
+    // console.log(jp.innerHTML + ': jp ' + kr.innerHTML + ' : kr');
+
+    if(now == 0){
+        kr.classList.add('hidden');
+        now = 1;
+        langChange.innerHTML = ' 한 / <strong>일 </strong>';
+    }else if(now == 1){
+        jp.classList.add('hidden');
+        kr.classList.remove('hidden');
+        now = 2;
+        langChange.innerHTML = '<strong> 한</strong> / 일 ';
+    } else { // now == 2;
+        jp.classList.remove('hidden');
+        now = 0;
+        langChange.innerHTML = '<strong> 한 + 일 </strong>';
+    }
+
+}

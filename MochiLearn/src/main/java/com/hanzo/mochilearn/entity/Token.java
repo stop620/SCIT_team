@@ -2,13 +2,15 @@ package com.hanzo.mochilearn.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Entity
 @Table(name = "token")
+@EntityListeners(AuditingEntityListener.class)
 public class Token {
 
     @Id

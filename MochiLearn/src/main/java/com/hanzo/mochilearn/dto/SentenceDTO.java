@@ -46,7 +46,7 @@ public class SentenceDTO {
         for(Token token : entity.getTokens()) {
             tokens.add(TokenDTO.toDTO(token));
         }
-    	
+        dto.setJapaneseTokens(tokens);
     	return dto;
     }
 }
