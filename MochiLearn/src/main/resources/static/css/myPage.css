@@ -52,6 +52,7 @@ main{
     
     .dashboard {
         position: sticky;
+        margin-top: 25px;
         top: 2rem;
     }
 }
@@ -62,6 +63,7 @@ main{
     width: 100%;
     justify-content: center;
     align-items: center;
+    margin-top: 25px;
 }
 
 .dashboardMenu{
