@@ -165,7 +165,6 @@ const onPlayerStateChange = (event) => {
 const updateSingleTranscriptLine = () => {
     const transcriptContainer = document.getElementById('transcript-container');
     transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
-	console.log(currentTranscript.length)
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
         document.getElementById('japanese-line').textContent = item.japanese;
@@ -181,10 +180,6 @@ const changeTranscriptIndex = (direction) => {
     updateSingleTranscriptLine();
 };
 
-const handleDeleteTimeline = (indexToDelete) => {
-    timelines.splice(indexToDelete, 1);
-    renderTimelines();
-};
 
 const renderTimelines = () => {
     const timelineContainer = document.getElementById('timeline-buttons-container');
@@ -193,8 +188,7 @@ const renderTimelines = () => {
     // timeline 배열 반복하면서 각 타임라인과 연동되는 버튼 생성 (버튼 클릭 시 재생 기능 등)
     timelines.forEach((timeline, index) => {
         const button = document.createElement('button');
-        button.className = 'timeline-button';
-        button.textContent = `타임라인 ${index + 1}`;
+        
         // 버튼 클릭 시 타임라인 재생 함수 호출 (연결 기능 유지)
         button.onclick = () => startTimelinePlayback(timeline);
 
