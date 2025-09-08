@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -24,7 +26,8 @@ public class SentenceDTO {
     private String japanese;
     @JsonProperty("korean")
     private String korean;
-    
+    @JsonProperty("japaneseTokens")
+    private List<TokenDTO> japaneseTokens;
     
     public static SentenceDTO toDTO(SentenceEntity entity) {
     	

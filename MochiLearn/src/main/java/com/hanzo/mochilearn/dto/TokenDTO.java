@@ -5,16 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizDTO {
+public class TokenDTO {
 
-    private int id;
-    private String japanese;
-    private String korean;
-    private int level;
+    private int index;
+    private String surface;
+    private String base;
+    private String pos;
+    private String reading;
 }
