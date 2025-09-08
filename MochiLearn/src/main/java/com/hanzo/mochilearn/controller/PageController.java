@@ -25,8 +25,6 @@ public class PageController {
 
     @GetMapping("study")
     public String studyPage() {
-//        List<CardDTO> cards = new ArrayList<>();
-//        model.addAttribute("cards", cards);
         return "page/studyPage";
     }
 
@@ -81,5 +79,10 @@ public class PageController {
 
 		return "page/quizCardPage";
 	}
+
+    @GetMapping("studyCardPage")
+    public String studyCardPage() {
+        return "page/studyCardPage";
+    }
 
 }

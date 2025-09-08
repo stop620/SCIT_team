@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "member")
+@EntityListeners(AuditingEntityListener.class)
 public class MemberEntity {
 
     // 사용자 역할을 정의하는 Enum
@@ -64,6 +66,6 @@ public class MemberEntity {
     private LocalDateTime lastLoginDate;
 
     @Enumerated(EnumType.STRING) // Enum의 이름을 문자열로 DB에 저장합니다.
-    @Column(nullable = false)
-    private Role role = Role.USER; // 기본값을 USER로 설정
+    @Column(nullable = false, columnDefinition = "enum ('USER', 'ADMIN') default 'USER'")
+    private Role role; // 기본값을 USER로 설정
 }

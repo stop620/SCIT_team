@@ -3,6 +3,7 @@ package com.hanzo.mochilearn.repository;
 import com.hanzo.mochilearn.entity.QuizSessionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,5 +20,5 @@ public interface QuizSessionRepository extends JpaRepository<QuizSessionEntity, 
       AND s.level = :level
       AND qa.is_correct = TRUE
 """, nativeQuery = true)
-    List<Integer> FindAllIdByMemberId(int level, int memberId);
+    List<Integer> FindAllIdByMemberId(@Param("level") int level, @Param("memberId") int memberId);
 }

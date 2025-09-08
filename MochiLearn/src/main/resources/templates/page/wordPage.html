@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://thymeleaf.org">
-<link rel="stylesheet" th:href="@{/css/main.css}">
+<html lang="ko" xmlns:th="www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/wordBook.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <!-- 나눔바른고딕 
     font-family: 'NanumBarunGothicUltraLight';
@@ -19,6 +21,8 @@ function wordPopup(){
 	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
 }
 </script>
+
+<script th:src="@{/js/wordPage.js}"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,9 +31,11 @@ function wordPopup(){
 <body>
 
     <div class="container">
-        <h1>단어장</h1>
+        <div class="wrapper">
+            <h1 style="text-align: center;">단어장</h1>
+        </div>
         <div class="wordContainer">
-            <div class="wordList">
+            <!--<div class="wordList">
                 <div class="wordCard">
                     <a th:href="@{/page/wordCard2}">JLPT N2</a>
                 </div>
@@ -39,13 +45,13 @@ function wordPopup(){
                 <div class="wordCard">
                     <a th:href="@{/page/wordCard1}">JLPT N1</a>
                 </div>
-            </div>
+            </div> -->
         
-            <div class="addWordList">
+            <!--<div class="addWordList">
                 <div class="wordCard">
                     <a th:href="@{/page/addWordCard}">단어장 추가</a>
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 

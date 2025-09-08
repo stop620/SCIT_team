@@ -54,8 +54,8 @@ $(document).ready(function() {
             }
 
             let cardHtml = `
-                    <div class="video-card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
-                        <div class="video-thumbnail">
+                    <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
+                        <div class="card-thumbnail">
                             <!-- 썸네일 공간 -->
                             <img class="thumbnail-image" src="${thumbUrl}" alt="썸네일 이미지" />
                             <div class="play-icon">▶</div>
