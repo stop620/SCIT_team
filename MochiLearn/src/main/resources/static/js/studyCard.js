@@ -18,70 +18,76 @@ $(document).ready(function() {
     const cardId = urlParams.get('cardId');
 
     
-	//나증에 멤버아이디 받아오는걸루 수정하기~
-    const memberId = 1; // 로그인 세션 등에서 받아와야 함
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
 	function updateLikeButton() {
-	        $('#cardLike').text(card.like);
-	        if (liked) {
-	            $('#like-button').css('color', 'red');
-	        } else {
-	            $('#like-button').css('color', 'black');
-	        }
+	    $('#cardLike').text(card.like);
+	    if (liked) {
+	        $('#like-button').css('color', 'red');
+	    } else {
+	        $('#like-button').css('color', 'black');
 	    }
+	}
+
 
     if (cardId) {
-        $.get(`/mochilearn/api/study/card?cardId=${cardId}&memberId=${memberId}`)
-        .done(function(cardData) {
-            console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
+		$.get(`/mochilearn/api/study/card?cardId=${cardId}`)
+		.done(function(cardData) {
+		    card = cardData;
+		    card.videoId = extractVideoId(card.url);
+		    renderCard(card);
+		    renderSectionButtons(card.sections);
 
-            card = cardData;
-            card.videoId = extractVideoId(card.url);
-            renderCard(card);
-            renderSectionButtons(card.sections);
-
-			liked = card.liked;  // 서버에서 내려줘야 함
-				
-			updateLikeButton();
-			
-            if (typeof YT !== 'undefined' && YT && YT.Player) {
-                createPlayer(card.videoId);
-            } else {
-                console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
-            }
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("❌ API 호출 실패:", textStatus, errorThrown);
-        });
-
-		$('#like-button').click(function() {
-		    liked = !liked;
-		    card.like += liked ? 1 : -1;
-		    console.log("좋아요 버튼 클릭 - liked:", liked, ", likeCount:", card.like);
-		    $('#cardLike').text(card.like);
+		    liked = card.liked;  // 서버가 로그인 시 좋아요 상태 내려주도록 수정 권장
 		    updateLikeButton();
 
-		    $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId, liked: liked })
-		    .done(function(response) {
-		        console.log("좋아요 토글 API 응답:", response);
-		        if ((response.status === 'liked' && !liked) || (response.status === 'unliked' && liked)) {
-		            console.log("서버 상태와 UI 불일치 - 롤백 처리");
-		            liked = !liked;
-		            card.like += liked ? 1 : -1;
-		            $('#cardLike').text(card.like);
-		            updateLikeButton();
-		        }
-		    })
-		    .fail(function() {
-		        console.log("좋아요 토글 API 호출 실패");
-		        liked = !liked;
-		        card.like += liked ? 1 : -1;
-		        $('#cardLike').text(card.like);
-		        updateLikeButton();
-		        alert('좋아요 처리 중 오류가 발생했습니다.');
-		    });
+		    if (typeof YT !== 'undefined' && YT && YT.Player) {
+		        createPlayer(card.videoId);
+		    } else {
+		        console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
+		    }
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+		    console.error("❌ API 호출 실패:", textStatus, errorThrown);
+		});
+
+
+		let isLoggedIn = false;
+
+		// 페이지 로드시 로그인 상태 확인 API 호출 예시
+		$.get('/mochilearn/api/user/session')
+		  .done(function(userData) {
+		    isLoggedIn = !!(userData && userData.loggedIn); // loggedIn 필드 기준으로 체크
+		  })
+		  .fail(function() {
+		    isLoggedIn = false;
+		  });
+
+		// 좋아요 클릭 이벤트
+		$('#like-button').click(function() {
+		    if (!isLoggedIn) {
+		        alert('좋아요를 누르려면 로그인해야 합니다.');
+		        return;
+		    }
+
+		    // 로그인된 상태면 좋아요 토글 API 실행
+		    const newLiked = !liked;
+
+		    $.post('/mochilearn/api/study/likes/toggle', { cardId: cardId, liked: newLiked })
+		        .done(function(response) {
+		            if ((response.status === 'liked' && newLiked) || (response.status === 'unliked' && !newLiked)) {
+		                liked = newLiked;
+		                card.like += liked ? 1 : -1;
+		                $('#cardLike').text(card.like);
+		                updateLikeButton();
+		            } else {
+		                alert('좋아요 상태 갱신 실패');
+		            }
+		        })
+		        .fail(function() {
+		            alert('좋아요 처리 중 오류');
+		        });
 		});
 
         // 삭제 버튼 이벤트
