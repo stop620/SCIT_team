@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hanzo.mochilearn.dto.TokenDTO;
+import com.hanzo.mochilearn.entity.*;
+import com.hanzo.mochilearn.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,16 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.LikeEntity;
-import com.hanzo.mochilearn.entity.MemberEntity;
-import com.hanzo.mochilearn.entity.SectionEntity;
-import com.hanzo.mochilearn.entity.SentenceEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.LikeRepository;
-import com.hanzo.mochilearn.repository.MemberRepository;
-import com.hanzo.mochilearn.repository.SectionRepository;
-import com.hanzo.mochilearn.repository.SentenceRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -45,6 +38,7 @@ public class CardService {
     private final SentenceRepository sentenceRepository;
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final TokenRepository tokenRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -102,10 +96,29 @@ public class CardService {
                                 .time(sentenceDto.getTime())
                                 .japanese(sentenceDto.getJapanese())
                                 .korean(sentenceDto.getKorean())
+                                .tokens(new ArrayList<>())
                                 .build();
 
                         savedSection.addSentence(sentence); // 섹션 <> 문장 연관관계 설정
-                        sentenceRepository.save(sentence);
+                        SentenceEntity savedSentence = sentenceRepository.save(sentence);
+
+                        if(sentenceDto.getJapaneseTokens() != null) {
+                            for(TokenDTO token : sentenceDto.getJapaneseTokens()) {
+
+                                log.debug("sentenceToken: {}", token);
+
+                                Token tokenEntity = Token.builder()
+                                        .tokenIndex(token.getIndex())
+                                        .surface(token.getSurface())
+                                        .partOfSpeech(token.getPos())
+                                        .baseForm(token.getBase())
+                                        .reading(token.getReading())
+                                        .build();
+
+                                savedSentence.addToken(tokenEntity);
+                                tokenRepository.save(tokenEntity);
+                            }
+                        }
                     }
                     log.info("    Saved {} sentences for Section ID: {}", sectionDto.getSentences().size(), savedSection.getId());
                 }

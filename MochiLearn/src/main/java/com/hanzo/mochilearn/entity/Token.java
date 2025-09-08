@@ -1,10 +1,13 @@
 package com.hanzo.mochilearn.entity;
 
 import jakarta.persistence.*;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "token")
 public class Token {
 
