@@ -55,6 +55,7 @@ public class CardService {
                 .tag(cardDto.getTag())
                 .memberId(memberId)
                 .sections(new ArrayList<>())
+                .like(cardDto.getLike())
                 .build();
 
         // "초급", "중급", "고급" 문자열을 숫자로 저장

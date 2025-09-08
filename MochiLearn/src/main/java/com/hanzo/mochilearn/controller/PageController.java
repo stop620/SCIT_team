@@ -1,6 +1,5 @@
 package com.hanzo.mochilearn.controller;
 
-import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
 import com.hanzo.mochilearn.service.CardService;
 import org.springframework.stereotype.Controller;
