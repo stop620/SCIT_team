@@ -65,8 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
     inner.style.transition = "all 0.6s";
     updateIndicators();
     startAutoSlide();
-    container.addEventListener('mouseenter', stopAutoSlide);
-    container.addEventListener('mouseleave', startAutoSlide);
+
+    section.addEventListener('mouseenter', stopAutoSlide);
+    section.addEventListener('mouseleave', startAutoSlide);
 
     slideBtn.forEach((btn, index) => {
         btn.addEventListener("click", () => {

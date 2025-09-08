@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+	<meta charset="UTF-8">
+	<title>회원가입</title>
+	<!-- jQuery 파일 불러오기 -->
+	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+	<script>
+		$(document).ready(function() {
+			$('#jForm').on('submit', validation);
+		});
+		
+		function validation(e) {
+			const id = $('#userId').val();
+			const pw = $('#password').val();
+			const name = $('#name').val();
+			
+			if (id.length < 3 || id.length > 10) {
+			  alert("ID는 3 ~ 10자로 입력하세요.");
+			  e.preventDefault();
+			  return;
+			}
+			
+			if (pw.length < 3 || pw.length > 10) {
+			  alert("비밀번호는 3 ~ 10자로 입력하세요.");
+			  e.preventDefault();
+			  return;
+			}
+			
+			if (!name) {
+			  alert("이름을 입력하세요");
+			  e.preventDefault();
+			  return;
+			}
+			
+			alert("success");
+		}
+	</script>
+</head>
+<body>
+	<h1>[ 가입 ]</h1>
+	
+	<form id="jForm" th:action="@{/member/join}" method="post">
+			<div>
+				<label for="userId">ID</label>
+				<input type="text" name="userId" id="userId">
+			</div>
+			<div>
+				<label for="password">Password</label>
+				<input type="password" name="password" id="password">
+			</div>
+			<div>
+				<label for="name">이름</label>
+				<input type="text" name="name" id="name">
+			</div>
+            <div>
+                <label for="birth">birth</label>
+                <input type="text" name="birth" id="birth">
+            </div>
+            <div>
+                <label for="gender">gende</label>
+                <input type="text" name="gender" id="gender">
+            </div>
+            <div>
+                <label for="email">email</label>
+                <input type="text" name="email" id="email">
+            </div>
+            <div>
+                <label for="phone">전화번호</label>
+                <input name="phone" id="phone">
+            </div>
+            <div>
+                <label for="nickname">nick</label>
+                <input name="nickname" id="nickname">
+            </div>
+            <input type="submit" value="가입">
+            <input type="button" value="테스트" onclick="validation()">
+	</form>
+</body>
+</html>

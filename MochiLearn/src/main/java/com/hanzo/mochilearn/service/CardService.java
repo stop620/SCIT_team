@@ -1,14 +1,12 @@
 package com.hanzo.mochilearn.service;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.hanzo.mochilearn.entity.MemberEntity;
-import com.hanzo.mochilearn.repository.MemberRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +19,17 @@ import com.hanzo.mochilearn.dto.CardDTO;
 import com.hanzo.mochilearn.dto.SectionDTO;
 import com.hanzo.mochilearn.dto.SentenceDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.entity.LikeEntity;
 import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.SectionEntity;
 import com.hanzo.mochilearn.entity.SentenceEntity;
 import com.hanzo.mochilearn.repository.CardRepository;
+import com.hanzo.mochilearn.repository.LikeRepository;
 import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.SectionRepository;
 import com.hanzo.mochilearn.repository.SentenceRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class CardService {
 
-    private final MemberRepository memberRepository;
     private final CardRepository cardRepository;
     private final SectionRepository sectionRepository;
     private final SentenceRepository sentenceRepository;
+    private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -251,4 +253,44 @@ public class CardService {
         }
         return false;
     }
+
+    public boolean toggleLike(Integer memberId, Integer cardId, Boolean like) {
+        log.debug("toggleLike 호출 - memberId: {}, cardId: {}, like 요청값: {}", memberId, cardId, like);
+
+        CardEntity card = cardRepository.findById(cardId)
+            .orElseThrow(() -> new RuntimeException("Card not found"));
+        log.debug("조회된 카드: id = {}, 현재 좋아요 수 = {}", card.getId(), card.getLike());
+
+        Optional<LikeEntity> existingLike = likeRepository.findByMemberIdAndCardId(memberId, cardId);
+        log.debug("기존 좋아요 여부: {}", existingLike.isPresent());
+
+        if (like) {
+            if (existingLike.isEmpty()) {
+                // 새로 좋아요 추가
+                LikeEntity likeEntity = LikeEntity.builder()
+                    .memberId(memberId)
+                    .cardId(cardId)
+                    .likeTime(LocalDateTime.now())
+                    .build();
+                likeRepository.save(likeEntity);
+                card.setLike(card.getLike() + 1);
+                cardRepository.save(card);
+                log.debug("좋아요 추가 완료 - 좋아요 수 증가 후: {}", card.getLike());
+            } else {
+                log.debug("이미 좋아요가 존재하여 추가하지 않음");
+            }
+            return true; // 최종 상태는 liked
+        } else {
+            if (existingLike.isPresent()) {
+                likeRepository.delete(existingLike.get());
+                card.setLike(card.getLike() - 1);
+                cardRepository.save(card);
+                log.debug("좋아요 삭제 완료 - 좋아요 수 감소 후: {}", card.getLike());
+            } else {
+                log.debug("좋아요가 존재하지 않아 삭제하지 않음");
+            }
+            return false; // 최종 상태는 unliked
+        }
+    }
+
 }

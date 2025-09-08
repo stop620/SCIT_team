@@ -15,6 +15,7 @@
 
         <script th:src="@{/js/index.js}"></script>
         <script th:inline="javascript">
+            <!-- 단어장 여는 스크립트 -->
             /*<![CDATA[*/
             //에러 무시해도 됩니다.
             var wordPageUrl = [[@{/page/word}]];
@@ -58,8 +59,10 @@
                             <!-- Image placeholder -->
                             <div class="hero-image-placeholder">
                                 <div class="placeholder-box">
-                                    [스마트폰으로 영상을 보는 모찌 캐릭터 이미지]
+
                                 </div>
+                                <!--[스마트폰으로 영상을 보는 모찌 캐릭터 이미지]-->
+                                <img class="hero-image-item" th:src="@{/img/mochi1.png}">
                             </div>
                         </div>
                     </div>
@@ -109,8 +112,10 @@
                             <!-- Quiz image placeholder -->
                             <div class="hero-image-placeholder">
                                 <div class="placeholder-box" style="background-color: var(--mochi-pink);">
-                                    [퀴즈 아이콘이 있는 모찌 캐릭터 이미지]
+
                                 </div>
+                                <!--[퀴즈 아이콘이 있는 모찌 캐릭터 이미지]-->
+                                <img class="hero-image-item" th:src="@{/img/mochi2.png}">
                             </div>
                         </div>
                     </div>

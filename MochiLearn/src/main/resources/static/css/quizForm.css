@@ -66,9 +66,8 @@ main {
 }
 .blank-sentence .quizBlank,
 .blank-sentence .blank-word {
-    display: inline-block; /* 자연스러운 문장 흐름을 위해 inline-block 사용 */
     vertical-align: bottom; /* 텍스트와 밑줄의 기준선 정렬 */
-    /*margin: 0 2px;*/ /* 단어와 빈칸 사이의 최소 간격 */
+    margin: 0 2px; /* 단어와 빈칸 사이의 최소 간격 */
 }
 .blank-word {
     color: #495057;

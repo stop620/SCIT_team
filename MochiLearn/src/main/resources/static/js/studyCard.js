@@ -5,6 +5,8 @@ const timelines = [];
 let currentTranscript = [];
 let currentTranscriptIndex = 0;
 let subtitleInterval;
+let liked = false;
+let likeCount = 0;
 
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
@@ -14,19 +16,36 @@ function renderCard(cardData) {
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
-	
+
+    
+	//나증에 멤버아이디 받아오는걸루 수정하기~
+    const memberId = 1; // 로그인 세션 등에서 받아와야 함
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
+	function updateLikeButton() {
+	        $('#cardLike').text(card.like);
+	        if (liked) {
+	            $('#like-button').css('color', 'red');
+	        } else {
+	            $('#like-button').css('color', 'black');
+	        }
+	    }
+
     if (cardId) {
-        $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
+        $.get(`/mochilearn/api/study/card?cardId=${cardId}&memberId=${memberId}`)
         .done(function(cardData) {
             console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
+
             card = cardData;
             card.videoId = extractVideoId(card.url);
             renderCard(card);
             renderSectionButtons(card.sections);
 
+			liked = card.liked;  // 서버에서 내려줘야 함
+				
+			updateLikeButton();
+			
             if (typeof YT !== 'undefined' && YT && YT.Player) {
                 createPlayer(card.videoId);
             } else {
@@ -36,37 +55,55 @@ $(document).ready(function() {
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.error("❌ API 호출 실패:", textStatus, errorThrown);
         });
-		// 삭제 버튼에 이벤트 리스너 연결 (DOMContentLoaded 또는 다른 초기화 구간에 넣으세요)
-		document.getElementById('delete-button').addEventListener('click', () => {
-		    const urlParams = new URLSearchParams(window.location.search);
-		    const cardId = urlParams.get('cardId');
-			
-			if (!confirm("카드를 삭제하시겠습니까?")) {
-			        return; // 사용자가 취소하면 아무 동작 안 함
-			    }
-		    $.ajax({
-		        url: `/mochilearn/api/study/card/${cardId}`, // 경로 변수 방식 URL
-		        type: 'DELETE',
-		        success: function(response) {
-		            alert("카드가 삭제되었습니다.");
-					window.location.href = "/mochilearn/page/study";  // studyPage로 이동
 
-		        },
-		        error: function(xhr, status, error) {
-		            alert("카드 삭제에 실패했습니다.");
+		$('#like-button').click(function() {
+		    liked = !liked;
+		    card.like += liked ? 1 : -1;
+		    console.log("좋아요 버튼 클릭 - liked:", liked, ", likeCount:", card.like);
+		    $('#cardLike').text(card.like);
+		    updateLikeButton();
+
+		    $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId, liked: liked })
+		    .done(function(response) {
+		        console.log("좋아요 토글 API 응답:", response);
+		        if ((response.status === 'liked' && !liked) || (response.status === 'unliked' && liked)) {
+		            console.log("서버 상태와 UI 불일치 - 롤백 처리");
+		            liked = !liked;
+		            card.like += liked ? 1 : -1;
+		            $('#cardLike').text(card.like);
+		            updateLikeButton();
 		        }
+		    })
+		    .fail(function() {
+		        console.log("좋아요 토글 API 호출 실패");
+		        liked = !liked;
+		        card.like += liked ? 1 : -1;
+		        $('#cardLike').text(card.like);
+		        updateLikeButton();
+		        alert('좋아요 처리 중 오류가 발생했습니다.');
 		    });
 		});
-				// 이전 자막 버튼
-		        document.getElementById('prev-btn').addEventListener('click', () => {
-		            changeTranscriptIndex(-1);
-		        });
 
-		        // 다음 자막 버튼
-		        document.getElementById('next-btn').addEventListener('click', () => {
-		            changeTranscriptIndex(1);
-		        });
-		
+        // 삭제 버튼 이벤트
+        $('#delete-button').click(function() {
+            if (!confirm("카드를 삭제하시겠습니까?")) return;
+            $.ajax({
+                url: `/mochilearn/api/study/card/${cardId}`,
+                type: 'DELETE',
+                success: function() {
+                    alert("카드가 삭제되었습니다.");
+                    window.location.href = "/mochilearn/page/study";
+                },
+                error: function() {
+                    alert("카드 삭제에 실패했습니다.");
+                }
+            });
+        });
+
+        // 자막 버튼 이벤트
+        $('#prev-btn').click(() => changeTranscriptIndex(-1));
+        $('#next-btn').click(() => changeTranscriptIndex(1));
+
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }

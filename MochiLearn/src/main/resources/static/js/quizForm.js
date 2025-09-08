@@ -81,9 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let answerAreaContainerClass = 'answer-area';
 
         if (type === 'SHUFFLE') {
-            answerHTML = quiz.suffleAnswer.map(() => `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`).join('');
+            answerHTML = quiz.shuffleAnswer.map(() =>
+                `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+            ).join('');
             choices = quiz.shuffledSentence;
-            userAnswer = Array(quiz.suffleAnswer.length).fill(null);
+            userAnswer = Array(quiz.shuffleAnswer.length).fill(null);
         } else { // BLANK
             answerAreaContainerClass = 'blank-sentence';
             answerHTML = quiz.blankSentence.map(part =>
@@ -261,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch (quiz.quizType) {
             case 'SHUFFLE':
-                correctAnswer = quiz.suffleAnswer;
+                correctAnswer = quiz.shuffleAnswer;
                 isCorrect = JSON.stringify(userAnswer) === JSON.stringify(correctAnswer);
                 break;
             case 'BLANK':
@@ -399,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkBtn.addEventListener('click', checkAnswer);
     nextBtn.addEventListener('click', nextQuestion);
     retryBtn.addEventListener('click', () => { isRetryMode = true; startQuiz(); });
-    exitBtn.addEventListener('click', () => { window.location.href = '/mochilearn/page/study'; }); // 예시: 학습 페이지로 이동
+    exitBtn.addEventListener('click', () => { window.location.href = '/mochilearn/page/quiz'; }); // 예시: 학습 페이지로 이동
 
     // --- 초기화 ---
     loadQuizzes();

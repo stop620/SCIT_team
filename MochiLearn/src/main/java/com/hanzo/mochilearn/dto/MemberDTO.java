@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class MemberDTO {
     private Integer id;
     private String userId;
