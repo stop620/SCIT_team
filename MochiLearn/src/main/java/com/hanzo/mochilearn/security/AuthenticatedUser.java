@@ -20,7 +20,7 @@ import java.util.Collections;
 public class AuthenticatedUser implements UserDetails {
 
     private static final long serialVersionUID = -675752900355190L;
-
+    private Integer memberId;
     private String id;
     private String password;
     private String name;

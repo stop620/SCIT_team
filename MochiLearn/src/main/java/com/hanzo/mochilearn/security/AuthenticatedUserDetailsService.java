@@ -30,6 +30,7 @@ public class AuthenticatedUserDetailsService implements UserDetailsService {
 
         // 인증정보 생성
         AuthenticatedUser user = AuthenticatedUser.builder()
+        		.memberId(memberEntity.getId()) 
                 .id(memberEntity.getUserId())
                 .password(memberEntity.getPassword())
                 .name(memberEntity.getName())
