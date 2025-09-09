@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <link rel="stylesheet" th:href="@{/css/main.css}">
 
 <!-- 나눔바른고딕 
@@ -23,7 +25,40 @@ function wordPopup(){
 
     document.addEventListener('DOMContentLoaded', function() {
 
-        const form = document.getElementById('addWord')
+        // 폼태그 선택
+        const form = document.getElementById('addWordbookForm');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+
+            const data = {
+                "title": name,
+                "contents": description
+            };
+
+            fetch('/mochilearn/api/wordbook/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log('단어장 생성 성공', data);
+                alert('단어장이 추가되었습니다.');
+                window.location.href = '../page/word';
+            })
+            .catch(error => {
+                console.error('Error', error);
+                alert('단어장 추가에 실패했습니다.');
+            });
+        });
     });
 </script>
 <head>
@@ -35,7 +70,7 @@ function wordPopup(){
 <body>
     <!--<div th:replace="~{navigation::navigation}"></div>-->
     <div class="addCardForm">
-        <form action="" method="post" >
+        <form id="addWordbookForm">
             <input type="text" id="name" name="name" placeholder="단어장 이름" required><br>
             <input type="text" id="description" name="description" placeholder="단어장 설명" required><br>
             <input type="text" id="code" name="code" placeholder="공유 코드가 있다면 입력하세요"><br>

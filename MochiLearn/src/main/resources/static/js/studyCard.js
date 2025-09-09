@@ -620,7 +620,7 @@ function showWordSelector(selectedTokens, translatedWordList, event) {
                             <td>${token.base || ''}</td>
                             <td class="translation-cell">${meaningText}</td>
                             <td>
-                                <button class="save-token-btn" data-token='${JSON.stringify(token)}'>저장</button>
+                                <button class="select-wordbook-btn" data-token='${JSON.stringify(token)}'>+</button>
                             </td>
                         </tr>
                     `;
@@ -660,16 +660,106 @@ function showWordSelector(selectedTokens, translatedWordList, event) {
         top: finalPopupTop + 'px'
     });
 
-    wordSelector.off('click', '.save-token-btn').on('click', '.save-token-btn', function() {
+    wordSelector.off('click', '.select-wordbook-btn').on('click', '.select-wordbook-btn', function() {
+        event.stopPropagation();
         const tokenData = $(this).data('token');
-        console.log("저장할 개별 단어 토큰:", tokenData);
-        alert(`'${tokenData.surface}' 저장 기능 구현 필요`);
+        const meaning = document.querySelector('.translation-cell').textContent;
+        displayWordbookList(tokenData, meaning);
     });
 
     setTimeout(() => { if (isWordSelectorActive) addGlobalClickListener(); }, 300);
 }
 
+/**
+ * 단어장 목록 선택 UI를 팝업에 표시하는 함수
+ * @param {object} tokenToSave - 저장할 대상 토큰 정보
+ */
+async function displayWordbookList(tokenToSave, meaning) {
+    const wordbookSelector = $('.wordbookSelector');
+    wordbookSelector.html('<div>단어장 목록 로딩 중...</div>').show();
 
+    // 단어장 팝업 위치 계산
+    const rect = $('.wordSelector').get(0).getBoundingClientRect();
+    wordbookSelector.css({
+        left: (rect.right + 10) + 'px',
+        top: (rect.top + window.scrollY) + 'px',
+    });
+
+    try {
+        let books = [];
+        await fetch(`/mochilearn/api/wordbook/list`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('단어장 받음');
+
+            books = data.data;
+            console.log(books);
+        });
+        // --- API 호출 시뮬레이션을 위한 임시 데이터 ---
+        const mockWordbooks = [
+            { id: 101, name: 'JLPT N1 단어' },
+            { id: 102, name: '비즈니스 필수 어휘' },
+            { id: 103, name: '애니메이션 명대사' }
+        ];
+
+        const wordbookListHTML = books.map(book => `
+            <div class="wordbook-item">
+                <input type="radio" name="wordbook" value="${book.id}" id="book-${book.id}">
+                <label for="book-${book.id}">${book.title}</label>
+            </div>`).join('');
+
+        const selectionHTML = `
+            <div class="wordbook-selection-container">
+                <h4>'${tokenToSave.surface}' 저장</h4>
+                <div class="wordbook-list">${wordbookListHTML}</div>
+                <div class="wordbook-actions">
+                    <button class="final-save-btn">저장</button>
+                </div>
+            </div>`;
+        wordbookSelector.html(selectionHTML);
+
+        // '단어장에 저장' 버튼 이벤트
+        wordbookSelector.find('.final-save-btn').click(async function() {
+            const selectedBookId = $('input[name="wordbook"]:checked').val();
+            if (!selectedBookId) {
+                alert('저장할 단어장을 선택해주세요.');
+                return;
+            }
+            console.log(`단어장 ID: ${selectedBookId}에 토큰 저장:`, tokenToSave);
+
+
+            const word = tokenToSave.surface || tokenToSave.base;
+            const data = {
+                "word": word,
+                "meaning": meaning,
+                "pos": tokenToSave.pos,
+                "bookId": selectedBookId
+            };
+            await fetch('/mochilearn/api/word/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    console.log('단어 저장 성공', data);
+                    alert('단어를 저장했습니다.');
+                })
+                .catch(error => {
+                    console.error('Error', error);
+                    alert('단어 저장에 실패했습니다.');
+                });
+
+            hidePopups();
+        });
+    } catch (error) {
+        wordbookSelector.html('<div>목록 로딩 실패</div>');
+    }
+}
 
 /**
  * 팝업 외부 클릭 시 팝업을 닫기 위한 전역 리스너 추가
@@ -677,13 +767,26 @@ function showWordSelector(selectedTokens, translatedWordList, event) {
 function addGlobalClickListener() {
     if (globalClickListener) return;
     globalClickListener = (e) => {
-        if (isWordSelectorActive && !e.target.closest('.wordSelector')) {
-            hideWordSelector();
-            // 선택 단어 리스트 초기화
-            selectedWordList.splice(0, selectedWordList.length);
+        if (!isWordSelectorActive) return;
+
+        const wordSelector = document.querySelector('.wordSelector');
+        const wordbookSelector = document.querySelector('.wordbookSelector');
+
+        const isClickInWordPopup = wordSelector.contains(e.target);
+        const isClickInWordbookPopup = wordbookSelector.contains(e.target);
+
+        if (!isClickInWordPopup && !isClickInWordbookPopup) {
+            hidePopups();
         }
     };
     document.addEventListener('click', globalClickListener);
+}
+
+function clearGlobalClickListener() {
+    if (globalClickListener) {
+        document.removeEventListener('click', globalClickListener);
+        globalClickListener = null;
+    }
 }
 
 /**
@@ -699,12 +802,13 @@ function clearGlobalClickListener() {
 /**
  * 단어 선택 팝업을 숨기고 선택 상태를 초기화하는 함수
  */
-function hideWordSelector() {
+function hidePopups() {
     $('.wordSelector').removeClass('on').hide();
+    $('.wordbookSelector').hide(); // 단어장 팝업도 숨김
     isWordSelectorActive = false;
     selectionStartTokenIndex = -1;
     selectionEndTokenIndex = -1;
-    updateTokenSelectionUI(); // 하이라이트 제거
+    updateTokenSelectionUI();
     clearGlobalClickListener();
 }
 

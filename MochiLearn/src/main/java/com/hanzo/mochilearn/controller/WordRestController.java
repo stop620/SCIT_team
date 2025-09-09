@@ -1,13 +1,12 @@
 package com.hanzo.mochilearn.controller;
 
-import com.hanzo.mochilearn.dto.ApiResponse;
-import com.hanzo.mochilearn.dto.BookDTO;
-import com.hanzo.mochilearn.dto.TranslateDTO;
+import com.hanzo.mochilearn.dto.*;
 import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.BookService;
 import com.hanzo.mochilearn.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -30,5 +29,15 @@ public class WordRestController {
         List<String> result = wordService.translate(translateDTO);
 
         return ResponseEntity.ok(ApiResponse.success("단어 목록 번역 성공", result));
+    }
+
+    @PostMapping("/api/word/save")
+    public ResponseEntity<ApiResponse<Integer>> saveWord(@RequestBody WordSaveDTO wordSaveDTO) {
+
+        log.debug("[저장할 단어]: {}", wordSaveDTO);
+
+        Integer bookId = wordService.save(wordSaveDTO);
+
+        return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
     }
 }

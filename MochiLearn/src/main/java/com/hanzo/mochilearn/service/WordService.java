@@ -1,6 +1,16 @@
 package com.hanzo.mochilearn.service;
 
 import com.hanzo.mochilearn.dto.TranslateDTO;
+import com.hanzo.mochilearn.dto.WordSaveDTO;
+import com.hanzo.mochilearn.entity.Book;
+import com.hanzo.mochilearn.entity.Word;
+import com.hanzo.mochilearn.entity.WordBookMapEntity;
+import com.hanzo.mochilearn.repository.BookRepository;
+import com.hanzo.mochilearn.repository.WordBookMapRepository;
+import com.hanzo.mochilearn.repository.WordRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +29,15 @@ import java.util.Map;
 public class WordService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final BookRepository bookRepository;
+    private final WordRepository wordRepository;
+    private final WordBookMapRepository wordBookMapRepository;
+
+    public WordService(BookRepository bookRepository, WordRepository wordRepository, WordBookMapRepository wordBookMapRepository) {
+        this.bookRepository = bookRepository;
+        this.wordRepository = wordRepository;
+        this.wordBookMapRepository = wordBookMapRepository;
+    }
 
     public List<String> translate(TranslateDTO translateDTO) {
 
@@ -53,5 +72,40 @@ public class WordService {
             }
         }
         return results;
+    }
+
+    public Integer save(WordSaveDTO wordSaveDTO) {
+
+        Book book = bookRepository.findById(wordSaveDTO.getBookId())
+                .orElseThrow(() -> new EntityNotFoundException("단어장 없음"));
+        Word word = new Word();
+
+        boolean isExist = wordRepository.existsByWordAndPos(wordSaveDTO.getWord(), wordSaveDTO.getPos());
+
+        if (isExist) {
+
+            word = wordRepository.findByWordAndPos(wordSaveDTO.getWord(), wordSaveDTO.getPos());
+
+        } else {
+            word = Word.builder()
+                    .word(wordSaveDTO.getWord())
+                    .meaning(wordSaveDTO.getMeaning())
+                    .pos(wordSaveDTO.getPos())
+                    .build();
+
+        }
+        wordRepository.save(word);
+        log.debug("[저장된 단어]: {}", word);
+
+        WordBookMapEntity mapEntity = WordBookMapEntity.builder()
+                .word(word)
+                .book(book)
+                .build();
+
+        wordBookMapRepository.save(mapEntity);
+        log.debug("[저장된 단어장]: {}", wordSaveDTO.getBookId());
+        log.debug("[단어-단어장 연결]: {}", mapEntity);
+
+        return wordSaveDTO.getBookId();
     }
 }

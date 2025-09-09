@@ -253,7 +253,7 @@ main {
     color: white;
     white-space: nowrap; /* 태그 텍스트 줄바꿈 방지 */
 }
-
+/* 단어 선택 관련 */
 .wordSelector {
     position: absolute;
     z-index: 1000;
@@ -281,6 +281,61 @@ main {
     padding: 10px;
     display: block;
 }
+
+/* 단어 저장 관련 */
+.wordbookSelector {
+    display: none; /* 평소에는 숨김 */
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    z-index: 1001; /* 단어 팝업보다 위에 오도록 */
+    width: 250px; /* 팝업 너비 지정 */
+}
+
+.wordbook-selection-container h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.wordbook-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.wordbook-item {
+    padding: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.wordbook-item:hover {
+    background-color: #f0f0f0;
+}
+
+.wordbook-item input[type="radio"] {
+    margin-right: 8px;
+}
+
+.wordbook-actions {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.select-wordbook-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0 5px;
+}
+
 
 /* 추가적인 반응형 처리 */
 @media (max-width: 1023px) {

@@ -40,10 +40,12 @@ public class BookRestController {
     }
 
     @PostMapping("/api/wordbook/create")
-    public ResponseEntity<ApiResponse<BookDTO>> createBook(@RequestBody BookDTO bookDTO) {
+    public ResponseEntity<ApiResponse<String>> createBook(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                                           @RequestBody BookDTO bookDTO) {
 
         log.debug("[단어장 추가 요청]: {}", bookDTO);
+        bookService.createWordBook(bookDTO, authenticatedUser.getMemberId());
 
-        return ResponseEntity.ok(ApiResponse.success("단어장 추가 성공", bookDTO));
+        return ResponseEntity.ok(ApiResponse.success("단어장 추가 성공", "success"));
     }
 }
