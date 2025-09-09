@@ -18,6 +18,13 @@ let audioChunks = [];
 // 언어 바꾸기 전역 변수
 const langChange = document.getElementById('langChange');
 
+// --- 단어 선택 관련 전역 변수 ---
+let isSelecting = false;
+let selectionStartTokenIndex = -1;
+let selectionEndTokenIndex = -1;
+let globalClickListener = null;
+let isWordSelectorActive = false;
+let selectedWordList = [];
 
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
@@ -152,6 +159,9 @@ $(document).ready(function() {
     //언어 변환 
     langChange.onclick = function(){ langChangeFunction(); };
 
+    // 단어 선택 이벤틑 리스너 초기화
+    initializeEventListeners();
+
 });
 
 // 시간 변환 헬퍼 함수
@@ -205,6 +215,7 @@ const onPlayerStateChange = (event) => {
 const updateSingleTranscriptLine = () => {
     const transcriptContainer = document.getElementById('transcript-container');
     const japaneseLineElement = document.getElementById('japanese-line');
+    const actionablePOSTypes = ['名詞', '動詞', '形容詞'];
     transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
     japaneseLineElement.innerHTML = '';
 
@@ -216,6 +227,11 @@ const updateSingleTranscriptLine = () => {
                 const span = document.createElement('span');
                 span.textContent = token.surface;
                 span.className = 'japanese-token';
+                if(actionablePOSTypes.includes(token.pos)) {
+                    span.classList.add('actionable');
+                } else {
+                    span.classList.add('non-actionable');
+                }
                 span.dataset.index = index;
                 span.tokenData = token;
                 japaneseLineElement.appendChild(span);
@@ -438,4 +454,288 @@ function langChangeFunction(){
         langChange.innerHTML = '<strong> 한 + 일 </strong>';
     }
 
+}
+
+function initializeEventListeners() {
+
+    const japaneseLine = document.getElementById('japanese-line');
+
+    // 토큰 위로 마우스가 올라왔을 때 (Hover)
+    japaneseLine.addEventListener('mouseover', handleTokenMouseOver);
+    // 토큰에서 마우스가 벗어났을 때
+    japaneseLine.addEventListener('mouseout', handleTokenMouseOut);
+
+    // 드래그 시작
+    japaneseLine.addEventListener('mousedown', handleSelectionStart);
+    // 드래그 중
+    japaneseLine.addEventListener('mousemove', handleSelectionMove);
+    // 드래그 종료 (문서 전체에서 감지하여 놓치는 경우 방지)
+    document.addEventListener('mouseup', handleSelectionEnd);
+
+}
+/**
+ * 토큰 위로 마우스가 올라왔을 때 하이라이트 및 정보 로깅
+ */
+function handleTokenMouseOver(event) {
+    const target = event.target.closest('.japanese-token');
+    if (target && !isSelecting && target.classList.contains('actionable')) { // 드래그 중이 아닐 때만
+        target.classList.add('token-hover');
+        console.log("마우스 오버:", target.tokenData);
+    }
+}
+
+/**
+ * 토큰에서 마우스가 벗어났을 때 하이라이트 제거
+ */
+function handleTokenMouseOut(event) {
+    const target = event.target.closest('.japanese-token');
+    if (target) {
+        target.classList.remove('token-hover');
+    }
+}
+
+
+// --- 단어 선택 및 팝업 로직 (수정됨) ---
+
+/**
+ * (Mousedown) 토큰 위에서 마우스 누르기 시작
+ */
+function handleSelectionStart(event) {
+    // 팝업이 떠 있는 상태라면 무시
+    if (isWordSelectorActive) return;
+
+    const target = event.target.closest('.japanese-token');
+    if (target) {
+        event.preventDefault(); // 텍스트가 파랗게 선택되는 기본 동작 방지
+        isSelecting = true;
+        selectionStartTokenIndex = parseInt(target.dataset.index, 10);
+        selectionEndTokenIndex = selectionStartTokenIndex;
+        updateTokenSelectionUI();
+    }
+}
+
+/**
+ * (Mousemove) 토큰 위에서 마우스 드래그
+ */
+function handleSelectionMove(event) {
+    if (isSelecting) {
+        const target = event.target.closest('.japanese-token');
+        if (target) {
+            selectionEndTokenIndex = parseInt(target.dataset.index, 10);
+            updateTokenSelectionUI();
+        }
+    }
+}
+
+
+/**
+ * (Mouseup) 팝업을 즉시 표시하고, 백그라운드에서 번역을 요청
+ */
+function handleSelectionEnd(event) {
+    if (isSelecting) {
+        isSelecting = false; // isSelecting 상태를 먼저 false로 변경
+
+        const selectedSpans = document.querySelectorAll('.selected-token');
+        if (selectedSpans.length > 0) {
+            const selectedTokens = Array.from(selectedSpans).map(span => span.tokenData);
+
+            // 1. 팝업을 '번역 중...' 상태로 즉시 표시
+            showWordSelector(selectedTokens, null, event);
+
+            // 2. 백그라운드에서 번역 API를 호출하고, 완료되면 팝업 내용을 업데이트
+            fetchAndUpdateTranslations(selectedTokens);
+        }
+    }
+}
+
+/**
+ * 선택된 토큰들의 배경색을 변경하는 UI 업데이트 함수
+ */
+function updateTokenSelectionUI() {
+    const tokens = document.querySelectorAll('.japanese-token');
+
+    if (selectionStartTokenIndex === -1) {
+        tokens.forEach(token => token.classList.remove('selected-token'));
+        return;
+    }
+    const start = Math.min(selectionStartTokenIndex, selectionEndTokenIndex);
+    const end = Math.max(selectionStartTokenIndex, selectionEndTokenIndex);
+
+    tokens.forEach((token, index) => {
+        // 현재 토큰이 선택 범위에 있고, 'actionable' 클래스를 가지고 있는지 여부를 판단
+        const shouldBeSelected = index >= start && index <= end && token.classList.contains('actionable');
+
+        // toggle의 두 번째 인자를 사용하여 클래스를 명시적으로 추가하거나 제거
+        token.classList.toggle('selected-token', shouldBeSelected);
+    });
+}
+
+/**
+ * 이미 표시된 팝업의 '뜻' 부분만 업데이트하는 함수
+ * @param {Array<string>} translatedWordList - 번역된 뜻 목록
+ */
+function updatePopupTranslations(translatedWordList) {
+    const wordSelector = $('.wordSelector');
+    if (!wordSelector.is(':visible')) return; // 팝업이 이미 닫혔으면 중단
+
+    translatedWordList.forEach((meaning, index) => {
+        // 각 행의 '뜻' 셀을 찾아 내용을 업데이트
+        wordSelector.find(`tr[data-token-index="${index}"] .translation-cell`).text(meaning);
+    });
+}
+
+/**
+ * 단어 선택 팝업을 표시하는 함수 (번역된 단어 리스트를 파라미터로 받음)
+ * @param {Array} selectedTokens - 선택된 토큰 객체 배열
+ * @param {Array<string>} translatedWordList - 번역된 뜻 목록
+ * @param {MouseEvent} event - 마우스 이벤트 객체
+ */
+function showWordSelector(selectedTokens, translatedWordList, event) {
+    const wordSelector = $('.wordSelector');
+    if (!selectedTokens || selectedTokens.length === 0) return;
+
+    clearGlobalClickListener();
+
+    const combinedText = selectedTokens.map(token => token.surface).join('');
+
+    const detailsTableHTML = `
+        <table class="token-details-table">
+            <thead>
+                <tr>
+                    <th>품사</th>
+                    <th>단어</th>
+                    <th>원형</th>
+                    <th>뜻</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${selectedTokens.map((token, index) => {
+        // 번역 리스트가 없으면 '번역 중...' 텍스트 표시
+        const meaningText = translatedWordList ? (translatedWordList[index] || '') : '번역 중...';
+        return `
+                        <tr data-token-index="${index}">
+                            <td>${token.pos || ''}</td>
+                            <td>${token.surface || ''}</td>
+                            <td>${token.base || ''}</td>
+                            <td class="translation-cell">${meaningText}</td>
+                            <td>
+                                <button class="save-token-btn" data-token='${JSON.stringify(token)}'>저장</button>
+                            </td>
+                        </tr>
+                    `;
+    }).join('')}
+            </tbody>
+        </table>
+    `;
+    const popupHTML = `
+        <div class="selected-words-container">
+            <!--<div class="combined-word-display">${combinedText}</div>-->
+            <hr>
+            <div class="token-details-container">${detailsTableHTML}</div>
+        </div>
+    `;
+
+    wordSelector.html(popupHTML).addClass('on').show();
+    isWordSelectorActive = true;
+
+    const selectedSpans = document.querySelectorAll('.selected-token');
+    let minLeft = Infinity, maxRight = -Infinity, top = Infinity;
+    selectedSpans.forEach(span => {
+        const rect = span.getBoundingClientRect();
+        if (rect.left < minLeft) minLeft = rect.left;
+        if (rect.right > maxRight) maxRight = rect.right;
+        if (rect.top < top) top = rect.top;
+    });
+
+    const combinedWidth = maxRight - minLeft;
+    const posX = minLeft + window.scrollX + (combinedWidth / 2);
+    const selectionTop = top + window.scrollY;
+    const popupHeight = wordSelector.outerHeight();
+    const margin = 10;
+    const finalPopupTop = selectionTop - popupHeight - margin;
+
+    wordSelector.css({
+        left: (posX - (wordSelector.outerWidth() / 2)) + 'px',
+        top: finalPopupTop + 'px'
+    });
+
+    wordSelector.off('click', '.save-token-btn').on('click', '.save-token-btn', function() {
+        const tokenData = $(this).data('token');
+        console.log("저장할 개별 단어 토큰:", tokenData);
+        alert(`'${tokenData.surface}' 저장 기능 구현 필요`);
+    });
+
+    setTimeout(() => { if (isWordSelectorActive) addGlobalClickListener(); }, 300);
+}
+
+
+
+/**
+ * 팝업 외부 클릭 시 팝업을 닫기 위한 전역 리스너 추가
+ */
+function addGlobalClickListener() {
+    if (globalClickListener) return;
+    globalClickListener = (e) => {
+        if (isWordSelectorActive && !e.target.closest('.wordSelector')) {
+            hideWordSelector();
+            // 선택 단어 리스트 초기화
+            selectedWordList.splice(0, selectedWordList.length);
+        }
+    };
+    document.addEventListener('click', globalClickListener);
+}
+
+/**
+ * 전역 클릭 리스너 제거
+ */
+function clearGlobalClickListener() {
+    if (globalClickListener) {
+        document.removeEventListener('click', globalClickListener);
+        globalClickListener = null;
+    }
+}
+
+/**
+ * 단어 선택 팝업을 숨기고 선택 상태를 초기화하는 함수
+ */
+function hideWordSelector() {
+    $('.wordSelector').removeClass('on').hide();
+    isWordSelectorActive = false;
+    selectionStartTokenIndex = -1;
+    selectionEndTokenIndex = -1;
+    updateTokenSelectionUI(); // 하이라이트 제거
+    clearGlobalClickListener();
+}
+
+/**
+ * 서버에 단어 번역을 요청하고, 이미 열려있는 팝업의 내용을 업데이트하는 함수
+ * @param {Array} selectedTokens - 선택된 토큰 객체 배열
+ */
+async function fetchAndUpdateTranslations(selectedTokens) {
+    const wordList = selectedTokens.map(token => token.base || token.surface);
+    const context = currentTranscript[currentTranscriptIndex].japanese;
+
+    const requestData = { context, wordList };
+
+    try {
+        const response = await fetch(`/mochilearn/api/word/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) throw new Error('번역 API 응답 실패');
+
+        const result = await response.json();
+        const translatedWordList = result.data;
+
+        // 팝업의 '뜻' 부분을 번역된 내용으로 업데이트
+        updatePopupTranslations(translatedWordList);
+
+    } catch (error) {
+        console.error("번역 중 오류 발생:", error);
+        const errorMessages = selectedTokens.map(() => '번역 실패');
+        updatePopupTranslations(errorMessages);
+    }
 }

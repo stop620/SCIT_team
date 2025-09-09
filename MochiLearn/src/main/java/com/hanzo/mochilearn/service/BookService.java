@@ -33,7 +33,7 @@ public class BookService {
 
             books.add(bookDTO);
         }
-
+        log.debug("[wordbook] memberId: {}, books: {}", memberId, books);
         return books;
     }
 }

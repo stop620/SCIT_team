@@ -282,14 +282,6 @@ main {
     display: block;
 }
 
-.selected-token {
-    background-color: var(--mochi-pink);
-}
-
-.token-hover {
-    background-color: lightgrey;
-}
-
 /* 추가적인 반응형 처리 */
 @media (max-width: 1023px) {
     .main-grid {
@@ -315,4 +307,20 @@ main {
     .main-grid {
         gap: 1rem;
     }
+}
+/* 문장에서 단어 드래그 관련 css */
+/* 액션이 불가능한 토큰 (조사, 조동사 등) */
+.japanese-token.non-actionable {
+    cursor: default; /* 마우스 커서를 기본 모양으로 */
+}
+
+/* 액션 가능한 토큰에 마우스 오버 시 */
+.japanese-token.token-hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
+/* 액션 가능한 토큰을 드래그하여 선택 시 */
+.japanese-token.selected-token {
+    background-color: var(--mochi-pink);
 }

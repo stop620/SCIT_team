@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBooks();
         } else {
             console.log('단어장 요청');
-            fetch(`/mochilearn/api/word/wordbook?memberId=${memberId}`)
+            fetch(`/mochilearn/api/wordbook/list`)
                 .then(response => response.json())
                 .then(data => {
                     console.log('단어장 받음');
