@@ -157,7 +157,7 @@ const parseAITime = (timeValue) => {
 };
 
 const extractVideoId = (url) => {
-	const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };
@@ -181,7 +181,50 @@ const createPlayer = (videoId) => {
 };
 
 const onPlayerStateChange = (event) => {
-    if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        if (subtitleInterval) clearInterval(subtitleInterval);
+        subtitleInterval = setInterval(() => {
+            if (!player || typeof player.getCurrentTime !== 'function') {
+                clearInterval(subtitleInterval);
+                return;
+            }
+            const currentTime = player.getCurrentTime();
+            const relativeTime = currentTime - currentSectionStart;
+            const lastIndex = currentTranscript.length - 1;
+            const lastTime = lastIndex >= 0 ? parseAITime(currentTranscript[lastIndex].time) : 0;
+
+            let newIndex = -1;
+            for (let i = 0; i < currentTranscript.length; i++) {
+                const itemTime = parseAITime(currentTranscript[i].time);
+                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
+
+                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
+                    newIndex = i;
+                    break;
+                }
+            }
+
+            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
+                newIndex = lastIndex;
+            }
+
+            if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
+                currentTranscriptIndex = newIndex;
+                updateSingleTranscriptLine();
+            }
+
+            if (currentTranscriptIndex === lastIndex && relativeTime >= lastTime) {
+                player.pauseVideo(); // 마지막 자막 도달 시 영상 일시정지
+                clearInterval(subtitleInterval);
+                return;
+            }
+
+            if (currentTime > currentSectionStart + lastTime + 0.5) {
+                clearInterval(subtitleInterval);
+                return;
+            }
+        }, 100);
+    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         clearInterval(subtitleInterval);
         clearInterval(timelineTimeout);
     }
@@ -203,23 +246,23 @@ const updateSingleTranscriptLine = () => {
 const changeTranscriptIndex = (direction) => {
     if (currentTranscript.length === 0) return;
 
-    if (direction === -1) { // prev
+    if (direction === -1) {
         if (currentTranscriptIndex === 0) return;
-        else currentTranscriptIndex -= 1;
-    } else if (direction === 1) { // next
+        currentTranscriptIndex -= 1;
+    } else if (direction === 1) {
         if (currentTranscriptIndex === currentTranscript.length - 1) return;
-        else currentTranscriptIndex += 1;
+        currentTranscriptIndex += 1;
     } else {
         return;
     }
 
     updateSingleTranscriptLine();
 
-    // 영상 재생 위치: 섹션 시작시간 + 자막 상대시간
     if (player && typeof player.seekTo === 'function') {
         const relativeTime = parseAITime(currentTranscript[currentTranscriptIndex].time);
         const absoluteTime = currentSectionStart + relativeTime;
         player.seekTo(absoluteTime, true);
+        player.playVideo();
     }
 };
 
@@ -247,9 +290,7 @@ function renderSectionButtons(sections) {
         button.addEventListener('click', () => {
             console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
 
-            // 현재 섹션 시작 시간 저장
             currentSectionStart = section.start_seconds || 0;
-
             currentTranscript = section.sentences || [];
             currentTranscriptIndex = 0;
             updateSingleTranscriptLine();
@@ -293,14 +334,11 @@ const startTimelinePlayback = (timeline) => {
                 return;
             }
             const currentTime = player.getCurrentTime();
-            if (currentTime < timeline.start || currentTime > timeline.end) {
-                clearInterval(subtitleInterval);
-                return;
-            }
-
             const relativeTime = currentTime - timeline.start;
+            const lastIndex = currentTranscript.length - 1;
+            const lastTime = lastIndex >= 0 ? parseAITime(currentTranscript[lastIndex].time) : 0;
 
-            let newIndex = 0;
+            let newIndex = -1;
             for (let i = 0; i < currentTranscript.length; i++) {
                 const itemTime = parseAITime(currentTranscript[i].time);
                 const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
@@ -311,9 +349,24 @@ const startTimelinePlayback = (timeline) => {
                 }
             }
 
-            if (newIndex !== currentTranscriptIndex) {
+            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
+                newIndex = lastIndex;
+            }
+
+            if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
                 currentTranscriptIndex = newIndex;
                 updateSingleTranscriptLine();
+            }
+
+            if (currentTranscriptIndex === lastIndex && relativeTime >= lastTime) {
+                player.pauseVideo(); // 마지막 자막 도달 시 영상 일시정지
+                clearInterval(subtitleInterval);
+                return;
+            }
+
+            if (currentTime > timeline.end + 0.5) {
+                clearInterval(subtitleInterval);
+                return;
             }
         }, 100);
     }
