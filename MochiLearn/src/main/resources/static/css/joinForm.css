@@ -1,0 +1,128 @@
+:root {
+    --mochi-pink: #FFB6C1;
+    --mochi-mint: #3ED6D0;
+    --mochi-blue: #32D9FF;
+    --mochi-gray-light: #F5F5F5;
+    --mochi-gray-dark: #333333;
+}
+
+body{
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+	text-align : center;
+	background-color : #b4f1ff;
+}
+
+
+form{
+    display: flex;
+    width:33.33%;
+    border-radius : 15px;
+	border : solid 2px var(--mochi-gray-dark);
+	background-color : #fff;
+    flex-direction: column;
+    gap : 5px 0;
+    padding : 30px 0;
+    margin : 15px;
+    box-shadow: -5px 5px 5px -5px #333;
+}
+
+input{
+    border-width:0 0 1px;
+    padding : 7px 0;
+    
+}
+
+input[type=submit],input[type=button]{
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+a{
+
+    text-decoration: none;
+    cursor: none;
+}
+
+img{
+    width: 100%;
+}
+
+.formContainer{
+    display: flex;
+    flex-direction: row;
+    justify-items: center;
+    width: 100%;
+    gap : 0 5px;
+    /* border: dotted 1px red; */
+    /*      background-color: var(--mochi-gray-light); */
+    /* background : radial-gradient(var(--mochi-mint) 70%,var(--mochi-blue)); */
+}
+
+.sideContainer{
+    width: 33.33%;
+    height: fit-content;
+}
+
+.errorMsg{
+    font-weight: 700;
+    color : red;
+    text-align: center;
+    margin: 15px 0;
+    position: relative;
+    width: 85%;
+    height: 120px;
+    padding: 10px;
+    background: #FFFFFF;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: #7F7F7F solid 3px;
+}
+
+.errorMsg:after {
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 15px 20px 0;
+    border-color: #FFFFFF transparent;
+    display: block;
+    width: 0;
+    z-index: 1;
+    bottom: -15px;
+    left: 112px;
+}
+
+.errorMsg:before
+{
+    content: '';
+    position: absolute;
+    border-style: solid;
+    border-width: 17px 22px 0;
+    border-color: #7F7F7F transparent;
+    display: block;
+    width: 0;
+    z-index: 0;
+    bottom: -20px;
+    left: 110px;
+}
+
+.blank{
+    visibility: hidden;
+    position: relative;
+    width: 279px;
+    height: 200px;
+}
+
+.elementContainer input{
+    width: 75%;
+    padding : 10px;
+    margin: 4px 0;
+}
+
+
+

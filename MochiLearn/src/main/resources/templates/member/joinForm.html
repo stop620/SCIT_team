@@ -2,9 +2,11 @@
 <html lang="ko"
 	  xmlns:th="http://www.thymeleaf.org"
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<link rel="stylesheet" th:href="@{/css/joinForm.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 <head>
 	<meta charset="UTF-8">
-	<title>회원가입</title>
+	<title>Mochi Learn 회원가입</title>
 	<!-- jQuery 파일 불러오기 -->
 	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
 	<script>
@@ -40,43 +42,59 @@
 	</script>
 </head>
 <body>
-	<h1>[ 가입 ]</h1>
-	
-	<form id="jForm" th:action="@{/member/join}" method="post">
-			<div>
-				<label for="userId">ID</label>
-				<input type="text" name="userId" id="userId">
+	<h1>Mochi Learnへようこす！</h1>
+	<div class="formContainer">
+		<div class="sideContainer">
+			<div class="blank">
 			</div>
-			<div>
-				<label for="password">Password</label>
-				<input type="password" name="password" id="password">
+			<div class="welcomeImg">
+				<a><img th:src="@{/img/mochi_write.png}"></a>
 			</div>
-			<div>
-				<label for="name">이름</label>
-				<input type="text" name="name" id="name">
+		</div>
+		<form id="jForm" th:action="@{/member/join}" method="post">
+				<div class="elementContainer">
+					<label for="userId"></label>
+					<input type="text" name="userId" id="userId" placeholder="아이디를 입력해주세요.">
+				</div>
+				<div class="elementContainer">
+					<label for="password"></label>
+					<input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
+				</div>
+				<div class="elementContainer">
+					<label for="name"></label>
+					<input type="text" name="name" id="name" placeholder="이름을 입력해주세요.">
+				</div>
+	            <div class="elementContainer">
+	                <label for="birth"></label>
+	                <input type="text" name="birth" id="birth" placeholder="생년월일을 입력해주세요.">
+	            </div>
+	            <div class="elementContainer">
+	                <label for="gender"></label>
+	                <input type="text" name="gender" id="gender" placeholder="성별을 입력해주세요.">
+	            </div>
+	            <div class="elementContainer">
+	                <label for="email"></label>
+	                <input type="text" name="email" id="email" placeholder="이메일을 입력해주세요.">
+	            </div>
+	            <div class="elementContainer">
+	                <label for="phone"></label>
+	                <input name="phone" id="phone" placeholder="전화번호를 입력해주세요.">
+	            </div>
+	            <div class="elementContainer">
+	                <label for="nickname"></label>
+	                <input name="nickname" id="nickname" placeholder="닉네임을 입력해주세요.">
+	            </div>
+	            <div class="buttonContainer">
+		            <input type="submit" value="가입">
+		            <input type="button" value="테스트" onclick="validation()">	            
+	            </div>
+		</form>
+		<div class="sideContainer">
+			<div class="errorMsg">이곳에 에러 메시지 출력</div>
+			<div class="welcomeImg">
+				<a><img th:src="@{/img/mochi_explain.png}"></a>
 			</div>
-            <div>
-                <label for="birth">birth</label>
-                <input type="text" name="birth" id="birth">
-            </div>
-            <div>
-                <label for="gender">gende</label>
-                <input type="text" name="gender" id="gender">
-            </div>
-            <div>
-                <label for="email">email</label>
-                <input type="text" name="email" id="email">
-            </div>
-            <div>
-                <label for="phone">전화번호</label>
-                <input name="phone" id="phone">
-            </div>
-            <div>
-                <label for="nickname">nick</label>
-                <input name="nickname" id="nickname">
-            </div>
-            <input type="submit" value="가입">
-            <input type="button" value="테스트" onclick="validation()">
-	</form>
+		</div>
+	</div>
 </body>
 </html>
