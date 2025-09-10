@@ -5,16 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizDTO {
+@Builder
+public class WordSaveDTO {
 
-    private int id;
-    private String japanese;
-    private String korean;
-    private int level;
+    private String word;
+    private String meaning;
+    private String pos;
+
+    private Integer bookId;
 }

@@ -1,8 +1,7 @@
 package com.hanzo.mochilearn.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -10,12 +9,15 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "book")
 public class Book {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "book_id", nullable = false)
     private Integer id;
 
@@ -25,9 +27,8 @@ public class Book {
     @Column(name = "contents")
     private String contents;
 
-    @ColumnDefault("0")
     @Column(name = "is_share", nullable = false)
-    private Boolean isShare = false;
+    private boolean isShare = false;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

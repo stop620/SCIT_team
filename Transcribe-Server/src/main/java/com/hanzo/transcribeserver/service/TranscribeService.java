@@ -1,11 +1,15 @@
 package com.hanzo.transcribeserver.service;
 
+import com.atilika.kuromoji.ipadic.Token;
+import com.atilika.kuromoji.ipadic.Tokenizer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentResponse;
 import com.google.genai.types.Part;
 import com.google.gson.Gson;
-import com.hanzo.transcribeserver.dto.GeminiResponseDTO;
+import com.hanzo.transcribeserver.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -151,8 +156,8 @@ public class TranscribeService {
                     "감탄사 같은 표현은 생략해주세요. " +
                     "일본어 텍스트는 공백문자가 없어야합니다." +
                     "하나 이상의 답변은 모두 JSON 형식 transcriptions: [{index: 순서, time: 시작으로부터 해당 자막 시작시간(초), japanese: 일본어, korean: 한국어}, ...]. {level: 평균 난이도}" +
-                    "추가로 문장 중에 퀴즈에 넣을만한 정도의 표현과 길이를 가진 문장은 별도로 quiz_sentences: [{japanese: 일본어, korean: 한국어, level: 난이도}, ...] 형식으로 주세요." +
-                    "퀴즈의 일본어 텍스트는 조사의 뒤나 하나의 단어 뒤에서 구분해서 배열 형태로 나누어 주세요.";
+                    "추가로 문장 중에 퀴즈에 넣을만한 정도의 표현과 길이를 가진 문장은 별도로 quiz_sentences: [{japanese: 일본어, korean: 한국어, level: 난이도}, ...] 형식으로 주세요.";
+                    /*"퀴즈의 일본어 텍스트는 조사의 뒤나 하나의 단어 뒤에서 구분해서 배열 형태로 나누어 주세요.";*/
 
             Content content =Content.fromParts(
                     Part.fromText(prompt),
@@ -183,7 +188,10 @@ public class TranscribeService {
                         Gson gson = new Gson();
                         log.debug("[Gemini Api] rawResponse: {}", rawResponse);
                         // 최상위 DTO인 GeminiResponseDto 타입으로 파싱합니다.
-                        return gson.fromJson(rawResponse, GeminiResponseDTO.class);
+                        GeminiResponseDTO geminiDto = gson.fromJson(rawResponse, GeminiResponseDTO.class);
+                        tokenizeJapanese(geminiDto);
+                        log.debug("[final result]: {}", geminiDto);
+                        return geminiDto;
                     }
                     // 응답이 비어있으면 다음 키로 재시도
                     log.warn("[Gemini Api] 빈 응답을 받았습니다. 다음 키로 재시도합니다.");
@@ -197,5 +205,143 @@ public class TranscribeService {
             apiCallSemaphore.release();
             log.debug("gemini api 호출 세마포어 반납... (현재 스레드: {})", Thread.currentThread().getName());
         }
+    }
+
+    // kuromoji 토큰화
+    public GeminiResponseDTO tokenizeJapanese(GeminiResponseDTO geminiDto) throws JsonProcessingException {
+        GeminiResponseDTO response = geminiDto;
+        Tokenizer tokenizer = new Tokenizer();
+
+        List<SentenceDTO> sentences = response.getSentences();
+        List<QuizDTO> quizzes = response.getQuizSentences();
+
+        for(SentenceDTO sentence : sentences) {
+            List<TokenDTO> tokenDtoList = new ArrayList<>();
+            List<Token> tokens = tokenizer.tokenize(sentence.getJapanese());
+
+            for(Token token : tokens) {
+                TokenDTO tokenDto = TokenDTO.builder()
+                        .index(token.getPosition())
+                        .surface(token.getSurface())
+                        .base(token.getBaseForm())
+                        .pos(token.getPartOfSpeechLevel1())
+                        .reading(token.getReading())
+                        .build();
+
+                tokenDtoList.add(tokenDto);
+            }
+            sentence.setJapaneseTokens(tokenDtoList);
+        }
+
+        geminiDto.setSentences(sentences);
+
+        for(QuizDTO quiz : quizzes) {
+            // 토큰화
+            List<Token> tokens = tokenizer.tokenize(quiz.getJapanese());
+
+            // 퀴즈용 토큰 묶기
+            List<String> chunks = createChunks(tokens);
+
+            ObjectMapper mapper = new ObjectMapper();
+            quiz.setJapanese(mapper.writeValueAsString(chunks));
+
+
+        }
+
+        return response;
+    }
+
+    // 형태소 결합 메소드
+    public static List<String> createChunks(List<Token> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<String> chunks = new ArrayList<>();
+        for (int i = 0; i < tokens.size(); i++) {
+            StringBuilder currentChunk = new StringBuilder(tokens.get(i).getSurface());
+
+            // 현재 청크에 다음 토큰을 계속해서 결합할 수 있는지 확인
+            while (i + 1 < tokens.size()) {
+                Token lastTokenInChunk = tokens.get(i);
+                Token nextToken = tokens.get(i + 1);
+
+                if (canCombine(lastTokenInChunk, nextToken)) {
+                    currentChunk.append(nextToken.getSurface());
+                    i++; // 다음 토큰을 사용했으므로 인덱스 증가
+                } else {
+                    break; // 더 이상 결합할 수 없으면 중단
+                }
+            }
+            chunks.add(currentChunk.toString());
+        }
+        return chunks;
+    }
+
+    /**
+     * 두 토큰을 하나의 덩어리로 결합할 수 있는지 판단하는 규칙 메소드
+     */
+    private static boolean canCombine(Token current, Token next) {
+        // 규칙 1: 접두사 + 명사 (예: お + ばあちゃん)
+        if (isPrefix(current) && isNoun(next)) {
+            return true;
+        }
+
+        // 규칙 2: 명사 + 조사 (예: 心 + は)
+        if (isNoun(current) && isParticle(next)) {
+            return true;
+        }
+
+        // 규칙 3: 동사/형용사 + 활용 어미 (조동사, 보조동사, 접속조사 등)
+        // (예: 閉ざさ + れた, 開い + て, 明るく + ない)
+        if ((isVerb(current) || isAdjective(current)) && isContinuation(next)) {
+            return true;
+        }
+
+        // 규칙 4: 보조 동사 결합 (-て いく/くる)
+        // (예: 開いて + いった)
+        if (isConjunctiveParticle(current) && isVerb(next) && isAuxiliaryCompoundVerb(next)) {
+            return true;
+        }
+
+        // 규칙 5: 연속된 어미/조사 결합 (예: んだ + よ, ました + ね)
+        if (isEnding(current) && isEnding(next)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // --- 품사 판별을 위한 헬퍼 메소드들 ---
+    private static boolean isNoun(Token token) { return token.getPartOfSpeechLevel1().equals("名詞"); }
+    private static boolean isVerb(Token token) { return token.getPartOfSpeechLevel1().equals("動詞"); }
+    private static boolean isAdjective(Token token) { return token.getPartOfSpeechLevel1().equals("形容詞"); }
+    private static boolean isParticle(Token token) { return token.getPartOfSpeechLevel1().equals("助詞"); }
+    private static boolean isAuxiliaryVerb(Token token) { return token.getPartOfSpeechLevel1().equals("助動詞"); }
+    private static boolean isPrefix(Token token) { return token.getPartOfSpeechLevel1().equals("接頭詞"); }
+    private static boolean isSymbol(Token token) { return token.getPartOfSpeechLevel1().equals("記号"); }
+
+    private static boolean isConjunctiveParticle(Token token) {
+        return isParticle(token) && token.getPartOfSpeechLevel2().equals("接続助詞");
+    }
+
+    private static boolean isNonIndependentVerb(Token token) {
+        return isVerb(token) && token.getPartOfSpeechLevel2().equals("非自立");
+    }
+
+    // -ていく, -てくる, -てしまう 등의 보조 동사인지 확인
+    private static boolean isAuxiliaryCompoundVerb(Token token) {
+        String baseForm = token.getBaseForm();
+        return baseForm.equals("行く") || baseForm.equals("来る") || baseForm.equals("しまう");
+    }
+
+    // 동사/형용사 뒤에 붙어 활용형을 만드는 요소인지 확인
+    private static boolean isContinuation(Token token) {
+        return isAuxiliaryVerb(token) || isNonIndependentVerb(token) || isConjunctiveParticle(token);
+    }
+
+    // 문장 끝에 오는 어미 요소인지 확인 (결합용)
+    private static boolean isEnding(Token token) {
+        return isAuxiliaryVerb(token) || isParticle(token) || isSymbol(token) && !token.getSurface().equals("、");
     }
 }

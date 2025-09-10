@@ -33,11 +33,13 @@ public class WebSecurityConfig {
 
             , "/api/study/load"     // 카드 목록 불러오기 api
             , "/api/study/card"     // 카드 정보 불러오기 api
-            , "/api/study/filterByTags" //카드 태그 필터링
+
+
             /*
             , "/api/study/load"     // 카드 목록 api
             , "/api/study/card"     // 카드 세부 요청 api
             , "/api/quiz/**"           // 퀴즈 문제 요청 api
+
             , "/api/word/**"
             , "/member/**"*/
     };

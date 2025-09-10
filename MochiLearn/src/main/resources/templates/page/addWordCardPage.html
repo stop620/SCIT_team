@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <link rel="stylesheet" th:href="@{/css/main.css}">
 
 <!-- 나눔바른고딕 
@@ -19,6 +21,46 @@ function wordPopup(){
 	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
 }
 </script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // 폼태그 선택
+        const form = document.getElementById('addWordbookForm');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+
+            const data = {
+                "title": name,
+                "contents": description
+            };
+
+            fetch('/mochilearn/api/wordbook/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                console.log('단어장 생성 성공', data);
+                alert('단어장이 추가되었습니다.');
+                window.location.href = '../page/word';
+            })
+            .catch(error => {
+                console.error('Error', error);
+                alert('단어장 추가에 실패했습니다.');
+            });
+        });
+    });
+</script>
 <head>
 <head>
     <meta charset="UTF-8">
@@ -28,8 +70,9 @@ function wordPopup(){
 <body>
     <!--<div th:replace="~{navigation::navigation}"></div>-->
     <div class="addCardForm">
-        <form th:action="@{/page/addWordCard}" method="post">
-            <input type="text" id="name" name="name" placeholder="단어장 명을 입력하세요" required><br>
+        <form id="addWordbookForm">
+            <input type="text" id="name" name="name" placeholder="단어장 이름" required><br>
+            <input type="text" id="description" name="description" placeholder="단어장 설명" required><br>
             <input type="text" id="code" name="code" placeholder="공유 코드가 있다면 입력하세요"><br>
             <input type="submit" value="단어장 추가">
         </form>

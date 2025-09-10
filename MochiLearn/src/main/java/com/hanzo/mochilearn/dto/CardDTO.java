@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardDTO {
+
     private int id;
     private String title;
     private String url;
@@ -23,6 +24,7 @@ public class CardDTO {
     private LocalDateTime createdDate;
     private int memberId;
     private String tag;
+
     private List<SectionDTO> sections;
 
     // 좋아요 여부 필드 추가 (DB 컬럼 아님, API응답용)
