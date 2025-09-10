@@ -15,34 +15,44 @@
 		});
 		
 		function validation(e) {
-			const id = $('#userId').val();
-			const pw = $('#password').val();
-			const name = $('#name').val();
-			
-			if (id.length < 3 || id.length > 10) {
-			  alert("ID는 3 ~ 10자로 입력하세요.");
-			  e.preventDefault();
-			  return;
-			}
-			
-			if (pw.length < 3 || pw.length > 10) {
-			  alert("비밀번호는 3 ~ 10자로 입력하세요.");
-			  e.preventDefault();
-			  return;
-			}
-			
-			if (!name) {
-			  alert("이름을 입력하세요");
-			  e.preventDefault();
-			  return;
-			}
-			
-			alert("success");
-		}
+        // 에러 메시지를 표시할 div 선택 (클래스 선택자 앞의 . 필요)
+        const errMsgDiv = $('.errorMsg');
+        const id = $('#userId').val();
+        const pw = $('#password').val();
+        const name = $('#name').val();
+        
+        // 초기화
+        errMsgDiv.text('');
+        
+        if (id.length < 3 || id.length > 10) {
+            errMsgDiv.text('ID는 3 ~ 10자로 입력하세요.');
+            $('#userId').focus();  // 해당 입력창으로 포커스 이동
+            e.preventDefault();
+            return;
+        }
+        
+        if (pw.length < 3 || pw.length > 10) {
+            errMsgDiv.text('비밀번호는 3 ~ 10자로 입력하세요.');
+            $('#password').focus();
+            e.preventDefault();
+            return;
+        }
+        
+        if (!name) {
+            errMsgDiv.text('이름을 입력하세요.');
+            $('#name').focus();
+            e.preventDefault();
+            return;
+        }
+        
+        // 모든 검증 통과
+        errMsgDiv.text('회원가입이 가능합니다!');
+        errMsgDiv.css('color', 'green');
+    }
 	</script>
 </head>
 <body>
-	<h1>Mochi Learnへようこす！</h1>
+	<h1>Mochi Learnへようこそ！</h1>
 	<div class="formContainer">
 		<div class="sideContainer">
 			<div class="blank">
@@ -90,7 +100,7 @@
 	            </div>
 		</form>
 		<div class="sideContainer">
-			<div class="errorMsg">이곳에 에러 메시지 출력</div>
+			<div class="errorMsg">계정에서 사용할 정보를 입력해주세요!</div>
 			<div class="welcomeImg">
 				<a><img th:src="@{/img/mochi_explain.png}"></a>
 			</div>

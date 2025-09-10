@@ -20,10 +20,10 @@ public class Word {
     @Column(name = "meaning", nullable = false, length = 50)
     private String meaning;
 
-    @Column(name = "description")
-    private String description;
+//    @Column(name = "description")
+//    private String description;
 
-    @Column(name = "word_voice")
-    private String wordVoice;
+//    @Column(name = "word_voice")
+//    private String wordVoice;
 
 }
