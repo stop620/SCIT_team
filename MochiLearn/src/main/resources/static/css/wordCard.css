@@ -8,10 +8,42 @@
     --mochi-gray-dark: #333333;
 }
 
+.containerHeader{
+    width: 100%;
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+
+.containerHeader h1{
+    width: 50%;
+    display : inline-block;
+    text-align: center;
+}
+
+.containerHeader h4 {
+    margin: 0;
+}
+
+.containerHeader .navbar_btn{
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+
 .wordPageContent{
     width: 50%;
     justify-items: start;
     align-items: start;
+    justify-self: center;
     padding: 15px;
     margin: 10px 0;
     background-color: var(--mochi-blue);

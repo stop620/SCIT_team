@@ -95,16 +95,17 @@ public class StudyRestController {
     }
 
     
-    // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
+    // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장
     @PostMapping("/api/study/save")
     @Transactional
-    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
+    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto,
+                                              @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
         log.info("저장할 학습 카드 데이터 : {}", cardSaveDto.getCardDTO());
 
         try {
             // Card 엔티티 생성 및 저장
             // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
-            Integer cardId = cardService.save(cardSaveDto.getCardDTO(), 1);
+            Integer cardId = cardService.save(cardSaveDto.getCardDTO(), authenticatedUser.getMemberId());
             quizService.save(cardSaveDto.getQuizDtoList(), cardId);
 
             return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardId));
