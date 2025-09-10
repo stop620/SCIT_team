@@ -748,12 +748,6 @@ async function displayWordbookList(tokenToSave, meaning) {
             books = data.data;
             console.log(books);
         });
-        // --- API 호출 시뮬레이션을 위한 임시 데이터 ---
-        const mockWordbooks = [
-            { id: 101, name: 'JLPT N1 단어' },
-            { id: 102, name: '비즈니스 필수 어휘' },
-            { id: 103, name: '애니메이션 명대사' }
-        ];
 
         const wordbookListHTML = books.map(book => `
             <div class="wordbook-item">
