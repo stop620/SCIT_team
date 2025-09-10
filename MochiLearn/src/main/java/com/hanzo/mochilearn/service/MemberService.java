@@ -1,6 +1,6 @@
 package com.hanzo.mochilearn.service;
 
-import com.hanzo.mochilearn.dto.MemberDTO;
+import com.hanzo.mochilearn.dto.member.MemberDTO;
 import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.repository.MemberRepository;
 import jakarta.transaction.Transactional;

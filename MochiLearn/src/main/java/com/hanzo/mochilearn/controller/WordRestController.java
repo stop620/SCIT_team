@@ -1,15 +1,12 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.*;
-import com.hanzo.mochilearn.security.AuthenticatedUser;
-import com.hanzo.mochilearn.service.BookService;
+import com.hanzo.mochilearn.dto.word.TranslateDTO;
+import com.hanzo.mochilearn.dto.word.WordSaveDTO;
 import com.hanzo.mochilearn.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

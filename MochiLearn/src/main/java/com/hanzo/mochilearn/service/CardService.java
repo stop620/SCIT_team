@@ -7,9 +7,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.hanzo.mochilearn.dto.TokenDTO;
+import com.hanzo.mochilearn.dto.word.TokenDTO;
 import com.hanzo.mochilearn.entity.*;
+import com.hanzo.mochilearn.entity.card.CardEntity;
+import com.hanzo.mochilearn.entity.card.LikeEntity;
+import com.hanzo.mochilearn.entity.card.SectionEntity;
+import com.hanzo.mochilearn.entity.card.SentenceEntity;
+import com.hanzo.mochilearn.entity.word.Token;
 import com.hanzo.mochilearn.repository.*;
+import com.hanzo.mochilearn.repository.card.CardRepository;
+import com.hanzo.mochilearn.repository.card.LikeRepository;
+import com.hanzo.mochilearn.repository.card.SectionRepository;
+import com.hanzo.mochilearn.repository.card.SentenceRepository;
+import com.hanzo.mochilearn.repository.word.TokenRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,9 +28,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.SectionDTO;
-import com.hanzo.mochilearn.dto.SentenceDTO;
+import com.hanzo.mochilearn.dto.card.CardDTO;
+import com.hanzo.mochilearn.dto.card.SectionDTO;
+import com.hanzo.mochilearn.dto.card.SentenceDTO;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;

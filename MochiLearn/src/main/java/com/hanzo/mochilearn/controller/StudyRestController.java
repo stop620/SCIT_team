@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.CardSaveDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.LikeRepository;
-import com.hanzo.mochilearn.repository.SentenceRepository;
+import com.hanzo.mochilearn.dto.card.CardDTO;
+import com.hanzo.mochilearn.dto.card.CardSaveDTO;
+import com.hanzo.mochilearn.entity.card.CardEntity;
+import com.hanzo.mochilearn.repository.card.CardRepository;
+import com.hanzo.mochilearn.repository.card.LikeRepository;
+import com.hanzo.mochilearn.repository.card.SentenceRepository;
 import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.CardService;
 import com.hanzo.mochilearn.service.QuizService;

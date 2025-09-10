@@ -1,16 +1,14 @@
 package com.hanzo.mochilearn.service;
 
-import com.hanzo.mochilearn.dto.TranslateDTO;
-import com.hanzo.mochilearn.dto.WordSaveDTO;
-import com.hanzo.mochilearn.entity.Book;
-import com.hanzo.mochilearn.entity.Word;
-import com.hanzo.mochilearn.entity.WordBookMapEntity;
-import com.hanzo.mochilearn.repository.BookRepository;
-import com.hanzo.mochilearn.repository.WordBookMapRepository;
-import com.hanzo.mochilearn.repository.WordRepository;
+import com.hanzo.mochilearn.dto.word.TranslateDTO;
+import com.hanzo.mochilearn.dto.word.WordSaveDTO;
+import com.hanzo.mochilearn.entity.word.Book;
+import com.hanzo.mochilearn.entity.word.Word;
+import com.hanzo.mochilearn.entity.word.WordBookMapEntity;
+import com.hanzo.mochilearn.repository.word.BookRepository;
+import com.hanzo.mochilearn.repository.word.WordBookMapRepository;
+import com.hanzo.mochilearn.repository.word.WordRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
