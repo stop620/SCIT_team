@@ -12,7 +12,7 @@
 		width: 50%;
 	}
 	.formContainer{
-		margin-top: 50px;
+		margin-top: 75px;
 	}
 	.buttonContainer{
 		margin-top: 20px;
@@ -20,23 +20,10 @@
 	.blank{
 		height: 50px;
 	}
-	input[type=submit]{
-		padding: 5px 25px;
+	.buttonContainer>input{
+		width: 100px;
 	}
 </style>
-
-<head>
-	<meta charset="UTF-8">
-	<title>로그인</title>
-	<!-- jQuery 파일 불러오기 -->
-	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
-<!--	<script>-->
-<!--		$(document).ready(function() {-->
-<!--			$('#loginForm').on('submit', idCheck)-->
-<!--		});-->
-<!--		-->
-<!--		-->
-<!--	</script>-->
 </head>
 
 <div th:replace="~{navigation::navigation}"></div>
@@ -47,8 +34,8 @@
 			<div class="sideContainer">
 				<div class="blank">
 				</div>
-				<div class="welcomeImg" style="margin-top: 30px;">
-					<a><img th:src="@{/img/mochi_write.png}"></a>
+				<div class="welcomeImg">
+					<a><img th:src="@{/img/mochi1.png}"></a>
 				</div>
 			</div>
 			<form id="loginForm" th:action="@{/member/login}" method="post">
@@ -61,7 +48,8 @@
 					<input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
 				</div>
 				<div class="buttonContainer">
-		            <input type="submit" value="로그인">
+		            <input type="submit" value="가입">
+		            <input type="button" value="로그인" onclick="validation()">	            
 	            </div>
 			</form>
 			<div class="sideContainer">
