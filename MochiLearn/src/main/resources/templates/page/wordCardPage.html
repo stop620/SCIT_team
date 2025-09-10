@@ -29,6 +29,9 @@
             <!-- <div class="cta-btn">
                 <a href="#">←</a>
             </div> -->
+            <div th:data-bookId="${book.id}">
+                <input class="delete-book-btn" type="button" value="x">
+            </div>
             <h1 th:text="${book.title}"></h1>
             <h4 th:text="${book.contents}"></h4>
             <!-- <div class="cta-btn">
@@ -38,7 +41,7 @@
 
         <div class="wordPageContent" th:each="word : ${wordList}">
             <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
-                <input class="delete-btn" type="button" value="x">
+                <input class="delete-word-btn" type="button" value="x">
             </div>
             <div class="word">
                 <span th:text="${word.word}"></span>

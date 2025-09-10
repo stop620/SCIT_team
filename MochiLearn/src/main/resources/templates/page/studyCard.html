@@ -5,6 +5,23 @@
     <title>학습 카드 상세</title>
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/studyCard.css}"/>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        //에러 무시해도 됩니다.
+        var wordPageUrl = [[@{/page/word}]];
+        window.onload = function() {
+            console.log("Navigation script loaded");
+            const wordPageBtn = document.getElementById("wordPageBtn");
+            wordPageBtn.onclick = function() {
+                wordPage();
+            };
+        };
+        function wordPage() {
+            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+        }
+        /*]]>*/
+    </script>
 </head>
 <body>
 <div th:replace="~{navigation::navigation}"></div>

@@ -2,13 +2,16 @@ package com.hanzo.mochilearn.service;
 
 import com.hanzo.mochilearn.dto.word.TranslateDTO;
 import com.hanzo.mochilearn.dto.word.WordSaveDTO;
+import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.word.Book;
 import com.hanzo.mochilearn.entity.word.Word;
 import com.hanzo.mochilearn.entity.word.WordBookMapEntity;
+import com.hanzo.mochilearn.repository.MemberRepository;
 import com.hanzo.mochilearn.repository.word.BookRepository;
 import com.hanzo.mochilearn.repository.word.WordBookMapRepository;
 import com.hanzo.mochilearn.repository.word.WordRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class WordService {
 
@@ -30,12 +34,7 @@ public class WordService {
     private final BookRepository bookRepository;
     private final WordRepository wordRepository;
     private final WordBookMapRepository wordBookMapRepository;
-
-    public WordService(BookRepository bookRepository, WordRepository wordRepository, WordBookMapRepository wordBookMapRepository) {
-        this.bookRepository = bookRepository;
-        this.wordRepository = wordRepository;
-        this.wordBookMapRepository = wordBookMapRepository;
-    }
+    private final MemberRepository memberRepository;
 
     public List<String> translate(TranslateDTO translateDTO) {
 
@@ -105,5 +104,21 @@ public class WordService {
         log.debug("[단어-단어장 연결]: {}", mapEntity);
 
         return wordSaveDTO.getBookId();
+    }
+    public void removeWord(Integer bookId, Integer wordId, Integer memberId) {
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(()->new EntityNotFoundException("멤버 없음"));
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(()->new EntityNotFoundException("단어장 없음"));
+
+        if(book.getMember().getId() == member.getId()) {
+            WordBookMapEntity mapEntity = wordBookMapRepository.findByBookIdAndWordId(bookId, wordId);
+            log.debug("[삭제할 연결 엔티티] : mapEntity: {}", mapEntity);
+            wordBookMapRepository.delete(mapEntity);
+
+            log.debug("[단어장 단어 삭제]: 단어장 {}에서 단어{} 삭제 성공.", bookId, wordId);
+        }
     }
 }

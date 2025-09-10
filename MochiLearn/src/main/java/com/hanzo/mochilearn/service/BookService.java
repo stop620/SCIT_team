@@ -101,7 +101,8 @@ public class BookService {
         return wordDTOs;
     }
 
-    public void removeWord(Integer bookId, Integer wordId, Integer memberId) {
+
+    public void removeBook(Integer bookId, Integer memberId) {
 
         MemberEntity member = memberRepository.findById(memberId)
                 .orElseThrow(()->new EntityNotFoundException("멤버 없음"));
@@ -110,11 +111,9 @@ public class BookService {
                 .orElseThrow(()->new EntityNotFoundException("단어장 없음"));
 
         if(book.getMember().getId() == member.getId()) {
-            WordBookMapEntity mapEntity = wordBookMapRepository.findByBookIdAndWordId(bookId, wordId);
-            log.debug("[삭제할 연결 엔티티] : mapEntity: {}", mapEntity);
-            wordBookMapRepository.delete(mapEntity);
+            bookRepository.delete(book);
 
-            log.debug("[단어장 단어 삭제]: 단어장 {}에서 단어{} 삭제 성공.", bookId, wordId);
+            log.debug("[단어장 삭제 완료]: {}", book);
         }
     }
 }

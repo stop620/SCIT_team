@@ -48,15 +48,14 @@ public class BookRestController {
 
     @DeleteMapping("/api/wordbook/delete")
     public ResponseEntity<ApiResponse<String>> removeWord(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
-                                                          @RequestParam(name = "bookId") Integer bookId,
-                                                          @RequestParam(name = "wordId") Integer wordId) {
-        log.debug("[단어 삭제 요청]: 단어장 {}에서 단어 {}삭제", bookId, wordId);
+                                                          @RequestParam(name = "bookId") Integer bookId) {
+        log.debug("[단어장 삭제 요청]: 단어장ID {}", bookId);
         try {
-            bookService.removeWord(bookId, wordId, authenticatedUser.getMemberId());
-            return ResponseEntity.ok(ApiResponse.success("단어 삭제 성공", "success"));
+            bookService.removeBook(bookId, authenticatedUser.getMemberId());
+            return ResponseEntity.ok(ApiResponse.success("단어장 삭제 성공", "success"));
 
         } catch (Exception e) {
-            return ResponseEntity.ok(ApiResponse.fail("error", "단어 삭제 실패"));
+            return ResponseEntity.ok(ApiResponse.fail("error", "단어장 삭제 실패"));
         }
     }
 }
