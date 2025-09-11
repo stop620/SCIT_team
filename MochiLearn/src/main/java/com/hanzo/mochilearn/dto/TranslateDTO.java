@@ -11,10 +11,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizDTO {
+public class TranslateDTO {
 
-    private int id;
-    private String japanese;
-    private String korean;
-    private int level;
+    private String context;
+    private List<String> wordList;
 }

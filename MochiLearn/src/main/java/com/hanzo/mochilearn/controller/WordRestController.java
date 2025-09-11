@@ -1,15 +1,16 @@
 package com.hanzo.mochilearn.controller;
 
-import com.hanzo.mochilearn.dto.ApiResponse;
-import com.hanzo.mochilearn.dto.BookDTO;
+import com.hanzo.mochilearn.dto.*;
+import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.BookService;
+import com.hanzo.mochilearn.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,13 +19,25 @@ import java.util.List;
 @RestController
 public class WordRestController {
 
-    private final BookService bookService;
+    private final WordService wordService;
 
-    @GetMapping("/api/word/wordbook")
-    public ResponseEntity<ApiResponse<List<BookDTO>>> wordBook(@RequestParam("memberId") Integer memberId) {
+    @PostMapping("/api/word/translate")
+    public ResponseEntity<ApiResponse<List<String>>> translateWord(@RequestBody TranslateDTO translateDTO) {
 
-        List<BookDTO> books = bookService.getBooks(memberId);
+        log.debug("[번역할 단어 목록]: {}, context: {}", translateDTO.getWordList(), translateDTO.getContext());
 
-        return ResponseEntity.ok(ApiResponse.success("단어장 로드 성공", books));
+        List<String> result = wordService.translate(translateDTO);
+
+        return ResponseEntity.ok(ApiResponse.success("단어 목록 번역 성공", result));
+    }
+
+    @PostMapping("/api/word/save")
+    public ResponseEntity<ApiResponse<Integer>> saveWord(@RequestBody WordSaveDTO wordSaveDTO) {
+
+        log.debug("[저장할 단어]: {}", wordSaveDTO);
+
+        Integer bookId = wordService.save(wordSaveDTO);
+
+        return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
     }
 }

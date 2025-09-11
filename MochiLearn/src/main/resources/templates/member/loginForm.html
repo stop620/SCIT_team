@@ -2,10 +2,10 @@
 <html lang="ko"
 	  xmlns:th="http://www.thymeleaf.org"
 	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" th:href="@{/css/common.css}">
-
+<!-- <link rel="stylesheet" href="css/main.css"> -->
+ <link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/joinForm.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <head>
 	<meta charset="UTF-8">
@@ -28,39 +28,21 @@
 		<h1>[ 로그인 ]</h1>
 	</header>
 	<section>
-		<form id="loginForm" th:action="@{/member/login}" method="post">
-			<table>
-				<tr>
-					<td>ID</td>
-					<td><input type="text" name="id" id="id"></td>
-				</tr>
-				<tr>
-					<td>Password</td>
-					<td><input type="password" name="password"
-							   id="password"></td>
-				</tr>
-<!--				<tr>-->
-<!--					<td colspan="2">-->
-<!--						<div class="errorMsg" th:if="${param.error}">-->
-<!--							ID 또는 비밀번호가 틀립니다.-->
-<!--						</div>-->
-<!--					</td>-->
-<!--				</tr>-->
-				<tr>
-					<td colspan="2">
-						<input type="submit" value="Login">
-					</td>
-				</tr>
-                <tr>
-                    <td colspan="2">
-                        <a th:href="@{/member/joinForm}">가입</a>
-                    </td>
-                </tr>
-			</table>
-		</form>
+		<div class="formContainer">
+			<form id="loginForm" th:action="@{/member/login}" method="post">
+				<div class="elementContainer">
+					<label for="id"></label>
+					<input type="text" name="id" id="id" placeholder="아이디를 입력해주세요.">
+				</div>
+				<div class="elementContainer">
+					<label for="password"></label>
+					<input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
+				</div>
+				<div class="elementContainer">
+					<input type="submit" value="Login">
+				</div>
+			</form>
+		</div>
 	</section>
-
-
-	
 </body>
 </html>

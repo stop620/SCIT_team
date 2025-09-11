@@ -1,13 +1,12 @@
 package com.hanzo.transcribeserver.dto;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
-public class QuizDTO {
+public class GeminiQuizDTO {
 
     private String japanese;
     private String korean;

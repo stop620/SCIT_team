@@ -1,7 +1,13 @@
 package com.hanzo.mochilearn.controller;
 
+import com.hanzo.mochilearn.dto.BookDTO;
 import com.hanzo.mochilearn.entity.CardEntity;
+import com.hanzo.mochilearn.service.BookService;
 import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.WordService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,14 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("page")
 public class PageController {
 
     private final CardService cardService;
-
-    public PageController(CardService cardService) {
-        this.cardService = cardService;
-    }
+    private final WordService wordService;
+    private final BookService bookService;
 
     @GetMapping("study")
     public String studyPage() {
@@ -58,8 +63,11 @@ public class PageController {
         return "page/bestPage";
     }
 
-	@GetMapping({"wordCard2","wordCard1"})
-	public String wordCard() {
+	@GetMapping({"wordCard"})
+	public String wordCard(@RequestParam("bookId") Integer bookId, Model model) {
+
+        BookDTO book = bookService.getBook(bookId);
+
 		return "page/wordCardPage";
 	}
 	

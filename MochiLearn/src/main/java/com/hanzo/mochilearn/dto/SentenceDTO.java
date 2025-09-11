@@ -3,10 +3,14 @@ package com.hanzo.mochilearn.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hanzo.mochilearn.entity.SentenceEntity;
 
+import com.hanzo.mochilearn.entity.Token;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -24,7 +28,8 @@ public class SentenceDTO {
     private String japanese;
     @JsonProperty("korean")
     private String korean;
-    
+    @JsonProperty("japaneseTokens")
+    private List<TokenDTO> japaneseTokens;
     
     public static SentenceDTO toDTO(SentenceEntity entity) {
     	
@@ -36,7 +41,12 @@ public class SentenceDTO {
     			.japanese(entity.getJapanese())
     			.korean(entity.getKorean())
     			.build();
-    	
+
+        List<TokenDTO> tokens = new ArrayList<>();
+        for(Token token : entity.getTokens()) {
+            tokens.add(TokenDTO.toDTO(token));
+        }
+        dto.setJapaneseTokens(tokens);
     	return dto;
     }
 }

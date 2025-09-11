@@ -36,7 +36,7 @@ public class QuizService {
 
         if(quizDtoList.size() > 0) {
             for (QuizDTO quizDto : quizDtoList) {
-                String jpString = String.join(",", quizDto.getJapanese());
+                String jpString = quizDto.getJapanese();//String.join(",", quizDto.getJapanese());
                 CardEntity cardEntity = cardRepository.findById(cardId)
                         .orElseThrow(()-> new RuntimeException("cardEntity not found"));
                 log.debug("퀴즈의 cardEntity = {}", cardEntity);

@@ -1,11 +1,12 @@
 package com.hanzo.mochilearn.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "word")
 public class Word {
@@ -20,10 +21,7 @@ public class Word {
     @Column(name = "meaning", nullable = false, length = 50)
     private String meaning;
 
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "word_voice")
-    private String wordVoice;
+    @Column(name = "pos", nullable = false, length = 20)
+    private String pos;
 
 }
