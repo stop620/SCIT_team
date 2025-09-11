@@ -5,6 +5,7 @@
 <title>study</title>
 	<link rel="stylesheet" th:href="@{/css/common.css}">
 	<link rel="stylesheet" th:href="@{/css/studyPage.css}">
+	
     <!--<link rel="stylesheet" th:href="@{/css/main.css}" />-->
 	<script th:inline="javascript">
 		/*<![CDATA[*/
@@ -28,17 +29,19 @@
 
 <div th:replace="~{navigation::navigation}"></div>
 
-<div id="searchContainer" style="margin-bottom: 16px;">
-    	<input type="text" id="searchInput" style="width: 220px;">
+<div id="searchContainer" >
+<div class="search-bar">
+    	<input type="text" id="searchInput" placeholder="작성자 또는 제목을 입력하세요">
     	<button id="searchBtn">🔎</button>
-	</div>
+    	</div>
+	
 	<div id="addCard">
 		<a th:href="@{/page/write}">
 			<button id="addCardBtn">학습카드 추가하기</button>
 		</a>
 	</div>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-    <!-- 왼쪽: 태그 버튼 -->
+
+<div class="filter-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
     <button type="button" id="tagBtn">태그버튼</button>
 	<!-- 모달 -->
 	    <div id="tagModal">
@@ -57,13 +60,14 @@
 	    </div>
 
     <!-- 오른쪽: 정렬 기준 -->
-    <div style="margin-right: 50px;">
+    <div style="display: flex; align-items: center;">
         <label for="sortBox" style="margin-right: 8px; font-weight: bold;">정렬 기준:</label>
-        <select id="sortBox" name="sortBox" style="padding: 6px 12px; font-size: 14px;">
+        <select id="sortBox" name="sortBox">
             <option value="popular">인기순</option>
             <option value="latest">최신순</option>
         </select>
     </div>
+</div>
 </div>
     <div id="cardGrid" th:fragment="cards">
         <div th:each="card : ${cards}" 

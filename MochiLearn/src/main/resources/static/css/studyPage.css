@@ -10,6 +10,7 @@
     --mochi-level-advanced: #C8A2C8;
 }
 
+
 body {
     font-family: 'Inter', sans-serif;
     color: var(--mochi-gray-dark);
@@ -18,47 +19,58 @@ body {
     padding: 0;
 }
 
+
 /* 검색 영역 */
 #searchContainer {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 16px;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
+    gap: 1rem;
+    max-width: 75%;
+    margin: 2.5rem auto 2rem auto; /* 위쪽 여백 2.5rem 추가 */
+    background-color: white;
+    padding: 2rem 10px;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+/* 검색 바 래퍼 */
+.search-bar {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
 }
 
 #searchInput {
-    width: 220px;
-    padding: 0.5rem 1rem;
+    width: 100%;
+    padding: 0.75rem 3rem 0.75rem 1rem; /* 오른쪽에 버튼 공간 확보 */
     border: 1px solid #ddd;
     border-radius: 9999px;
     outline: none;
     font-size: 1rem;
+    box-sizing: border-box;
     transition: border-color 0.3s ease;
-}
-
-#searchInput:focus {
-    border-color: var(--mochi-mint);
+    display: block;
 }
 
 #searchBtn {
-    background-color: var(--mochi-mint);
-    color: white;
+    position: absolute;
+    top: 50%;
+    right: 1rem; /* input 안쪽 오른쪽 위치 */
+    transform: translateY(-50%);
+    background: none;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
+    padding: 0;
+    font-size: 1.25rem;
+    color: #A0A0A0;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
+    z-index: 1;
+    transition: color 0.3s ease;
 }
 
 #searchBtn:hover {
-    background-color: #2BAE9F;
+    color: var(--mochi-mint);
 }
+
 
 /* 학습카드 추가 영역 */
 #addCard {
@@ -80,6 +92,7 @@ body {
     background-color: var(--mochi-mint);
     color: white;
     padding: 0.75rem 1.5rem;
+    margin-top:10px;
     border-radius: 0.75rem;
     border: none;
     font-weight: 600;
@@ -95,12 +108,22 @@ body {
 /* 태그 버튼과 정렬 선택박스 영역 */
 div[style*="display: flex"][style*="justify-content: space-between"] {
     max-width: 640px;
-    margin: 0 auto 20px auto;
-    padding: 10px 0;
+    margin: 0 auto 8px auto; /* 아래 마진 20px → 8px 로 감소 */
+    padding: 5px 0;          /* 패딩 10px 0 → 5px 0 으로 감소 */
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
 }
+
+.tag-search-btn, #sortBox {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            background-color: white;
+            cursor: pointer;
+            padding: 6px 12px; 
+            font-size: 14px;
+        }
 
 #tagBtn {
     padding: 0.5rem 1rem;
@@ -108,8 +131,6 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border-radius: 0.5rem;
     background: white;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
@@ -125,9 +146,6 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border: 1px solid #ddd;
     background-color: white;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
-    min-width: 140px;
     transition: border-color 0.3s ease;
 }
 
@@ -136,13 +154,21 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border-color: var(--mochi-mint);
     outline: none;
 }
+.filter-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            padding: 10px 0;
+        }
 
 /* 태그 모달 */
 #tagModal {
     display: none;
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0,0,0,0.4);
     z-index: 1001;
     justify-content: center;
     align-items: center;
@@ -158,7 +184,7 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     padding: 1.5rem 2rem;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     position: relative;
 }
 
@@ -201,59 +227,63 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border-color: var(--mochi-mint);
     color: white;
 }
-
 #applyTagFilter {
-    background-color: var(--mochi-mint);
+    display: block;
+    margin: 0 auto;
+    /* 기존 스타일 유지 */
+    background-color: var(--mochi-pink);
     color: white;
     border: none;
-    padding: 0.5rem 1.5rem;
+    padding: 0.6rem 1.5rem;
     border-radius: 0.5rem;
-    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    font-size: 1rem;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px rgba(62, 214, 208, 0.3);
 }
 
 #applyTagFilter:hover {
-    background-color: #2BAE9F;
+    box-shadow: 0 6px 10px rgba(42, 174, 159, 0.5);
 }
- /* Container for genre/other tags */
-        .tag-container {
-            margin-top: 1rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid var(--mochi-gray-light);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
 
-        .genre-tag-item {
-            background-color: var(--mochi-gray-light);
-            color: var(--mochi-gray-dark);
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+
+/* Container for genre/other tags */
+.tag-container {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--mochi-gray-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.genre-tag-item {
+    background-color: var(--mochi-gray-light);
+    color: var(--mochi-gray-dark);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
 /* Styles for difficulty tags */
 .difficulty-tag {
     font-size: 0.875rem;
     font-weight: 500;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem; /* Slightly rounded */
+    border-radius: 0.25rem;
     color: white;
 }
+
 .difficulty-tag.beginner {
     background-color: var(--mochi-level-beginner);
 }
+
 .difficulty-tag.intermediate {
     background-color: var(--mochi-level-intermediate);
 }
+
 .difficulty-tag.advanced {
     background-color: var(--mochi-level-advanced);
 }
-      
-
 
 /* 카드 그리드 */
 #cardGrid {
@@ -289,7 +319,7 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     font-size: 1.1rem;
     color: var(--mochi-gray-dark);
     flex-grow: 0;
-    min-height: 2.5rem; /* 제목이 한 줄 또는 두 줄일 때 크기 유지 */
+    min-height: 2.5rem;
 }
 
 .card img {
@@ -298,7 +328,6 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     object-fit: cover;
     background-color: var(--mochi-gray-light);
 }
-
 
 /* 위로가기 버튼 */
 #scrollTopBtn {

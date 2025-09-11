@@ -86,11 +86,13 @@ $(document).ready(function() {
                 isLoggedIn = false;
             });
 
-        $('#like-button').click(function() {
-            if (!isLoggedIn) {
-                alert('좋아요를 누르려면 로그인해야 합니다.');
-                return;
-            }
+			$('#like-button').click(function() {
+			    if (!isLoggedIn) {
+			        if (confirm('좋아요를 누르려면 로그인해야 합니다. 로그인 페이지로 이동하시겠습니까?')) {
+			            window.location.href = '/mochilearn/member/loginForm'; // 로그인 페이지 URL에 맞게 변경
+			        }
+			        return;
+			    }
 
             const newLiked = !liked;
 
