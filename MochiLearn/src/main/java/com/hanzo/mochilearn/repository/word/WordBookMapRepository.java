@@ -14,4 +14,5 @@ public interface WordBookMapRepository extends JpaRepository<WordBookMapEntity, 
 
     @Query(value = "select * from word_book_map where book_id = :bookId and word_id = :wordId", nativeQuery = true)
     WordBookMapEntity findByBookIdAndWordId(@Param("bookId") Integer bookId,@Param("wordId") Integer wordId);
+
 }

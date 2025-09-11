@@ -37,7 +37,13 @@ public class WordRestController {
 
         Integer bookId = wordService.save(wordSaveDTO);
 
-        return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
+        if(bookId != -1) {
+            return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
+
+        } else {
+            return ResponseEntity.ok(ApiResponse.fail("-1", "이미 저장된 단어"));
+        }
+
     }
 
     @DeleteMapping("/api/word/delete")

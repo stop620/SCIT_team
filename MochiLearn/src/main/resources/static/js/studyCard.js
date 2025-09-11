@@ -716,7 +716,10 @@ function showWordSelector(selectedTokens, translatedWordList, event) {
     wordSelector.off('click', '.select-wordbook-btn').on('click', '.select-wordbook-btn', function() {
         event.stopPropagation();
         const tokenData = $(this).data('token');
-        const meaning = document.querySelector('.translation-cell').textContent;
+        const meaning = $(this).closest('tr').find('.translation-cell').text();
+        let saveWord = '';
+
+        console.log(tokenData, meaning);
         displayWordbookList(tokenData, meaning);
     });
 
@@ -728,6 +731,7 @@ function showWordSelector(selectedTokens, translatedWordList, event) {
  * @param {object} tokenToSave - 저장할 대상 토큰 정보
  */
 async function displayWordbookList(tokenToSave, meaning) {
+
     const wordbookSelector = $('.wordbookSelector');
     wordbookSelector.html('<div>단어장 목록 로딩 중...</div>').show();
 
@@ -775,13 +779,20 @@ async function displayWordbookList(tokenToSave, meaning) {
             console.log(`단어장 ID: ${selectedBookId}에 토큰 저장:`, tokenToSave);
 
 
-            const word = tokenToSave.surface || tokenToSave.base;
+            let saveWord = '';
+            if(tokenToSave.base != '*') {
+                saveWord = tokenToSave.base;
+            } else {
+                saveWord = tokenToSave.surface;
+            }
             const data = {
-                "word": word,
+                "word": saveWord,
                 "meaning": meaning,
                 "pos": tokenToSave.pos,
                 "bookId": selectedBookId
             };
+            console.log("단어 데이터: " + data.text);
+
             await fetch('/mochilearn/api/word/save', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -793,8 +804,14 @@ async function displayWordbookList(tokenToSave, meaning) {
                     }
                 })
                 .then(data => {
-                    console.log('단어 저장 성공', data);
-                    alert('단어를 저장했습니다.');
+                    if(data.success) {
+                        console.log('단어 저장 성공', data);
+                        alert('단어를 저장했습니다.');
+                    } else {
+                        console.log('단어 저장 실패', data);
+                        alert('이미 단어장에 저장된 단어입니다.');
+                    }
+
                 })
                 .catch(error => {
                     console.error('Error', error);

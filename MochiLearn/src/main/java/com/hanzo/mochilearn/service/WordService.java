@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -75,15 +76,21 @@ public class WordService {
 
         Book book = bookRepository.findById(wordSaveDTO.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("단어장 없음"));
+
+        // 단어 db에 같은 단어가 있는지 확인
+        Optional<Word> result = wordRepository.findByWordAndMeaningAndPos(wordSaveDTO.getWord(), wordSaveDTO.getMeaning(), wordSaveDTO.getPos());
         Word word = new Word();
+        if (result.isPresent()) { // 단어 db에 같은 단어가 있을경우 불러와서 연결
+            word = result.get();
 
-        boolean isExist = wordRepository.existsByWordAndPos(wordSaveDTO.getWord(), wordSaveDTO.getPos());
-
-        if (isExist) {
-
-            word = wordRepository.findByWordAndPos(wordSaveDTO.getWord(), wordSaveDTO.getPos());
-
-        } else {
+            //단어장에 이미 저장되어있는지 확인
+            WordBookMapEntity isExist = wordBookMapRepository.findByBookIdAndWordId(book.getId(), word.getId());
+            log.debug("[단어 저장여부 확인]: {}", isExist);
+            if (isExist != null) {  // 이미 저장되어 있을 때
+                log.debug("[단어 저장] : 이미 단어장에 저장된 단어");
+                return -1;  // 반환 코드
+            }
+        } else {    // 단어 db에 없을경우 추가 후 연결
             word = Word.builder()
                     .word(wordSaveDTO.getWord())
                     .meaning(wordSaveDTO.getMeaning())
