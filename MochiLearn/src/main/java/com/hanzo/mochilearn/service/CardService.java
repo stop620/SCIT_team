@@ -317,4 +317,18 @@ public class CardService {
         }
     }
 
+    // memberId가 좋아요 누른 카드 목록 반환하는 메소드
+    public List<CardDTO> getMemberLikeCards(Integer memberId) {
+
+        log.debug("[멤버 좋아요 카드] memberId {}의 좋아요 목록 검색", memberId);
+
+        List<LikeEntity> likes = likeRepository.findAllByMemberId(memberId);
+        List<Integer> cardIds = likes.stream()
+                .map(likeEntity -> likeEntity.getCardId()).collect(Collectors.toList());
+
+        List<CardEntity> cardEntities = cardRepository.findAllById(cardIds);
+
+        return cardEntities.stream()
+                .map(this::toDTO).collect(Collectors.toList());
+    }
 }
