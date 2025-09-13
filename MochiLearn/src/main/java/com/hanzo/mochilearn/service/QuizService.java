@@ -2,10 +2,7 @@ package com.hanzo.mochilearn.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hanzo.mochilearn.dto.quiz.QuizDTO;
-import com.hanzo.mochilearn.dto.quiz.QuizResponseDTO;
-import com.hanzo.mochilearn.dto.quiz.QuizResultDTO;
-import com.hanzo.mochilearn.dto.quiz.QuizType;
+import com.hanzo.mochilearn.dto.quiz.*;
 import com.hanzo.mochilearn.entity.*;
 import com.hanzo.mochilearn.entity.card.CardEntity;
 import com.hanzo.mochilearn.entity.quiz.QuizAnswerEntity;
@@ -265,5 +262,49 @@ public class QuizService {
         }
 
         return memberId;
+    }
+
+    // 멤버의 퀴즈 시도 리스트 반환 메소드
+    public List<QuizLog> getMemberQuizSessions(Integer memberId) {
+
+        MemberEntity member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("member not found"));
+
+        List<QuizLog> memberQuizLogs = new ArrayList<>();
+
+        List<QuizSessionEntity> quizSessions = quizSessionRepository.findAllByMemberId(memberId);
+
+        for(QuizSessionEntity sessionEntity : quizSessions) {
+
+            // 퀴즈 로그 dto 생성
+            QuizLog quizLog = new QuizLog();
+            // 퀴즈 세션 데이터
+            quizLog.setSessionId(sessionEntity.getId());
+            quizLog.setLevel(sessionEntity.getLevel());
+            quizLog.setQuizData(sessionEntity.getQuizData());
+
+            //퀴즈 시도 데이터
+            QuizAttemptEntity attemptEntity = quizAttemptRepository.findBySessionId(sessionEntity.getId());
+
+            quizLog.setAttemptId(attemptEntity.getAttemptId());
+            quizLog.setAttemptNo(attemptEntity.getAttemptNo());
+            quizLog.setScore(attemptEntity.getScore());
+            quizLog.setAttemptDate(attemptEntity.getAttemptDate());
+
+            // 퀴즈 멤버 제출했던 답 데이터
+            List<QuizAnswerEntity> quizAnswerEntities = quizAnswerRepository.findAllByAttempt_AttemptId(attemptEntity.getAttemptId());
+
+            for(QuizAnswerEntity answerEntity : quizAnswerEntities) {
+                quizLog.addUserAnswer(answerEntity.getQuestionNo(), answerEntity.getUserAnswer());
+            }
+
+            log.debug(quizLog.toString());
+
+            memberQuizLogs.add(quizLog);
+        }
+
+        log.debug("memberQuizLogs = {}", memberQuizLogs);
+
+        return memberQuizLogs;
     }
 }

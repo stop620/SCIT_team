@@ -1,9 +1,10 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.card.CardDTO;
+import com.hanzo.mochilearn.dto.quiz.QuizLog;
 import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.CardService;
-import com.hanzo.mochilearn.service.MemberService;
+import com.hanzo.mochilearn.service.QuizService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +25,7 @@ import java.util.List;
 public class MemberRestController {
 
     private final CardService cardService;
+    private final QuizService quizService;
 
     @Data
     @NoArgsConstructor
@@ -69,5 +70,14 @@ public class MemberRestController {
         List<CardDTO> memberCardList = cardService.getMemberLikeCards(memberId);
 
         return memberCardList;
+    }
+
+    // 마이페이지 유저 Id의 퀴즈 결과 데이터 주는 api
+    @GetMapping("/api/member/quizlogs")
+    public List<QuizLog> getQuizAttempts(@RequestParam("id") Integer memberId) {
+
+        List<QuizLog> memberQuizLogs = quizService.getMemberQuizSessions(memberId);
+
+        return memberQuizLogs;
     }
 }

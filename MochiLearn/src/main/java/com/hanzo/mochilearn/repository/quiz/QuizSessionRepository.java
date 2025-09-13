@@ -21,4 +21,6 @@ public interface QuizSessionRepository extends JpaRepository<QuizSessionEntity, 
       AND qa.is_correct = TRUE
 """, nativeQuery = true)
     List<Integer> FindAllIdByMemberId(@Param("level") int level, @Param("memberId") int memberId);
+
+    List<QuizSessionEntity> findAllByMemberId(Integer memberId);
 }

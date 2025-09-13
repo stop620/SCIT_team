@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuizAttemptRepository extends JpaRepository<QuizAttemptEntity, Integer> {
+
+    QuizAttemptEntity findBySessionId(Integer id);
 }
