@@ -43,11 +43,18 @@
             <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
                 <input class="delete-word-btn" type="button" value="x">
             </div>
-            <div class="word">
-                <span th:text="${word.word}"></span>
+            <div class="select-word">
+                <span th:text="${word.selectWord}"></span>
             </div>
-            <div class="meaning">
-                <span th:text="${word.meaning}"></span>
+            <div class="word-label">표기</div><div class="word-content" th:text="${#strings.listJoin(word.kanji, ', ')}"></div>
+            <div class="word-label">읽기</div><div class="word-content" th:text="${#strings.listJoin(word.kana, ', ')}"></div>
+            <div class="word-label">품사</div><div class="word-content" th:text="${#strings.listJoin(word.partOfSpeech, ', ')}"></div>
+            <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
+            <div class="word-label">예문</div>
+            <div class="word-content">
+                <p th:text="${word.example[0]}"></p>
+                <p class="kr-example" th:text="${word.example[1]}"></p>
+
             </div>
         </div>
 

@@ -15,8 +15,8 @@ public class Word {
     @Column(name = "word_id", nullable = false)
     private Integer id;
 
-    @Column(name = "word", nullable = false, length = 50)
-    private String word;
+    @Column(name = "select_word", nullable = false, length = 50)
+    private String selectWord;
 
     @Column(name = "meaning", nullable = false, length = 50)
     private String meaning;
@@ -24,4 +24,15 @@ public class Word {
     @Column(name = "pos", nullable = false, length = 20)
     private String pos;
 
+    @Column(name = "kanji", length = 100)
+    private String kanji;
+
+    @Column(name = "kana", nullable = false, length = 100)
+    private String kana;
+
+    @Column(name = "jp_example")
+    private String jpExample;
+
+    @Column(name = "kr_example")
+    private String krExample;
 }

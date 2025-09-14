@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Integer> {
 
-    Optional<Word> findByWordAndMeaningAndPos(String word, String meaning, String pos);
+    Optional<Word> findBySelectWordAndMeaningAndPos(String word, String meaning, String pos);
 }

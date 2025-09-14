@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,7 @@ public class BookService {
         return BookDTO.toDTO(bookEntity);
     }
 
+    // 단어장의 단어들을 반환하는 메서드
     public List<WordDTO> getWords(Integer bookId) {
 
         List<WordBookMapEntity> mapEntities = wordBookMapRepository.findAllByBookId(bookId);
@@ -90,10 +92,18 @@ public class BookService {
         for (Word entity : wordEntities) {
             WordDTO wordDTO = WordDTO.builder()
                     .id(entity.getId())
-                    .word(entity.getWord())
-                    .meaning(entity.getMeaning())
-                    .pos(entity.getPos())
+                    .selectWord(entity.getSelectWord())
+                    .kanji(Arrays.asList(entity.getKanji()))
+                    .kana(Arrays.asList(entity.getKana()))
+                    .gloss(Arrays.asList(entity.getMeaning()))
+                    .partOfSpeech(Arrays.asList(entity.getPos()))
                     .build();
+
+            List<String> examples = new ArrayList<>();
+            examples.add(entity.getJpExample());
+            examples.add(entity.getKrExample());
+
+            wordDTO.setExample(examples);
 
             wordDTOs.add(wordDTO);
         }

@@ -436,8 +436,11 @@ startButton.addEventListener('click', async () => {
             console.log(audioBlob.size);
             // 서버로 음성 파일 전송
             const formData = new FormData();
+            const referenceText = currentTranscript[currentTranscriptIndex].japanese;
+
+            console.log(referenceText);
             formData.append('audioFile', audioBlob, 'audio.wav'); // 파일 이름과 타입 지정
-            formData.append('referenceText', '最近ついてないわって顔をしているそこのあなた。'); // 평가할 문장
+            formData.append('referenceText', referenceText); // 평가할 문장
 
             try {
                 const response = await fetch('http://localhost:5001/api/speech', {

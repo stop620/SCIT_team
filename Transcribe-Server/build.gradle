@@ -32,7 +32,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // kuromoji
+    // kuromoji >> 일본어 문장 토큰화 라이브러리
     implementation 'com.atilika.kuromoji:kuromoji-ipadic:0.9.0'
 
     // Google Gson for parsing JSON
@@ -49,6 +49,9 @@ dependencies {
     implementation group: 'com.microsoft.cognitiveservices.speech', name: 'client-sdk', version: "1.43.0", ext: "jar"
     implementation "io.github.java-diff-utils:java-diff-utils:4.12"
     implementation 'org.glassfish:javax.json:1.1.4'
+
+    // deepl 번역기 라이브러리
+    implementation 'com.deepl.api:deepl-java:1.10.3'
 }
 
 tasks.named('test') {

@@ -1,7 +1,7 @@
 package com.hanzo.mochilearn.service;
 
 import com.hanzo.mochilearn.dto.word.TranslateDTO;
-import com.hanzo.mochilearn.dto.word.WordSaveDTO;
+import com.hanzo.mochilearn.dto.word.WordDTO;
 import com.hanzo.mochilearn.entity.MemberEntity;
 import com.hanzo.mochilearn.entity.word.Book;
 import com.hanzo.mochilearn.entity.word.Word;
@@ -72,13 +72,18 @@ public class WordService {
         return results;
     }
 
-    public Integer save(WordSaveDTO wordSaveDTO) {
+    public Integer save(WordDTO wordDTO) {
 
-        Book book = bookRepository.findById(wordSaveDTO.getBookId())
+        Book book = bookRepository.findById(wordDTO.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("단어장 없음"));
 
         // 단어 db에 같은 단어가 있는지 확인
-        Optional<Word> result = wordRepository.findByWordAndMeaningAndPos(wordSaveDTO.getWord(), wordSaveDTO.getMeaning(), wordSaveDTO.getPos());
+        Optional<Word> result = wordRepository.findBySelectWordAndMeaningAndPos(wordDTO.getSelectWord(),
+                                                                                String.join(",", wordDTO.getGloss()),
+                                                                                String.join(",", wordDTO.getPartOfSpeech()));
+
+        log.debug("[단어 저장] 단어DB에 있는 단어: {}", result.toString());
+
         Word word = new Word();
         if (result.isPresent()) { // 단어 db에 같은 단어가 있을경우 불러와서 연결
             word = result.get();
@@ -90,11 +95,16 @@ public class WordService {
                 log.debug("[단어 저장] : 이미 단어장에 저장된 단어");
                 return -1;  // 반환 코드
             }
+
         } else {    // 단어 db에 없을경우 추가 후 연결
             word = Word.builder()
-                    .word(wordSaveDTO.getWord())
-                    .meaning(wordSaveDTO.getMeaning())
-                    .pos(wordSaveDTO.getPos())
+                    .selectWord(wordDTO.getSelectWord())
+                    .meaning(String.join(",", wordDTO.getGloss()))
+                    .pos(String.join(",", wordDTO.getPartOfSpeech()))
+                    .kanji(String.join(",", wordDTO.getKanji()))
+                    .kana(String.join(",", wordDTO.getKana()))
+                    .jpExample(wordDTO.getExample().get(0))
+                    .krExample(wordDTO.getExample().get(1))
                     .build();
 
         }
@@ -107,11 +117,13 @@ public class WordService {
                 .build();
 
         wordBookMapRepository.save(mapEntity);
-        log.debug("[저장된 단어장]: {}", wordSaveDTO.getBookId());
+        log.debug("[저장된 단어장]: {}", wordDTO.getBookId());
         log.debug("[단어-단어장 연결]: {}", mapEntity);
 
-        return wordSaveDTO.getBookId();
+        return wordDTO.getBookId();
     }
+
+
     public void removeWord(Integer bookId, Integer wordId, Integer memberId) {
 
         MemberEntity member = memberRepository.findById(memberId)

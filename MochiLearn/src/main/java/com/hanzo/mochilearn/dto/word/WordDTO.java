@@ -1,31 +1,21 @@
 package com.hanzo.mochilearn.dto.word;
 
-import com.hanzo.mochilearn.entity.word.Word;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class WordDTO {
-
     private Integer id;
-
-    private String word;
-    private String meaning;
-    private String pos;
-
-    public WordDTO toDTO(Word word) {
-        WordDTO dto = new WordDTO();
-
-        dto.setId(word.getId());
-        dto.setWord(word.getWord());
-        dto.setMeaning(word.getMeaning());
-        dto.setPos(word.getPos());
-
-        return dto;
-    }
+    private Integer bookId;
+    private String selectWord;
+    private List<String> kanji;
+    private List<String> kana;
+    private List<String> partOfSpeech;
+    private List<String> gloss;
+    private List<String> example;
 }
+
