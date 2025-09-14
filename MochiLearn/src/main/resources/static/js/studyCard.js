@@ -1,13 +1,14 @@
 // 전역 변수
 let player; // 유튜브 플레이어
 let timelineTimeout;
+let subtitleInterval;
 const timelines = [];
 let currentTranscript = [];
 let currentTranscriptIndex = 0;
-let subtitleInterval;
 let liked = false;
 let likeCount = 0;
-let currentSectionStart = 0; // 현재 섹션 시작 시간 저장 변수 추가
+let currentSectionStart = 0; // 현재 섹션 시작 시간
+let currentSectionEnd = null; // 현재 섹션 종료 시간
 
 // 임시 말하기 기능 전역 변수
 const startButton = document.getElementById('startButton');
@@ -31,9 +32,8 @@ function renderCard(cardData) {
     document.getElementById('cardLike').innerText = cardData.like || "";
 
     const tagsContainer = document.querySelector('.tags.card');
-    tagsContainer.innerHTML = ''; // 기존 태그 초기화
+    tagsContainer.innerHTML = ''; // 초기화
 
-    // level 값 숫자 -> 한글 매핑
     const levelMap = {
         1: "초급",
         2: "중급",
@@ -69,11 +69,7 @@ $(document).ready(function() {
 
     function updateLikeButton() {
         $('#cardLike').text(card.like);
-        if (liked) {
-            $('#like-button').css('color', 'red');
-        } else {
-            $('#like-button').css('color', 'black');
-        }
+        $('#like-button').css('color', liked ? 'red' : 'black');
     }
 
     if (cardId) {
@@ -99,7 +95,6 @@ $(document).ready(function() {
 
         let isLoggedIn = false;
 
-        // 페이지 로드시 로그인 상태 확인 API 호출
         $.get('/mochilearn/api/user/session')
             .done(function(userData) {
                 isLoggedIn = !!(userData && userData.loggedIn);
@@ -108,12 +103,13 @@ $(document).ready(function() {
                 isLoggedIn = false;
             });
 
-        // 좋아요 클릭 이벤트
-        $('#like-button').click(function() {
-            if (!isLoggedIn) {
-                alert('좋아요를 누르려면 로그인해야 합니다.');
-                return;
-            }
+			$('#like-button').click(function() {
+			    if (!isLoggedIn) {
+			        if (confirm('좋아요를 누르려면 로그인해야 합니다. 로그인 페이지로 이동하시겠습니까?')) {
+			            window.location.href = '/mochilearn/member/loginForm'; // 로그인 페이지 URL에 맞게 변경
+			        }
+			        return;
+			    }
 
             const newLiked = !liked;
 
@@ -133,7 +129,6 @@ $(document).ready(function() {
                 });
         });
 
-        // 삭제 버튼 이벤트
         $('#delete-button').click(function() {
             if (!confirm("카드를 삭제하시겠습니까?")) return;
             $.ajax({
@@ -149,7 +144,6 @@ $(document).ready(function() {
             });
         });
 
-        // 자막 버튼 이벤트
         $('#prev-btn').click(() => changeTranscriptIndex(-1));
         $('#next-btn').click(() => changeTranscriptIndex(1));
     } else {
@@ -164,12 +158,7 @@ $(document).ready(function() {
 
 });
 
-// 시간 변환 헬퍼 함수
-const parseTime = (timeString) => {
-    const parts = timeString.split(':').map(Number);
-    return parts.length === 2 ? parts[0] * 60 + parts[1] : 0;
-};
-
+// 시간 변환 함수
 const parseAITime = (timeValue) => {
     if (typeof timeValue === 'number') return timeValue;
     if (typeof timeValue === 'string') {
@@ -186,7 +175,6 @@ const extractVideoId = (url) => {
     return match ? match[1] : null;
 };
 
-// YouTube API 준비 콜백
 function onYouTubeIframeAPIReady() {
     if (card && card.videoId) {
         createPlayer(card.videoId);
@@ -237,13 +225,7 @@ const onPlayerStateChange = (event) => {
                 updateSingleTranscriptLine();
             }
 
-            if (currentTranscriptIndex === lastIndex && relativeTime >= lastTime) {
-                player.pauseVideo(); // 마지막 자막 도달 시 영상 일시정지
-                clearInterval(subtitleInterval);
-                return;
-            }
-
-            if (currentTime > currentSectionStart + lastTime + 0.5) {
+            if (currentTime >= currentSectionStart + lastTime + 0.5) {
                 clearInterval(subtitleInterval);
                 return;
             }
@@ -254,7 +236,6 @@ const onPlayerStateChange = (event) => {
     }
 };
 
-// UI 렌더링 함수
 const updateSingleTranscriptLine = () => {
     const transcriptContainer = document.getElementById('transcript-container');
     const japaneseLineElement = document.getElementById('japanese-line');
@@ -288,7 +269,6 @@ const updateSingleTranscriptLine = () => {
     }
 };
 
-// 자막 인덱스 관련 (prev/next)
 const changeTranscriptIndex = (direction) => {
     if (currentTranscript.length === 0) return;
 
@@ -309,18 +289,20 @@ const changeTranscriptIndex = (direction) => {
         const absoluteTime = currentSectionStart + relativeTime;
         player.seekTo(absoluteTime, true);
         player.playVideo();
+
+        // 자막 버튼으로 재생 시에도 종료 시간 체크 타이머 설정
+        if (currentSectionEnd !== null) {
+            clearInterval(timelineTimeout);
+            timelineTimeout = setInterval(() => {
+                if (player && typeof player.getCurrentTime === 'function') {
+                    if (player.getCurrentTime() >= currentSectionEnd) {
+                        player.pauseVideo();
+                        clearInterval(timelineTimeout);
+                    }
+                }
+            }, 100);
+        }
     }
-};
-
-const renderTimelines = () => {
-    const timelineContainer = document.getElementById('timeline-buttons-container');
-    timelineContainer.innerHTML = '';
-
-    timelines.forEach((timeline, index) => {
-        const button = document.createElement('button');
-        button.onclick = () => startTimelinePlayback(timeline);
-        timelineContainer.appendChild(button);
-    });
 };
 
 function renderSectionButtons(sections) {
@@ -337,13 +319,14 @@ function renderSectionButtons(sections) {
             console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
 
             currentSectionStart = section.start_seconds || 0;
+            currentSectionEnd = section.end_seconds || null;
             currentTranscript = section.sentences || [];
             currentTranscriptIndex = 0;
             updateSingleTranscriptLine();
 
             startTimelinePlayback({
                 start: currentSectionStart,
-                end: section.end_seconds,
+                end: currentSectionEnd,
                 transcript: currentTranscript,
             });
         });
@@ -381,8 +364,6 @@ const startTimelinePlayback = (timeline) => {
             }
             const currentTime = player.getCurrentTime();
             const relativeTime = currentTime - timeline.start;
-            const lastIndex = currentTranscript.length - 1;
-            const lastTime = lastIndex >= 0 ? parseAITime(currentTranscript[lastIndex].time) : 0;
 
             let newIndex = -1;
             for (let i = 0; i < currentTranscript.length; i++) {
@@ -394,9 +375,8 @@ const startTimelinePlayback = (timeline) => {
                     break;
                 }
             }
-
-            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
-                newIndex = lastIndex;
+            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= parseAITime(currentTranscript[currentTranscript.length - 1].time)) {
+                newIndex = currentTranscript.length - 1;
             }
 
             if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
@@ -404,13 +384,8 @@ const startTimelinePlayback = (timeline) => {
                 updateSingleTranscriptLine();
             }
 
-            if (currentTranscriptIndex === lastIndex && relativeTime >= lastTime) {
-                player.pauseVideo(); // 마지막 자막 도달 시 영상 일시정지
-                clearInterval(subtitleInterval);
-                return;
-            }
-
-            if (currentTime > timeline.end + 0.5) {
+            if (currentTime >= timeline.end) {
+                player.pauseVideo();
                 clearInterval(subtitleInterval);
                 return;
             }
