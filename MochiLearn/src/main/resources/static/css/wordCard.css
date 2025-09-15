@@ -47,11 +47,30 @@
     margin: 10px 0;
     background-color: var(--mochi-blue);
     border-radius: 5px;
-
+/* 
     display: grid;
-    grid-template-columns: 50px 1fr; /* 라벨 | 내용 */
+    grid-template-columns: 50px 1fr; 
+    gap: 8px 10px;
+    align-items: center; */
+}
+
+.wordHeader{
+    width: 100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.wordDetails{
+    width: 100%;
+    background-color : var(--mochi-gray-light);
+    display: grid;
+    grid-template-columns: 50px 1fr; 
     gap: 8px 10px;
     align-items: center;
+    padding: 10px 0;
+    border-radius: 5px;
+    margin-top: 15px;
 }
 
 .word,.meaning,.example{
@@ -68,3 +87,13 @@
 }
 .word-content { color: #555; }
 .word-content .kr-example { font-size: 0.9em; color: #777; margin-top: 2px; }
+
+input[type="button"]{
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0;
+}

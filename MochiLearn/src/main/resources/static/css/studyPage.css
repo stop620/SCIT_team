@@ -96,14 +96,14 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
 }
 
 .tag-search-btn, #sortBox {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            background-color: white;
-            cursor: pointer;
-            padding: 6px 12px; 
-            font-size: 14px;
-        }
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    background-color: white;
+    cursor: pointer;
+    padding: 6px 12px; 
+    font-size: 14px;
+}
 
 #tagBtn {
     padding: 0.5rem 1rem;
