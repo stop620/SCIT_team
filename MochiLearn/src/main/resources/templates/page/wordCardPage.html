@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/wordCard.css}">
+<script th:src="@{/js/wordCardPage.js}"></script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <!-- 나눔바른고딕 
@@ -28,12 +29,36 @@
             <!-- <div class="cta-btn">
                 <a href="#">←</a>
             </div> -->
-            <h1>JLPT N2</h1>
+            <div th:data-bookId="${book.id}">
+                <input class="delete-book-btn" type="button" value="x">
+            </div>
+            <h1 th:text="${book.title}"></h1>
+            <h4 th:text="${book.contents}"></h4>
             <!-- <div class="cta-btn">
                 <a href="#">↪</a>
             </div> -->
         </div>
-        <div class="wordPageContent">
+
+        <div class="wordPageContent" th:each="word : ${wordList}">
+            <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
+                <input class="delete-word-btn" type="button" value="x">
+            </div>
+            <div class="select-word">
+                <span th:text="${word.selectWord}"></span>
+            </div>
+            <div class="word-label">표기</div><div class="word-content" th:text="${#strings.listJoin(word.kanji, ', ')}"></div>
+            <div class="word-label">읽기</div><div class="word-content" th:text="${#strings.listJoin(word.kana, ', ')}"></div>
+            <div class="word-label">품사</div><div class="word-content" th:text="${#strings.listJoin(word.partOfSpeech, ', ')}"></div>
+            <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
+            <div class="word-label">예문</div>
+            <div class="word-content">
+                <p th:text="${word.example[0]}"></p>
+                <p class="kr-example" th:text="${word.example[1]}"></p>
+
+            </div>
+        </div>
+
+        <!--<div class="wordPageContent">
             <div class="word">
                 <span>憧れる</span>
             </div>
@@ -58,7 +83,7 @@
                 <span>塩しお加減かげんはどうかと味あじわう</span><br>
                 <span>간이 어떤가 맛보다</span>
             </div>
-        </div>
+        </div>-->
     </div>
 </body>
 </html>

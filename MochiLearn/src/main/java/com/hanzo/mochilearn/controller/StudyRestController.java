@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.CardSaveDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.LikeRepository;
-import com.hanzo.mochilearn.repository.SentenceRepository;
+import com.hanzo.mochilearn.dto.card.CardDTO;
+import com.hanzo.mochilearn.dto.card.CardSaveDTO;
+import com.hanzo.mochilearn.entity.card.CardEntity;
+import com.hanzo.mochilearn.repository.card.CardRepository;
+import com.hanzo.mochilearn.repository.card.LikeRepository;
+import com.hanzo.mochilearn.repository.card.SentenceRepository;
 import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.CardService;
 import com.hanzo.mochilearn.service.QuizService;
@@ -95,16 +95,17 @@ public class StudyRestController {
     }
 
     
-    // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장하는 API
+    // 프론트엔드에서 보낸 학습 카드 데이터를 받아 DB에 저장
     @PostMapping("/api/study/save")
     @Transactional
-    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto) {
+    public ResponseEntity<?> saveLearningCard(@RequestBody CardSaveDTO cardSaveDto,
+                                              @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
         log.info("저장할 학습 카드 데이터 : {}", cardSaveDto.getCardDTO());
 
         try {
             // Card 엔티티 생성 및 저장
             // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
-            Integer cardId = cardService.save(cardSaveDto.getCardDTO(), 1);
+            Integer cardId = cardService.save(cardSaveDto.getCardDTO(), authenticatedUser.getMemberId());
             quizService.save(cardSaveDto.getQuizDtoList(), cardId);
 
             return ResponseEntity.ok(Map.of("message", "카드 데이터 저장 성공", "cardId", cardId));
@@ -149,11 +150,5 @@ public class StudyRestController {
     }
     
 
-    // 마이페이지 유저Id의 카드 데이터 주는 api
-    @GetMapping("/api/study/mycard/{memberId}")
-    public List<CardDTO> getMyCards(@PathVariable("memberId") Integer memberId) {
 
-        List<CardDTO> memberCardList = cardService.getAllCards(memberId);
-        return memberCardList;
-    }
 }

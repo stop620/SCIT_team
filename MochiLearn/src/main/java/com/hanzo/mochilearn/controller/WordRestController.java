@@ -1,18 +1,14 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.*;
+import com.hanzo.mochilearn.dto.word.WordDTO;
 import com.hanzo.mochilearn.security.AuthenticatedUser;
-import com.hanzo.mochilearn.service.BookService;
 import com.hanzo.mochilearn.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,23 +17,32 @@ public class WordRestController {
 
     private final WordService wordService;
 
-    @PostMapping("/api/word/translate")
-    public ResponseEntity<ApiResponse<List<String>>> translateWord(@RequestBody TranslateDTO translateDTO) {
+    @PostMapping("/api/word/save")
+    public ResponseEntity<ApiResponse<Integer>> saveWord(@RequestBody WordDTO wordDTO) {
 
-        log.debug("[번역할 단어 목록]: {}, context: {}", translateDTO.getWordList(), translateDTO.getContext());
+        log.debug("[저장할 단어]: {}", wordDTO);
 
-        List<String> result = wordService.translate(translateDTO);
+        Integer bookId = wordService.save(wordDTO);
+        if(bookId != -1) {
+            return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
 
-        return ResponseEntity.ok(ApiResponse.success("단어 목록 번역 성공", result));
+        } else {
+            return ResponseEntity.ok(ApiResponse.fail("-1", "이미 저장된 단어"));
+        }
+
     }
 
-    @PostMapping("/api/word/save")
-    public ResponseEntity<ApiResponse<Integer>> saveWord(@RequestBody WordSaveDTO wordSaveDTO) {
+    @DeleteMapping("/api/word/delete")
+    public ResponseEntity<ApiResponse<String>> removeWord(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+                                                          @RequestParam(name = "bookId") Integer bookId,
+                                                          @RequestParam(name = "wordId") Integer wordId) {
+        log.debug("[단어 삭제 요청]: 단어장 {}에서 단어 {}삭제", bookId, wordId);
+        try {
+            wordService.removeWord(bookId, wordId, authenticatedUser.getMemberId());
+            return ResponseEntity.ok(ApiResponse.success("단어 삭제 성공", "success"));
 
-        log.debug("[저장할 단어]: {}", wordSaveDTO);
-
-        Integer bookId = wordService.save(wordSaveDTO);
-
-        return ResponseEntity.ok(ApiResponse.success("단어 저장 성공", bookId));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.fail("error", "단어 삭제 실패"));
+        }
     }
 }

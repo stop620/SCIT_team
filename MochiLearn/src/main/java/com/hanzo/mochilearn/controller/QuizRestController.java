@@ -1,10 +1,11 @@
 package com.hanzo.mochilearn.controller;
 
 import com.hanzo.mochilearn.dto.*;
+import com.hanzo.mochilearn.dto.quiz.QuizResponseDTO;
+import com.hanzo.mochilearn.dto.quiz.QuizResultDTO;
 import com.hanzo.mochilearn.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
