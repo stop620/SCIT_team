@@ -7,6 +7,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hanzo.mochilearn.dto.word.TokenDTO;
+import com.hanzo.mochilearn.entity.*;
+import com.hanzo.mochilearn.entity.card.CardEntity;
+import com.hanzo.mochilearn.entity.card.LikeEntity;
+import com.hanzo.mochilearn.entity.card.SectionEntity;
+import com.hanzo.mochilearn.entity.card.SentenceEntity;
+import com.hanzo.mochilearn.entity.word.Token;
+import com.hanzo.mochilearn.repository.*;
+import com.hanzo.mochilearn.repository.card.CardRepository;
+import com.hanzo.mochilearn.repository.card.LikeRepository;
+import com.hanzo.mochilearn.repository.card.SectionRepository;
+import com.hanzo.mochilearn.repository.card.SentenceRepository;
+import com.hanzo.mochilearn.repository.word.TokenRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,19 +28,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.hanzo.mochilearn.dto.CardDTO;
-import com.hanzo.mochilearn.dto.SectionDTO;
-import com.hanzo.mochilearn.dto.SentenceDTO;
-import com.hanzo.mochilearn.entity.CardEntity;
-import com.hanzo.mochilearn.entity.LikeEntity;
-import com.hanzo.mochilearn.entity.MemberEntity;
-import com.hanzo.mochilearn.entity.SectionEntity;
-import com.hanzo.mochilearn.entity.SentenceEntity;
-import com.hanzo.mochilearn.repository.CardRepository;
-import com.hanzo.mochilearn.repository.LikeRepository;
-import com.hanzo.mochilearn.repository.MemberRepository;
-import com.hanzo.mochilearn.repository.SectionRepository;
-import com.hanzo.mochilearn.repository.SentenceRepository;
+import com.hanzo.mochilearn.dto.card.CardDTO;
+import com.hanzo.mochilearn.dto.card.SectionDTO;
+import com.hanzo.mochilearn.dto.card.SentenceDTO;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
@@ -45,6 +48,7 @@ public class CardService {
     private final SentenceRepository sentenceRepository;
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final TokenRepository tokenRepository;
 
     // 학습카드 DB에 저장
     public Integer save(CardDTO cardDto, int memberId) throws Exception {
@@ -55,6 +59,7 @@ public class CardService {
                 .tag(cardDto.getTag())
                 .memberId(memberId)
                 .sections(new ArrayList<>())
+                .like(cardDto.getLike())
                 .build();
 
         // "초급", "중급", "고급" 문자열을 숫자로 저장
@@ -102,10 +107,29 @@ public class CardService {
                                 .time(sentenceDto.getTime())
                                 .japanese(sentenceDto.getJapanese())
                                 .korean(sentenceDto.getKorean())
+                                .tokens(new ArrayList<>())
                                 .build();
 
                         savedSection.addSentence(sentence); // 섹션 <> 문장 연관관계 설정
-                        sentenceRepository.save(sentence);
+                        SentenceEntity savedSentence = sentenceRepository.save(sentence);
+
+                        if(sentenceDto.getJapaneseTokens() != null) {
+                            for(TokenDTO token : sentenceDto.getJapaneseTokens()) {
+
+                                log.debug("sentenceToken: {}", token);
+
+                                Token tokenEntity = Token.builder()
+                                        .tokenIndex(token.getIndex())
+                                        .surface(token.getSurface())
+                                        .partOfSpeech(token.getPos())
+                                        .baseForm(token.getBase())
+                                        .reading(token.getReading())
+                                        .build();
+
+                                savedSentence.addToken(tokenEntity);
+                                tokenRepository.save(tokenEntity);
+                            }
+                        }
                     }
                     log.info("    Saved {} sentences for Section ID: {}", sectionDto.getSentences().size(), savedSection.getId());
                 }
@@ -293,4 +317,18 @@ public class CardService {
         }
     }
 
+    // memberId가 좋아요 누른 카드 목록 반환하는 메소드
+    public List<CardDTO> getMemberLikeCards(Integer memberId) {
+
+        log.debug("[멤버 좋아요 카드] memberId {}의 좋아요 목록 검색", memberId);
+
+        List<LikeEntity> likes = likeRepository.findAllByMemberId(memberId);
+        List<Integer> cardIds = likes.stream()
+                .map(likeEntity -> likeEntity.getCardId()).collect(Collectors.toList());
+
+        List<CardEntity> cardEntities = cardRepository.findAllById(cardIds);
+
+        return cardEntities.stream()
+                .map(this::toDTO).collect(Collectors.toList());
+    }
 }

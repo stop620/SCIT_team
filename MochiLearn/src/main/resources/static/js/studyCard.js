@@ -1,90 +1,117 @@
 // 전역 변수
 let player; // 유튜브 플레이어
 let timelineTimeout;
+let subtitleInterval;
 const timelines = [];
 let currentTranscript = [];
 let currentTranscriptIndex = 0;
-let subtitleInterval;
 let liked = false;
 let likeCount = 0;
+let currentSectionStart = 0; // 현재 섹션 시작 시간
+let currentSectionEnd = null; // 현재 섹션 종료 시간
 
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
     document.getElementById('cardLike').innerText = cardData.like || "";
+
+    const tagsContainer = document.querySelector('.tags.card');
+    tagsContainer.innerHTML = ''; // 초기화
+
+    const levelMap = {
+        1: "초급",
+        2: "중급",
+        3: "고급"
+    };
+
+    if (cardData.level) {
+        const levelText = levelMap[cardData.level] || "기본";
+        const levelDiv = document.createElement('div');
+        levelDiv.className = 'tag-item';
+        levelDiv.textContent = levelText;
+        tagsContainer.appendChild(levelDiv);
+    }
+
+    if (cardData.tag) {
+        const tagList = cardData.tag.split(',').map(tag => tag.trim());
+        tagList.forEach(tag => {
+            if (tag) {
+                const tagDiv = document.createElement('div');
+                tagDiv.className = 'tag-item';
+                tagDiv.textContent = tag;
+                tagsContainer.appendChild(tagDiv);
+            }
+        });
+    }
 }
 
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const cardId = urlParams.get('cardId');
 
-    
-	//나증에 멤버아이디 받아오는걸루 수정하기~
-    const memberId = 1; // 로그인 세션 등에서 받아와야 함
-
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
-	function updateLikeButton() {
-	        $('#cardLike').text(card.like);
-	        if (liked) {
-	            $('#like-button').css('color', 'red');
-	        } else {
-	            $('#like-button').css('color', 'black');
-	        }
-	    }
+    function updateLikeButton() {
+        $('#cardLike').text(card.like);
+        $('#like-button').css('color', liked ? 'red' : 'black');
+    }
 
     if (cardId) {
-        $.get(`/mochilearn/api/study/card?cardId=${cardId}&memberId=${memberId}`)
-        .done(function(cardData) {
-            console.log("✅ API 호출 성공, 받은 card 데이터:", cardData);
+        $.get(`/mochilearn/api/study/card?cardId=${cardId}`)
+            .done(function(cardData) {
+                card = cardData;
+                card.videoId = extractVideoId(card.url);
+                renderCard(card);
+                renderSectionButtons(card.sections);
 
-            card = cardData;
-            card.videoId = extractVideoId(card.url);
-            renderCard(card);
-            renderSectionButtons(card.sections);
+                liked = card.liked;
+                updateLikeButton();
 
-			liked = card.liked;  // 서버에서 내려줘야 함
-				
-			updateLikeButton();
-			
-            if (typeof YT !== 'undefined' && YT && YT.Player) {
-                createPlayer(card.videoId);
-            } else {
-                console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
+                if (typeof YT !== 'undefined' && YT && YT.Player) {
+                    createPlayer(card.videoId);
+                } else {
+                    console.warn("⚠️ YouTube IFrame API가 아직 로드되지 않음");
+                }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("❌ API 호출 실패:", textStatus, errorThrown);
+            });
+
+        let isLoggedIn = false;
+
+        $.get('/mochilearn/api/user/session')
+            .done(function(userData) {
+                isLoggedIn = !!(userData && userData.loggedIn);
+            })
+            .fail(function() {
+                isLoggedIn = false;
+            });
+
+        $('#like-button').click(function() {
+            if (!isLoggedIn) {
+                if (confirm('좋아요를 누르려면 로그인해야 합니다. 로그인 페이지로 이동하시겠습니까?')) {
+                    window.location.href = '/mochilearn/member/loginForm'; // 로그인 페이지 URL에 맞게 변경
+                }
+                return;
             }
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error("❌ API 호출 실패:", textStatus, errorThrown);
+
+            const newLiked = !liked;
+
+            $.post('/mochilearn/api/study/likes/toggle', { cardId: cardId, liked: newLiked })
+                .done(function(response) {
+                    if ((response.status === 'liked' && newLiked) || (response.status === 'unliked' && !newLiked)) {
+                        liked = newLiked;
+                        card.like += liked ? 1 : -1;
+                        $('#cardLike').text(card.like);
+                        updateLikeButton();
+                    } else {
+                        alert('좋아요 상태 갱신 실패');
+                    }
+                })
+                .fail(function() {
+                    alert('좋아요 처리 중 오류');
+                });
         });
 
-		$('#like-button').click(function() {
-		    liked = !liked;
-		    card.like += liked ? 1 : -1;
-		    console.log("좋아요 버튼 클릭 - liked:", liked, ", likeCount:", card.like);
-		    $('#cardLike').text(card.like);
-		    updateLikeButton();
-
-		    $.post('/mochilearn/api/study/likes/toggle', { memberId: memberId, cardId: cardId, liked: liked })
-		    .done(function(response) {
-		        console.log("좋아요 토글 API 응답:", response);
-		        if ((response.status === 'liked' && !liked) || (response.status === 'unliked' && liked)) {
-		            console.log("서버 상태와 UI 불일치 - 롤백 처리");
-		            liked = !liked;
-		            card.like += liked ? 1 : -1;
-		            $('#cardLike').text(card.like);
-		            updateLikeButton();
-		        }
-		    })
-		    .fail(function() {
-		        console.log("좋아요 토글 API 호출 실패");
-		        liked = !liked;
-		        card.like += liked ? 1 : -1;
-		        $('#cardLike').text(card.like);
-		        updateLikeButton();
-		        alert('좋아요 처리 중 오류가 발생했습니다.');
-		    });
-		});
-
-        // 삭제 버튼 이벤트
         $('#delete-button').click(function() {
             if (!confirm("카드를 삭제하시겠습니까?")) return;
             $.ajax({
@@ -100,21 +127,18 @@ $(document).ready(function() {
             });
         });
 
-        // 자막 버튼 이벤트
         $('#prev-btn').click(() => changeTranscriptIndex(-1));
         $('#next-btn').click(() => changeTranscriptIndex(1));
 
+        // 단어선택, 말하기 기능 초기화 함수
+        initializeWordSelectionEventListeners();
+        initializeSpeechPracticeListeners();
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }
 });
 
-// 시간 변환 헬퍼 함수
-const parseTime = (timeString) => {
-    const parts = timeString.split(':').map(Number);
-    return parts.length === 2 ? parts[0] * 60 + parts[1] : 0;
-};
-
+// 시간 변환 함수
 const parseAITime = (timeValue) => {
     if (typeof timeValue === 'number') return timeValue;
     if (typeof timeValue === 'string') {
@@ -126,15 +150,11 @@ const parseAITime = (timeValue) => {
 };
 
 const extractVideoId = (url) => {
-    // 일반 영상과 쇼츠 영상 URL을 모두 처리하도록 정규식 수정
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
     return match ? match[1] : null;
 };
 
-
-
-// YouTube API 준비 콜백
 function onYouTubeIframeAPIReady() {
     if (card && card.videoId) {
         createPlayer(card.videoId);
@@ -153,57 +173,116 @@ const createPlayer = (videoId) => {
 };
 
 const onPlayerStateChange = (event) => {
-    // 영상이 정지되거나 끝나면, 모든 자동화 타이머(자막, 구간정지)를 중단합니다.
-    if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        if (subtitleInterval) clearInterval(subtitleInterval);
+        subtitleInterval = setInterval(() => {
+            if (!player || typeof player.getCurrentTime !== 'function') {
+                clearInterval(subtitleInterval);
+                return;
+            }
+            const currentTime = player.getCurrentTime();
+            const relativeTime = currentTime - currentSectionStart;
+            const lastIndex = currentTranscript.length - 1;
+            const lastTime = lastIndex >= 0 ? parseAITime(currentTranscript[lastIndex].time) : 0;
+
+            let newIndex = -1;
+            for (let i = 0; i < currentTranscript.length; i++) {
+                const itemTime = parseAITime(currentTranscript[i].time);
+                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
+
+                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
+                    newIndex = i;
+                    break;
+                }
+            }
+
+            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
+                newIndex = lastIndex;
+            }
+
+            if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
+                currentTranscriptIndex = newIndex;
+                updateSingleTranscriptLine();
+            }
+
+            if (currentTime >= currentSectionStart + lastTime + 0.5) {
+                clearInterval(subtitleInterval);
+                return;
+            }
+        }, 100);
+    } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
         clearInterval(subtitleInterval);
         clearInterval(timelineTimeout);
     }
 };
 
-// UI 렌더링 함수
-const updateSingleTranscriptLine = () => {
-    const transcriptContainer = document.getElementById('transcript-container');
-    transcriptContainer.classList.toggle('hidden', currentTranscript.length === 0);
-	console.log(currentTranscript.length)
+function updateSingleTranscriptLine() {
+    const transcriptContainer = $('#transcript-container');
+    const japaneseLineElement = $('#japanese-line');
+
+    transcriptContainer.toggleClass('hidden', currentTranscript.length === 0);
+    japaneseLineElement.empty();
+
     if (currentTranscript.length > 0) {
         const item = currentTranscript[currentTranscriptIndex];
-        document.getElementById('japanese-line').textContent = item.japanese;
-        document.getElementById('korean-line').textContent = item.korean;
-        document.getElementById('transcript-index').textContent = `${currentTranscriptIndex + 1} / ${currentTranscript.length}`;
-    }
-};
 
-// 자막 인덱스 관련
+        if (item.japaneseTokens && Array.isArray(item.japaneseTokens)) {
+            item.japaneseTokens.forEach((token, index) => {
+                const span = $('<span></span>', {
+                    text: token.surface,
+                    class: `japanese-token ${isActionableToken(token) ? 'actionable' : 'non-actionable'}`,
+                    'data-index': index
+                }).prop('tokenData', token);
+                japaneseLineElement.append(span);
+            });
+        } else {
+            japaneseLineElement.text(item.japanese);
+        }
+
+        $('#korean-line').text(item.korean);
+        $('#transcript-index').text(`${currentTranscriptIndex + 1} / ${currentTranscript.length}`);
+    }
+}
+
 const changeTranscriptIndex = (direction) => {
     if (currentTranscript.length === 0) return;
-    currentTranscriptIndex = (currentTranscriptIndex + direction + currentTranscript.length) % currentTranscript.length;
+
+    if (direction === -1) {
+        if (currentTranscriptIndex === 0) return;
+        currentTranscriptIndex -= 1;
+    } else if (direction === 1) {
+        if (currentTranscriptIndex === currentTranscript.length - 1) return;
+        currentTranscriptIndex += 1;
+    } else {
+        return;
+    }
+
     updateSingleTranscriptLine();
-};
 
-const handleDeleteTimeline = (indexToDelete) => {
-    timelines.splice(indexToDelete, 1);
-    renderTimelines();
-};
+    if (player && typeof player.seekTo === 'function') {
+        const relativeTime = parseAITime(currentTranscript[currentTranscriptIndex].time);
+        const absoluteTime = currentSectionStart + relativeTime;
+        player.seekTo(absoluteTime, true);
+        player.playVideo();
 
-const renderTimelines = () => {
-    const timelineContainer = document.getElementById('timeline-buttons-container');
-    timelineContainer.innerHTML = '';
-
-    // timeline 배열 반복하면서 각 타임라인과 연동되는 버튼 생성 (버튼 클릭 시 재생 기능 등)
-    timelines.forEach((timeline, index) => {
-        const button = document.createElement('button');
-        button.className = 'timeline-button';
-        button.textContent = `타임라인 ${index + 1}`;
-        // 버튼 클릭 시 타임라인 재생 함수 호출 (연결 기능 유지)
-        button.onclick = () => startTimelinePlayback(timeline);
-
-        timelineContainer.appendChild(button);
-    });
+        // 자막 버튼으로 재생 시에도 종료 시간 체크 타이머 설정
+        if (currentSectionEnd !== null) {
+            clearInterval(timelineTimeout);
+            timelineTimeout = setInterval(() => {
+                if (player && typeof player.getCurrentTime === 'function') {
+                    if (player.getCurrentTime() >= currentSectionEnd) {
+                        player.pauseVideo();
+                        clearInterval(timelineTimeout);
+                    }
+                }
+            }, 100);
+        }
+    }
 };
 
 function renderSectionButtons(sections) {
     const container = document.getElementById('timeline-buttons-container');
-    container.innerHTML = '';  // 초기화
+    container.innerHTML = '';
 
     sections.forEach(section => {
         const button = document.createElement('button');
@@ -214,13 +293,16 @@ function renderSectionButtons(sections) {
         button.addEventListener('click', () => {
             console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
 
-            // section 객체 내에 sentence 배열이 바로 있다고 가정
-            const transcript = section.sentences || [];  // sentences 배열이 section 안에 있음
+            currentSectionStart = section.start_seconds || 0;
+            currentSectionEnd = section.end_seconds || null;
+            currentTranscript = section.sentences || [];
+            currentTranscriptIndex = 0;
+            updateSingleTranscriptLine();
 
             startTimelinePlayback({
-                start: section.start_seconds,
-                end: section.end_seconds,
-                transcript: transcript,
+                start: currentSectionStart,
+                end: currentSectionEnd,
+                transcript: currentTranscript,
             });
         });
 
@@ -228,10 +310,8 @@ function renderSectionButtons(sections) {
     });
 }
 
-
-// 핵심 로직 함수 - 타임라인 재생, 자동정지, 자막 전환
 const startTimelinePlayback = (timeline) => {
-	console.log("▶ startTimelinePlayback 실행, timeline 데이터:", timeline);
+    console.log("▶ startTimelinePlayback 실행, timeline 데이터:", timeline);
     if (player) {
         player.seekTo(timeline.start, true);
         player.playVideo();
@@ -239,7 +319,6 @@ const startTimelinePlayback = (timeline) => {
         clearInterval(timelineTimeout);
         clearInterval(subtitleInterval);
 
-        // 타임라인 종료구간 도달 시 정지
         timelineTimeout = setInterval(() => {
             if (player && typeof player.getCurrentTime === 'function') {
                 if (player.getCurrentTime() >= timeline.end) {
@@ -253,19 +332,15 @@ const startTimelinePlayback = (timeline) => {
         currentTranscriptIndex = 0;
         updateSingleTranscriptLine();
 
-        // 재생과 자막 싱크
         subtitleInterval = setInterval(() => {
             if (!player || typeof player.getCurrentTime !== 'function') {
-                clearInterval(subtitleInterval); return;
+                clearInterval(subtitleInterval);
+                return;
             }
             const currentTime = player.getCurrentTime();
-            if (currentTime < timeline.start || currentTime > timeline.end) {
-                clearInterval(subtitleInterval); return;
-            }
-
             const relativeTime = currentTime - timeline.start;
 
-            let newIndex = 0;
+            let newIndex = -1;
             for (let i = 0; i < currentTranscript.length; i++) {
                 const itemTime = parseAITime(currentTranscript[i].time);
                 const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
@@ -275,14 +350,20 @@ const startTimelinePlayback = (timeline) => {
                     break;
                 }
             }
+            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= parseAITime(currentTranscript[currentTranscript.length - 1].time)) {
+                newIndex = currentTranscript.length - 1;
+            }
 
-            if (newIndex !== currentTranscriptIndex) {
+            if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
                 currentTranscriptIndex = newIndex;
                 updateSingleTranscriptLine();
+            }
+
+            if (currentTime >= timeline.end) {
+                player.pauseVideo();
+                clearInterval(subtitleInterval);
+                return;
             }
         }, 100);
     }
 };
-
-
-

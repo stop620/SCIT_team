@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 public class QuizDTO {
 
-    private List<String> japanese;
+    private String japanese;
     private String korean;
     private int level;
 }

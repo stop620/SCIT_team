@@ -1,6 +1,7 @@
 package com.hanzo.mochilearn.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hanzo.mochilearn.dto.card.SentenceDTO;
+import com.hanzo.mochilearn.dto.quiz.QuizDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

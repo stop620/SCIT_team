@@ -5,6 +5,7 @@
 <title>study</title>
 	<link rel="stylesheet" th:href="@{/css/common.css}">
 	<link rel="stylesheet" th:href="@{/css/studyPage.css}">
+	
     <!--<link rel="stylesheet" th:href="@{/css/main.css}" />-->
 	<script th:inline="javascript">
 		/*<![CDATA[*/
@@ -22,152 +23,25 @@
 		}
 		/*]]>*/
 	</script>
-<style>
-        #cardGrid {
-		    display: grid;
-		    grid-template-columns: repeat(4, 220px);
-		    justify-content: center;       /* 전체 카드를 컨테이너 중앙에 배치 */
-		    gap: 30px  /* 행과 열 간격 */;
-		    padding: 20px;
-		    max-width: calc(220px * 4 + 30px * 3 + 40px);
-		    margin: 0 auto;
-		}
-		
-		.card {
-		    flex: 0 0 220px;            
-		    max-width: 220px;
-		    border: 1px solid #ddd;
-		    border-radius: 8px;
-		    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.1);
-		    cursor: pointer;
-		    overflow: hidden;
-		    background: #fff;
-		    text-align: center;
-		    transition: box-shadow 0.3s ease;
-		    margin-bottom: 20px;           /* 카드를 감싸는 행 간격 */
-		}
-        .card:hover {
-            box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.2);
-        }
-        .card img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-        }
-        .card h3 {
-            margin: 10px 0 6px;
-            font-size: 1.1em;
-            color: #333;
-        }
-        .card p {
-            margin: 0 10px 10px;
-            font-size: 0.95em;
-            color: #666;
-            
-        }
-        #searchContainer {
-		    display: flex;
-		    justify-content: center;  /* 가로 중앙 정렬 */
-		    align-items: center;      /* 세로 중앙 정렬(옵션) */
-		    margin-bottom: 16px;      /* 아래 여백 */
-		    width: 100%;
-		}
-		#addCard{
-			display: flex;
-		    justify-content: center;  /* 가로 중앙 정렬 */
-		    align-items: center;      /* 세로 중앙 정렬(옵션) */
-		    margin-bottom: 16px;      /* 아래 여백 */
-		    width: 100%;
-		}
-		
-		
-		/* 모달 배경 */
-        #tagModal {
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            z-index: 1000;
-		    justify-content: center;   /* 가로 중앙 정렬 */
-		    align-items: center;       /* 세로 중앙 정렬 */
-        }
 
-        /* 모달 내용 박스 */
-        .modal-content {
-            background: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            min-width: 320px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: relative;
-            max-width: 500px;        /* 최대 너비 제한 */
-    		width: 90%;              /* 화면 폭에 따라 90% 크기 */
-        }
-
-        /* 닫기 버튼 */
-        .close-btn {
-            position: absolute;
-            top: 10px; right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* 클릭 가능한 태그 스타일 */
-        .tagSelect {
-            cursor: pointer;
-            padding: 8px 12px;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            display: inline-block;
-            margin: 6px 8px;
-            transition: border-color 0.1s, background-color 0.1s;
-            user-select: none;
-        }
-        .tagSelect.selected {
-            border-color: #4a90e2;
-            background-color: #e8f0fe;
-            font-weight: bold;
-        }
-
-        /* 필터 버튼 */
-        #applyTagFilter {
-            margin-top: 20px;
-            padding: 8px 16px;
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        /* 태그 버튼 */
-        #tagBtn {
-            margin-left: 50px;
-            margin-right: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-</style>
 </head>
 <body>
 
 <div th:replace="~{navigation::navigation}"></div>
 
-<div id="searchContainer" style="margin-bottom: 16px;">
-    	<input type="text" id="searchInput" style="width: 220px;">
-    	<button id="searchBtn">검색</button>
-	</div>
+<div id="searchContainer" >
+<div class="search-bar">
+    	<input type="text" id="searchInput" placeholder="작성자 또는 제목을 입력하세요">
+    	<button id="searchBtn">🔎</button>
+    	</div>
+	
 	<div id="addCard">
 		<a th:href="@{/page/write}">
 			<button id="addCardBtn">학습카드 추가하기</button>
 		</a>
 	</div>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-    <!-- 왼쪽: 태그 버튼 -->
+
+<div class="filter-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
     <button type="button" id="tagBtn">태그버튼</button>
 	<!-- 모달 -->
 	    <div id="tagModal">
@@ -186,13 +60,14 @@
 	    </div>
 
     <!-- 오른쪽: 정렬 기준 -->
-    <div style="margin-right: 50px;">
+    <div style="display: flex; align-items: center;">
         <label for="sortBox" style="margin-right: 8px; font-weight: bold;">정렬 기준:</label>
-        <select id="sortBox" name="sortBox" style="padding: 6px 12px; font-size: 14px;">
+        <select id="sortBox" name="sortBox">
             <option value="popular">인기순</option>
             <option value="latest">최신순</option>
         </select>
     </div>
+</div>
 </div>
     <div id="cardGrid" th:fragment="cards">
         <div th:each="card : ${cards}" 
@@ -201,241 +76,11 @@
 			<img th:src="${card.url} ?: @{/images/default-thumbnail.png}" alt="썸네일 이미지" />
         </div>
     </div>
-    <button id="scrollTopBtn" style="position: fixed;
-								    bottom: 30px;
-								    right: 30px;
-								    padding: 10px 15px;
-								    font-size: 14px;
-								    border: none;
-								    border-radius: 6px;
-								    background-color: #333;
-								    color: white;
-								    cursor: pointer;
-								    z-index: 1000;">위로가기</button>
+    <button id="scrollTopBtn" >위로가기</button>
 
 	
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script>
-	$(document).ready(function() {
-    let page = 0;
-    const size = 12;
-    let sort = 'popular';
-    let loading = false;
-    let endReached = false;
+	<script th:src="@{/js/studyPage.js}"></script>
 
-    let isTagFilterActive = false;
-    let tagFilterPage = 0;
-    let tagFilterEnd = false;
-    let currentTagFilterTags = [];
-
-    // 모달 열기
-    $('#tagBtn').click(function() {
-        $('#tagModal').css('display', 'flex').hide().fadeIn(200);
-    });
-
-    // 모달 닫기 (X 버튼)
-    $('.close-btn').click(function() {
-        $('#tagModal').fadeOut(200);
-    });
-
-    // 모달 바깥 클릭 시 닫기
-    $(window).click(function(event) {
-        if ($(event.target).is('#tagModal')) {
-            $('#tagModal').fadeOut(200);
-        }
-    });
-
-    // 태그 선택 토글
-    $('#tagList').on('click', '.tagSelect', function() {
-        $(this).toggleClass('selected');
-    });
-
-    // 필터 적용 버튼 클릭 시
-    $('#applyTagFilter').click(function() {
-        let selectedTags = [];
-        $('.tagSelect.selected').each(function() {
-            selectedTags.push($(this).data('value'));
-        });
-
-        if (selectedTags.length === 0) {
-            alert('태그를 하나 이상 선택하세요.');
-            return;
-        }
-
-        currentTagFilterTags = selectedTags;
-        isTagFilterActive = true;
-        tagFilterPage = 0;
-        tagFilterEnd = false;
-
-        loadCardsByTags(true);
-        $('#tagModal').fadeOut(200);
-    });
-
-    // 카드 렌더링 함수
-    function renderCards(cards, reset = false) {
-        if (reset) {
-            $('#cardGrid').empty();
-        }
-        cards.forEach(card => {
-            const thumbUrl = getYoutubeThumbnail(card.url);
-            const cardHtml = `
-                <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
-                    <h3>${card.title}</h3>
-                    <img src="${thumbUrl}" alt="썸네일 이미지" />
-                </div>
-            `;
-            $('#cardGrid').append(cardHtml);
-        });
-    }
-
-    // 유튜브 썸네일 추출 함수
-        function getYoutubeThumbnail(youtubeUrl) {		// 쇼츠 처리 가능하게 수정
-            let videoId = '';
-            if (!youtubeUrl) {
-                return '/images/default-thumbnail.png';  // URL이 없으면 기본 이미지 반환
-            }
-
-            // 쇼츠 URL (youtube.com/shorts/) 처리
-            if (youtubeUrl.includes('youtube.com/shorts/')) {
-                videoId = youtubeUrl.split('youtube.com/shorts/')[1].split(/[?&]/)[0];
-            }
-            // 짧은 URL (youtu.be/) 처리
-            else if (youtubeUrl.includes('youtu.be/')) {
-                videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
-            }
-            // 일반 URL (v=) 처리
-            else if (youtubeUrl.includes('v=')) {
-                videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
-            }
-
-            if (videoId) {
-                return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            }
-
-            return '/images/default-thumbnail.png';
-        }
-
-    // 일반 검색/정렬 카드 로드 함수
-    function loadCards(reset = false) {
-        if (loading || endReached) return;
-        if (isTagFilterActive) return; // 태그 필터 활성 시 일반 로드 중지
-
-        loading = true;
-        if (reset) {
-            page = 0;
-            endReached = false;
-        }
-
-        $.get('/mochilearn/api/study/load', {
-            sort: sort,
-            page: page,
-            size: size,
-            search: $('#searchInput').val().trim()
-        })
-        .done(function(data) {
-            if ((!data || data.length === 0) && $('#searchInput').val().trim() !== '') {
-                alert('검색 결과가 없습니다.');
-                $('#searchInput').val('');
-                endReached = true;
-                return;
-            }
-            renderCards(data, reset);
-            page++;
-        })
-        .fail(function() {
-            alert('카드 로드 중 오류가 발생했습니다.');
-        })
-        .always(function() {
-            loading = false;
-        });
-    }
-
-    // 태그 필터 카드 로드 함수 (페이징 및 정렬 반영)
-    function loadCardsByTags(reset = false) {
-        if (loading || tagFilterEnd) return;
-        loading = true;
-
-        if (reset) {
-            tagFilterPage = 0;
-            tagFilterEnd = false;
-            $('#cardGrid').empty();
-        }
-
-        // sort 파라미터 추가 (정렬 기준 반영)
-        $.ajax({
-            url: `/mochilearn/api/study/filterByTags?page=${tagFilterPage}&size=${size}&sort=${sort}`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(currentTagFilterTags),
-            success: function(response) {
-                if (!response || response.content.length === 0) {
-                    if (reset) alert('해당 태그를 가진 카드가 없습니다.');
-                    tagFilterEnd = true;
-                    return;
-                }
-                renderCards(response.content, reset);
-                tagFilterPage++;
-            },
-            error: function() {
-                alert('태그 필터링 중 오류가 발생했습니다.');
-            },
-            complete: function() {
-                loading = false;
-            }
-        });
-    }
-
-    // 정렬 변경 처리
-    $('#sortBox').change(function() {
-        sort = $(this).val();
-        if (isTagFilterActive) {
-            tagFilterPage = 0;
-            tagFilterEnd = false;
-            loadCardsByTags(true);
-        } else {
-            page = 0;
-            endReached = false;
-            loadCards(true);
-        }
-    });
-
-    // 검색 버튼 클릭 처리
-    $('#searchBtn').on('click', function() {
-        isTagFilterActive = false;
-        page = 0;
-        endReached = false;
-        loadCards(true);
-    });
-
-    // 검색창 엔터키 처리
-    $('#searchInput').on('keydown', function(e) {
-        if (e.key === 'Enter') {
-            isTagFilterActive = false;
-            page = 0;
-            endReached = false;
-            loadCards(true);
-        }
-    });
-
-    // 스크롤 페이징 처리
-    $(window).scroll(function() {
-        if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-            if (isTagFilterActive) {
-                loadCardsByTags();
-            } else {
-                loadCards();
-            }
-        }
-    });
-
-    // 초기 진입 시 카드 로드
-    loadCards(true);
-
-    // 위로가기 버튼
-    $('#scrollTopBtn').on('click', function() {
-        $('html, body').animate({ scrollTop: 0 }, 300);
-    });
-});
-</script>
 </body>
 </html>
