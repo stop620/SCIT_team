@@ -68,8 +68,13 @@ $(document).ready(function() {
 
             const cardHtml = `
                 <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
-                    <img src="${thumbUrl}" alt="썸네일 이미지" />
-                    <h3>${card.title}</h3>
+					<div class="video-thumbnail">
+		                    <img src="${thumbUrl}" alt="썸네일 이미지" />
+							<div class="play-icon">▶</div>
+					</div>
+					<div class="video-info">
+                    <h3 class="video-title">${card.title}</h3>
+					
                     <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 1rem;">
                         <span class="difficulty-tag ${difficultyClass}">${levelKor}</span>
                         <div style="color: #FFBB46; font-weight: 600;">⭐ ${card.like || 0}</div>
@@ -77,7 +82,8 @@ $(document).ready(function() {
                     <div class="tag-container" style="padding:0 1rem 1rem 1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
                         ${tagHtml}
                     </div>
-                </div>`;
+                </div>
+			</div>`;
 
             $('#cardGrid').append(cardHtml);
         });
@@ -111,22 +117,22 @@ $(document).ready(function() {
             size,
             search: $('#searchInput').val().trim()
         })
-        .done(data => {
-            if ((!data || data.length === 0) && $('#searchInput').val().trim() !== '') {
-                alert('검색 결과가 없습니다.');
-                $('#searchInput').val('');
-                endReached = true;
+            .done(data => {
+                if ((!data || data.length === 0) && $('#searchInput').val().trim() !== '') {
+                    alert('검색 결과가 없습니다.');
+                    $('#searchInput').val('');
+                    endReached = true;
+                    loading = false;
+                    return;
+                }
+                renderCards(data, reset);
+                page++;
                 loading = false;
-                return;
-            }
-            renderCards(data, reset);
-            page++;
-            loading = false;
-        })
-        .fail(() => {
-            alert('카드 로드 중 오류가 발생했습니다.');
-            loading = false;
-        });
+            })
+            .fail(() => {
+                alert('카드 로드 중 오류가 발생했습니다.');
+                loading = false;
+            });
     }
 
     // 태그 필터 카드 로드 함수
