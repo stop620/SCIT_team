@@ -10,7 +10,6 @@
     --mochi-level-advanced: #C8A2C8;
 }
 
-
 body {
     font-family: 'Inter', sans-serif;
     color: var(--mochi-gray-dark);
@@ -19,19 +18,20 @@ body {
     padding: 0;
 }
 
-
 /* 검색 영역 */
 #searchContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    max-width: 75%;
-    margin: 2.5rem auto 2rem auto; /* 위쪽 여백 2.5rem 추가 */
+    max-width: 77%;
+    max-height: 600px;         /* 최대 높이 지정 */
+    margin: 2.5rem auto 2rem auto;
     background-color: white;
-    padding: 2rem 10px;
+    padding: 1rem 10px;        /* 패딩 축소 */
     border-radius: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    box-sizing: border-box;
 }
 
 /* 검색 바 래퍼 */
@@ -39,11 +39,12 @@ body {
     position: relative;
     width: 100%;
     max-width: 500px;
+    margin-bottom: 0;
 }
 
 #searchInput {
     width: 100%;
-    padding: 0.75rem 3rem 0.75rem 1rem; /* 오른쪽에 버튼 공간 확보 */
+    padding: 0.5rem 2.5rem 0.5rem 1rem; /* 패딩 축소 */
     border: 1px solid #ddd;
     border-radius: 9999px;
     outline: none;
@@ -51,12 +52,13 @@ body {
     box-sizing: border-box;
     transition: border-color 0.3s ease;
     display: block;
+    height: 36px; /* 높이 지정 */
 }
 
 #searchBtn {
     position: absolute;
     top: 50%;
-    right: 1rem; /* input 안쪽 오른쪽 위치 */
+    right: 1rem;
     transform: translateY(-50%);
     background: none;
     border: none;
@@ -72,13 +74,12 @@ body {
     color: var(--mochi-mint);
 }
 
-
 /* 학습카드 추가 영역 */
 #addCard {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     width: 100%;
 }
 
@@ -92,62 +93,55 @@ body {
     width: 100%;
     background-color: var(--mochi-mint);
     color: white;
-    padding: 0.75rem 1.5rem;
-    margin-top:10px;
+    padding: 0.2rem 1rem; /* 패딩 축소 */
     border-radius: 0.75rem;
     border: none;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    height: 36px; /* 높이 지정 */
 }
 
 #addCardBtn:hover {
     background-color: #2BAE9F;
 }
 
-/* 태그 버튼과 정렬 선택박스 영역 */
-div[style*="display: flex"][style*="justify-content: space-between"] {
-    max-width: 640px;
-    margin: 0 auto 8px auto; /* 아래 마진 20px → 8px 로 감소 */
-    padding: 5px 0;          /* 패딩 10px 0 → 5px 0 으로 감소 */
-    justify-content: space-between;
+.filter-row {
+    max-width: 100%;            /* 적절한 최대 폭 */
+    margin: 0 auto 8px auto;     /* 좌우 중앙 정렬 + 아래 마진 */
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between; /* 요소 양끝 정렬 */
     align-items: center;
-    gap: 1rem;
+    gap: 40rem;                 /* 간격 적당히 벌림 */
 }
 
+
 .tag-search-btn, #sortBox {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            background-color: white;
-            cursor: pointer;
-            padding: 6px 12px; 
-            font-size: 14px;
-        }
+    padding: 0.4rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    background-color: white;
+    cursor: pointer;
+    font-size: 0.9rem;
+    height: 36px; /* 높이 통일 */
+}
 
 #tagBtn {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 1rem;
     border: 1px solid #ddd;
     border-radius: 0.5rem;
     background: white;
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    height: 36px; /* 높이 지정 */
 }
 
 #tagBtn:hover {
-    background-color: var(--mochi-pink);
-    border-color: var(--mochi-pink);
+    background-color: var(--mochi-mint);
+    border-color: var(--mochi-mint);
     color: white;
-}
-
-#sortBox {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #ddd;
-    background-color: white;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
 }
 
 #sortBox:hover,
@@ -155,14 +149,6 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border-color: var(--mochi-mint);
     outline: none;
 }
-.filter-row {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.5rem;
-            padding: 10px 0;
-        }
 
 /* 태그 모달 */
 #tagModal {
@@ -211,6 +197,7 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-bottom: 1rem;
+    justify-content: center;
 }
 
 .tagSelect {
@@ -228,24 +215,27 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     border-color: var(--mochi-mint);
     color: white;
 }
+
 #applyTagFilter {
     display: block;
     margin: 0 auto;
-    /* 기존 스타일 유지 */
-    background-color: var(--mochi-pink);
+    background-color: var(--mochi-mint);
     color: white;
     border: none;
-    padding: 0.6rem 1.5rem;
+    padding: 0.4rem 1.5rem;
     border-radius: 0.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 6px rgba(62, 214, 208, 0.3);
+    height: 36px;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 #applyTagFilter:hover {
+    background-color: #2BAE9F;
     box-shadow: 0 6px 10px rgba(42, 174, 159, 0.5);
 }
-
 
 /* Container for genre/other tags */
 .tag-container {
@@ -255,6 +245,7 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    
 }
 
 .genre-tag-item {
@@ -298,6 +289,7 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
 }
 
 .card {
+    position: relative;  /* play-icon의 위치 기준 */
     background-color: white;
     border-radius: 1rem;
     overflow: hidden;
@@ -328,6 +320,40 @@ div[style*="display: flex"][style*="justify-content: space-between"] {
     height: 150px;
     object-fit: cover;
     background-color: var(--mochi-gray-light);
+}
+.play-icon {
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mochi-blue);
+    font-size: 20px;
+}
+.video-thumbnail {
+    width: 100%;
+    height: 150px;
+    background-color: var(--mochi-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--mochi-gray-dark);
+    position: relative;
+}
+.video-info {
+    padding: 1rem;
+}
+.video-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 /* 위로가기 버튼 */

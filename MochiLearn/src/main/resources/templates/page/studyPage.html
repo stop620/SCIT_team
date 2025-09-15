@@ -54,6 +54,8 @@
 	                <div class="tagSelect" data-value="영화">영화</div>
 	                <div class="tagSelect" data-value="일상회화">일상회화</div>
 	                <div class="tagSelect" data-value="비즈니스">비즈니스</div>
+	                <div class="tagSelect" data-value="로맨스">로맨스</div>
+	                <div class="tagSelect" data-value="코믹">코믹</div>
 	            </div>
 	            <button id="applyTagFilter">필터적용</button>
 	        </div>
@@ -61,7 +63,6 @@
 
     <!-- 오른쪽: 정렬 기준 -->
     <div style="display: flex; align-items: center;">
-        <label for="sortBox" style="margin-right: 8px; font-weight: bold;">정렬 기준:</label>
         <select id="sortBox" name="sortBox">
             <option value="popular">인기순</option>
             <option value="latest">최신순</option>
@@ -73,6 +74,7 @@
         <div th:each="card : ${cards}" 
              class="card">
 			<h3 th:text="${card.title}">제목</h3>
+			
 			<img th:src="${card.url} ?: @{/images/default-thumbnail.png}" alt="썸네일 이미지" />
         </div>
     </div>
