@@ -5,11 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -31,7 +30,7 @@ public class MemberEntity {
     @Column(name = "member_id")
     private Integer id;
 
-    @Column(name = "user_id", nullable = false, unique = true, length = 20)
+    @Column(name = "user_id", nullable = false, unique = true, length = 50)
     private String userId;
 
     @Column(nullable = false, length = 100)
@@ -40,17 +39,6 @@ public class MemberEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
-    private LocalDate birth;
-
-    @Column(length = 10)
-    private String gender;
-
-    @Column(nullable = false, unique = true, length = 50)
-    private String email;
-
-    @Column(unique = true, length = 20)
-    private String phone;
-
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
 
@@ -58,7 +46,7 @@ public class MemberEntity {
     @Column(name = "join_date", updatable = false)
     private LocalDateTime joinDate;
 
-    @UpdateTimestamp // 엔티티가 업데이트될 때마다 자동으로 현재 시간이 기록됩니다.
+    @LastModifiedDate // 엔티티가 업데이트될 때마다 자동으로 현재 시간이 기록됩니다.
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
@@ -66,6 +54,7 @@ public class MemberEntity {
     private LocalDateTime lastLoginDate;
 
     @Enumerated(EnumType.STRING) // Enum의 이름을 문자열로 DB에 저장합니다.
-    @Column(nullable = false, columnDefinition = "enum ('USER', 'ADMIN') default 'USER'")
-    private Role role; // 기본값을 USER로 설정
+    @Column(nullable = false)
+    @Builder.Default
+    private Role role = Role.USER; // 기본값을 USER로 설정
 }
