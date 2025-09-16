@@ -68,7 +68,6 @@ public class StudyRestController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "12") int size,
             @RequestParam(name = "sort", defaultValue = "popular") String sort) {
-        // 인증 여부와 관계없이 작동하도록 구현
         return cardService.searchCardsByTags(tags, page, size, sort);
     }
 

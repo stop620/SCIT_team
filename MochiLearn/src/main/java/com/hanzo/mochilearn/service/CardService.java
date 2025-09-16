@@ -258,18 +258,19 @@ public class CardService {
             if (tags == null || tags.isEmpty()) {
                 return cb.conjunction();
             }
-            Predicate predicate = cb.disjunction();
+            List<Predicate> predicates = new ArrayList<>();
             for (String tag : tags) {
-                predicate = cb.or(predicate,
-                        cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
+                predicates.add(cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
             }
-            return predicate;
+            // 모든 태그가 포함되어야 하므로 AND 조건으로 변경
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<CardEntity> cardPage = cardRepository.findAll(spec, pageable);
 
         return cardPage.map(this::toDTO);
     }
+
     //삭제로직
     public boolean deleteCardById(Integer cardId) {
         int rowsDeleted = cardRepository.deleteCardByIdCustom(cardId);
