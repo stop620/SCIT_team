@@ -36,7 +36,7 @@ public class MemberController {
             log.debug("가입성공!");
             return "redirect:/";
         } catch (Exception e) {
-            log.debug("가입실패..");
+            log.debug("가입실패.. {}", e.getMessage());
             return "member/joinForm";
         }
 

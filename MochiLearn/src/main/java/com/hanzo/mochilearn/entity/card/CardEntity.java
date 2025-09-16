@@ -62,6 +62,7 @@ public class CardEntity {
     @ToString.Exclude
     @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SectionEntity> sections = new ArrayList<>();
+    
 
     //== 연관관계 편의 메소드 ==//
     public void addSection(SectionEntity section) {

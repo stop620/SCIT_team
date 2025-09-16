@@ -1,11 +1,10 @@
 package com.hanzo.mochilearn.controller;
 
-import com.hanzo.mochilearn.dto.word.BookDTO;
-import com.hanzo.mochilearn.dto.word.WordDTO;
-import com.hanzo.mochilearn.service.BookService;
-import com.hanzo.mochilearn.service.CardService;
-import com.hanzo.mochilearn.service.WordService;
-import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import com.hanzo.mochilearn.dto.word.BookDTO;
+import com.hanzo.mochilearn.dto.word.WordDTO;
+import com.hanzo.mochilearn.entity.card.CardEntity;
+import com.hanzo.mochilearn.security.AuthenticatedUser;
+import com.hanzo.mochilearn.service.BookService;
+import com.hanzo.mochilearn.service.CardService;
+import com.hanzo.mochilearn.service.WordService;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("page")
@@ -31,8 +39,32 @@ public class PageController {
 
     @GetMapping("studyCard")
     public String studyCard(@RequestParam("cardId") Integer cardId, Model model) {
-        model.addAttribute("cardId", cardId);
+        CardEntity card = cardService.getCardById(cardId);
+        Integer loggedInMemberId = getLoggedInMemberId();
+
+        Integer cardMemberId = card.getMemberId() != null ? card.getMemberId(): null;
+        boolean canEdit = loggedInMemberId != null && loggedInMemberId.equals(cardMemberId);
+
+        // debug 로그 출력
+        log.debug("LoggedInMemberId: {}", loggedInMemberId);
+        log.debug("Card MemberId: {}", cardMemberId);
+        log.debug("canEdit: {}", canEdit);
+
+        model.addAttribute("card", card);
+        model.addAttribute("canEdit", canEdit);
+
         return "page/studyCard";
+    }
+
+    private Integer getLoggedInMemberId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            Object principal = auth.getPrincipal();
+            if (principal instanceof AuthenticatedUser) {
+                return ((AuthenticatedUser) principal).getMemberId();
+            }
+        }
+        return null;
     }
 
     @GetMapping("quiz")

@@ -331,4 +331,9 @@ public class CardService {
         return cardEntities.stream()
                 .map(this::toDTO).collect(Collectors.toList());
     }
+
+    public CardEntity getCardById(Integer cardId) {
+        return cardRepository.findById(cardId)
+                .orElse(null);  // ID에 해당하는 카드가 없으면 null 반환
+    }
 }

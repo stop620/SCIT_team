@@ -116,6 +116,7 @@ public class StudyRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "저장 오류"));
         }
     }
+    //카드 삭제 api
     @DeleteMapping("/api/study/card/{cardId}")
     public String deleteCard(@PathVariable("cardId") Integer cardId) {
         boolean deleted = cardService.deleteCardById(cardId);

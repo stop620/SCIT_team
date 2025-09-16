@@ -34,10 +34,7 @@ $(document).ready(function() {
             return $(this).data('value');
         }).get();
 
-        if (selectedTags.length === 0) {
-            alert('태그를 하나 이상 선택하세요.');
-            return;
-        }
+        
 
         currentTagFilterTags = selectedTags;
         isTagFilterActive = true;

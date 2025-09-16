@@ -20,39 +20,43 @@ body {
 
 /* 검색 영역 */
 #searchContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    max-width: 77%;
-    max-height: 600px;         /* 최대 높이 지정 */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.5rem; /* 간격 축소 */
+    max-width: 1200px;
     margin: 2.5rem auto 2rem auto;
     background-color: white;
-    padding: 1rem 10px;        /* 패딩 축소 */
+    padding: 1rem 15px;
     border-radius: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     box-sizing: border-box;
 }
 
-/* 검색 바 래퍼 */
+/* searchContainer의 자식 요소들이 전체 너비를 차지하도록 설정 */
+.search-bar, #addCard, .filter-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 .search-bar {
     position: relative;
-    width: 100%;
     max-width: 500px;
-    margin-bottom: 0;
+    margin: 0 auto;
 }
 
 #searchInput {
     width: 100%;
-    padding: 0.5rem 2.5rem 0.5rem 1rem; /* 패딩 축소 */
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
     border: 1px solid #ddd;
     border-radius: 9999px;
     outline: none;
     font-size: 1rem;
     box-sizing: border-box;
     transition: border-color 0.3s ease;
-    display: block;
-    height: 36px; /* 높이 지정 */
+    height: 36px;
 }
 
 #searchBtn {
@@ -76,7 +80,7 @@ body {
 
 /* 학습카드 추가 영역 */
 #addCard {
-    margin: 0 auto 10px auto;
+    margin: 0 auto; /* 하단 마진 제거 */
 }
 
 #addCard a {
@@ -106,11 +110,12 @@ body {
 /* 필터-정렬 컨테이너 */
 .filter-row {
     width: 100%;
-    /* max-width: 500px; 삭제 */
-    margin: 0 auto 8px auto;
+    margin: 0 auto; /* 하단 마진 제거 */
     padding: 5px 0;
     justify-content: space-between;
     gap: 0;
+    max-width: 1200px; /*searchContainer와 동일하게 너비 설정*/
+    box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정*/
 }
 
 #tagBtn, #sortBox {
@@ -265,11 +270,18 @@ body {
 /* 카드 그리드 */
 #cardGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
-    margin: 0 auto;
     max-width: 1200px;
+    margin: 0 auto;
+    margin-top:0.5em;
     padding: 0 15px;
+}
+
+/* 단일 카드가 있을 때 가운데 정렬 */
+#cardGrid:has(.card:first-child:last-child) {
+    display: flex;
+    justify-content: center;
 }
 
 .card {
@@ -307,7 +319,7 @@ body {
 }
 .play-icon {
     position: absolute;
-    top: 50%; 
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 40px;
@@ -339,7 +351,6 @@ body {
     font-size: 1rem;
     margin-bottom: 0.5rem;
 }
-
 
 /* 위로가기 버튼 */
 #scrollTopBtn {

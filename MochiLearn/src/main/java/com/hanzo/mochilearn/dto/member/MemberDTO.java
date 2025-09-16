@@ -14,17 +14,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberDTO {
+
     private Integer id;
+
     private String userId;
     private String password;
     private String name;
-    private LocalDate birth;
-    private String gender;
-    private String email;
-    private String phone;
     private String nickname;
+
     private LocalDateTime joinDate;
     private LocalDateTime updateDate;
     private LocalDateTime lastLoginDate;
-    private Role role;
+
+    private Role role = Role.USER;
 }
