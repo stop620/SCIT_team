@@ -3,11 +3,13 @@ package com.hanzo.mochilearn.controller;
 import com.hanzo.mochilearn.dto.*;
 import com.hanzo.mochilearn.dto.quiz.QuizResponseDTO;
 import com.hanzo.mochilearn.dto.quiz.QuizResultDTO;
+import com.hanzo.mochilearn.security.AuthenticatedUser;
 import com.hanzo.mochilearn.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,14 +32,15 @@ public class QuizRestController {
     }
 
     @PostMapping("/api/quiz/saveResult")
-    public ResponseEntity<ApiResponse<Integer>> saveQuiz(@RequestBody List<QuizResultDTO> quizResultDtoList){
+    public ResponseEntity<ApiResponse<Integer>> saveQuiz(@RequestBody List<QuizResultDTO> quizResultDtoList,
+                                                         @AuthenticationPrincipal AuthenticatedUser authenticatedUser){
 
         log.debug("[quiz controller] saveQuizResult: {}", quizResultDtoList);
 
         try {
             // quizResult 엔티티 생성 및 저장
             // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
-            Integer memberId = quizService.saveResult(quizResultDtoList, 1);
+            Integer memberId = quizService.saveResult(quizResultDtoList, authenticatedUser.getMemberId());
 
             return ResponseEntity.ok(ApiResponse.success("퀴즈 결과 저장 성공!", memberId));
 

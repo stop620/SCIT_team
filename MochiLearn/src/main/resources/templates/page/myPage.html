@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <!--<link rel="stylesheet" th:href="@{/css/main.css}">-->
 <link rel="stylesheet" th:href="@{/css/myPage.css}">
 <link rel="stylesheet" th:href="@{/css/common.css}">
@@ -31,6 +31,7 @@
     <title>mypage</title>
 
     <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/myPage-card.css}">
 
 </head>
 <body>
@@ -121,7 +122,7 @@
 
                 <div class="board">
                     <h2>내 게시물</h2>
-                        <table>
+                        <!--<table>
                             <tr>
                                 <th>일시</th>
                                 <th>게시글 명</th>
@@ -142,12 +143,15 @@
                                 <td>3번 게시글</td>
                                 <td>9</td>
                             </tr>
-                        </table>
+                        </table>-->
+                        <div id="myCardGrid" class="card-list">
+                            <!-- 내 카드 공간 -->
+                        </div>
                 </div>
 
                 <div class="board">
                     <h2>즐겨찾기</h2>
-                        <table>
+                        <!--<table>
                             <tr>
                                 <th>일시</th>
                                 <th>게시글 명</th>
@@ -168,7 +172,10 @@
                                 <td>3번 게시글</td>
                                 <td>9</td>
                             </tr>
-                    </table>
+                    </table>-->
+                    <div id="likeCardGrid" class="card-list">
+                        <!-- 좋아요 카드 공간 -->
+                    </div>
                 </div>
             </div>
         </div>

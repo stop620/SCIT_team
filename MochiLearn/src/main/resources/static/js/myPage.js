@@ -1,9 +1,32 @@
+
+
 document.addEventListener('DOMContentLoaded',()=>{
     // // 그래프 캔버스 선언 및 가져오기
     // var studyStats = document.getElementById('study-stats');
     var studyTracker = document.getElementById('study-tracker');
     var gradeTrend = document.getElementById('grade-trend');
     var etc = document.getElementById('etc');
+
+
+    fetch('/mochilearn/api/user/session', {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            
+            if(data.loggedIn) {
+                sessionStorage.setItem("member", JSON.stringify(data.member));
+                console.log(data.member);
+            } else {
+                console.log('로그인 안됨')
+            }
+            const member = sessionStorage.getItem("member");
+            const id = JSON.parse(member).id;
+
+            fetchMemberWriteCards(id);
+            fetchMemberLikeCards(id);
+            fetchMemberQuizLogs(id);
+        });
 
 
 
@@ -346,3 +369,134 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     });
 });
+
+function fetchMemberWriteCards(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/mycard?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            renderCards(data, 0);
+        });
+}
+
+function fetchMemberLikeCards(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/likecard?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            renderCards(data, 1);
+        });
+}
+
+function fetchMemberQuizLogs(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/quizlogs?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            //renderCards(data, 2);
+        });
+}
+
+function renderCards(cardData, flag) {
+    // flag >> 0: 멤버의 카드, 1: 즐겨찾기 카드
+    const myCardGrid = document.getElementById('myCardGrid');
+    const likeCardGrid = document.getElementById('likeCardGrid');
+
+    console.log('render card: ' + flag);
+
+    cardData.forEach(card => {
+
+        console.log(card.tag);
+        const thumbUrl = getYoutubeThumbnail(card.url);
+        let difficulty;
+        let levelKor;
+        let tagList = card.tag.split(',');
+        switch (card.level) {
+            case '1':
+                difficulty = 'beginner';
+                levelKor = '초급';
+                break;
+            case '2':
+                difficulty = 'intermediate';
+                levelKor = '중급';
+                break;
+            case '3':
+                difficulty = 'advanced';
+                levelKor = '고급';
+                break;
+            default:
+                break;
+        }
+
+        let cardHtml = `
+                    <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
+                        <div class="card-thumbnail">
+                            <!-- 썸네일 공간 -->
+                            <img class="thumbnail-image" src="${thumbUrl}" alt="썸네일 이미지" />
+                            <div class="play-icon">▶</div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">${card.title}</h3>
+                            <div class="video-meta">
+                                <span class="difficulty-tag ${difficulty}">${levelKor}</span>
+                                <div class="video-stats">
+                                    <span class="star">⭐</span> ${card.like}
+                                </div>
+                            </div>
+                            <div class="tag-container">
+                            `;
+
+        tagList.forEach(tag => {
+            cardHtml += `<span class="genre-tag-item">${tag}</span>`;
+        });
+        cardHtml += `</div>
+                        </div>
+                    </div>`;
+
+        if(flag == 0) {
+            myCardGrid.innerHTML += cardHtml;
+
+        } else {
+            likeCardGrid.innerHTML += cardHtml;
+
+        }
+    })
+}
+
+function getYoutubeThumbnail(youtubeUrl) {
+    let videoId = '';
+    if (!youtubeUrl) {
+        return '/images/default-thumbnail.png';
+    }
+
+    // 쇼츠 URL (youtube.com/shorts/) 처리
+    if (youtubeUrl.includes('youtube.com/shorts/')) {
+        videoId = youtubeUrl.split('youtube.com/shorts/')[1].split(/[?&]/)[0];
+    }
+    // 짧은 URL (youtu.be/) 처리
+    else if (youtubeUrl.includes('youtu.be/')) {
+        videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
+    }
+    // 일반 URL (v=) 처리
+    else if (youtubeUrl.includes('v=')) {
+        videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
+    }
+
+    if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+
+    return '/images/default-thumbnail.png';
+}
