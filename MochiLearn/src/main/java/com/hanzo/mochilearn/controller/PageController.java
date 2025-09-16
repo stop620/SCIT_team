@@ -45,11 +45,6 @@ public class PageController {
         Integer cardMemberId = card.getMemberId() != null ? card.getMemberId(): null;
         boolean canEdit = loggedInMemberId != null && loggedInMemberId.equals(cardMemberId);
 
-        // debug 로그 출력
-        log.debug("LoggedInMemberId: {}", loggedInMemberId);
-        log.debug("Card MemberId: {}", cardMemberId);
-        log.debug("canEdit: {}", canEdit);
-
         model.addAttribute("card", card);
         model.addAttribute("canEdit", canEdit);
 

@@ -270,12 +270,10 @@ public class CardService {
 
         return cardPage.map(this::toDTO);
     }
+    //삭제로직
     public boolean deleteCardById(Integer cardId) {
-        if (cardRepository.existsById(cardId)) {
-            cardRepository.deleteById(cardId);
-            return true;
-        }
-        return false;
+        int rowsDeleted = cardRepository.deleteCardByIdCustom(cardId);
+        return rowsDeleted > 0;
     }
 
     public boolean toggleLike(Integer memberId, Integer cardId, Boolean like) {
