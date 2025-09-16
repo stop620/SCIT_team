@@ -34,10 +34,7 @@ $(document).ready(function() {
             return $(this).data('value');
         }).get();
 
-        if (selectedTags.length === 0) {
-            alert('태그를 하나 이상 선택하세요.');
-            return;
-        }
+        
 
         currentTagFilterTags = selectedTags;
         isTagFilterActive = true;
@@ -68,8 +65,13 @@ $(document).ready(function() {
 
             const cardHtml = `
                 <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
-                    <img src="${thumbUrl}" alt="썸네일 이미지" />
-                    <h3>${card.title}</h3>
+					<div class="video-thumbnail">
+		                    <img src="${thumbUrl}" alt="썸네일 이미지" />
+							<div class="play-icon">▶</div>
+					</div>
+					<div class="video-info">
+                    <h3 class="video-title">${card.title}</h3>
+					
                     <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 1rem;">
                         <span class="difficulty-tag ${difficultyClass}">${levelKor}</span>
                         <div style="color: #FFBB46; font-weight: 600;">⭐ ${card.like || 0}</div>
@@ -77,7 +79,8 @@ $(document).ready(function() {
                     <div class="tag-container" style="padding:0 1rem 1rem 1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
                         ${tagHtml}
                     </div>
-                </div>`;
+                </div>
+			</div>`;
 
             $('#cardGrid').append(cardHtml);
         });

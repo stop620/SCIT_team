@@ -81,8 +81,10 @@
 
             <!-- 삭제/수정 임시 위치 -->
             <div class="card">
-                <button id="delete-button" class="delete-button">삭제하기</button>
-                <button id="edit-button" class="edit-button">수정하기</button>
+                <div th:if="${canEdit}">
+			        <button id="delete-button" class="delete-button">삭제하기</button>
+			        <button id="edit-button" class="edit-button">수정하기</button>
+			    </div>
             </div>
         </div>
 

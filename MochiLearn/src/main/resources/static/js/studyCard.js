@@ -112,20 +112,25 @@ $(document).ready(function() {
                 });
         });
 
-        $('#delete-button').click(function() {
-            if (!confirm("카드를 삭제하시겠습니까?")) return;
-            $.ajax({
-                url: `/mochilearn/api/study/card/${cardId}`,
-                type: 'DELETE',
-                success: function() {
-                    alert("카드가 삭제되었습니다.");
-                    window.location.href = "/mochilearn/page/study";
-                },
-                error: function() {
-                    alert("카드 삭제에 실패했습니다.");
-                }
-            });
-        });
+		$('#delete-button').click(function() {
+		    if (!confirm("카드를 삭제하시겠습니까?")) return;
+
+		    alert("카드가 삭제되었습니다.");  // 먼저 메시지 표시
+
+		    // 페이지 이동 먼저 수행
+		    window.location.href = "/mochilearn/page/study";
+
+		    // 백그라운드에서 삭제 요청 (페이지 이동과 거의 동시에 실행됨)
+		    $.ajax({
+		        url: `/mochilearn/api/study/card/${cardId}`,
+		        type: 'DELETE',
+		        error: function() {
+		            // 이동 후에는 사용자가 이 메시지를 보지 못할 수 있음
+		            console.error("카드 삭제 처리 중 오류가 발생했습니다.");
+		        }
+		    });
+		});
+
 
         $('#prev-btn').click(() => changeTranscriptIndex(-1));
         $('#next-btn').click(() => changeTranscriptIndex(1));
@@ -133,7 +138,6 @@ $(document).ready(function() {
         // 단어선택, 말하기 기능 초기화 함수
         initializeWordSelectionEventListeners();
         initializeSpeechPracticeListeners();
-
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }

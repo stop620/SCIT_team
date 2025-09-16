@@ -258,24 +258,23 @@ public class CardService {
             if (tags == null || tags.isEmpty()) {
                 return cb.conjunction();
             }
-            Predicate predicate = cb.disjunction();
+            List<Predicate> predicates = new ArrayList<>();
             for (String tag : tags) {
-                predicate = cb.or(predicate,
-                        cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
+                predicates.add(cb.like(cb.lower(root.get("tag")), "%" + tag.toLowerCase() + "%"));
             }
-            return predicate;
+            // 모든 태그가 포함되어야 하므로 AND 조건으로 변경
+            return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<CardEntity> cardPage = cardRepository.findAll(spec, pageable);
 
         return cardPage.map(this::toDTO);
     }
+
+    //삭제로직
     public boolean deleteCardById(Integer cardId) {
-        if (cardRepository.existsById(cardId)) {
-            cardRepository.deleteById(cardId);
-            return true;
-        }
-        return false;
+        int rowsDeleted = cardRepository.deleteCardByIdCustom(cardId);
+        return rowsDeleted > 0;
     }
 
     public boolean toggleLike(Integer memberId, Integer cardId, Boolean like) {
@@ -330,5 +329,10 @@ public class CardService {
 
         return cardEntities.stream()
                 .map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public CardEntity getCardById(Integer cardId) {
+        return cardRepository.findById(cardId)
+                .orElse(null);  // ID에 해당하는 카드가 없으면 null 반환
     }
 }

@@ -6,8 +6,7 @@
 	<link rel="stylesheet" th:href="@{/css/common.css}">
 	<link rel="stylesheet" th:href="@{/css/studyPage.css}">
 	
-    <!--<link rel="stylesheet" th:href="@{/css/main.css}" />-->
-	<script th:inline="javascript">
+    <script th:inline="javascript">
 		/*<![CDATA[*/
 		//에러 무시해도 됩니다.
 		var wordPageUrl = [[@{/page/word}]];
@@ -40,39 +39,39 @@
 			<button id="addCardBtn">학습카드 추가하기</button>
 		</a>
 	</div>
+</div>
+    <div class="filter-row">
+        <button type="button" id="tagBtn">태그버튼</button>
+        <div id="tagModal">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <h3>태그선택</h3>
+                    <div id="tagList">
+                        <div class="tagSelect" data-value="드라마">드라마</div>
+                        <div class="tagSelect" data-value="애니">애니메이션</div>
+                        <div class="tagSelect" data-value="영화">영화</div>
+                        <div class="tagSelect" data-value="일상회화">일상회화</div>
+                        <div class="tagSelect" data-value="비즈니스">비즈니스</div>
+                        <div class="tagSelect" data-value="로맨스">로맨스</div>
+                        <div class="tagSelect" data-value="코믹">코믹</div>
+                    </div>
+                    <button id="applyTagFilter">필터적용</button>
+                </div>
+            </div>
 
-<div class="filter-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-    <button type="button" id="tagBtn">태그버튼</button>
-	<!-- 모달 -->
-	    <div id="tagModal">
-	        <div class="modal-content">
-	            <span class="close-btn">&times;</span>
-	            <h3>태그선택</h3>
-	            <div id="tagList">
-	                <div class="tagSelect" data-value="드라마">드라마</div>
-	                <div class="tagSelect" data-value="애니">애니메이션</div>
-	                <div class="tagSelect" data-value="영화">영화</div>
-	                <div class="tagSelect" data-value="일상회화">일상회화</div>
-	                <div class="tagSelect" data-value="비즈니스">비즈니스</div>
-	            </div>
-	            <button id="applyTagFilter">필터적용</button>
-	        </div>
-	    </div>
-
-    <!-- 오른쪽: 정렬 기준 -->
-    <div style="display: flex; align-items: center;">
-        <label for="sortBox" style="margin-right: 8px; font-weight: bold;">정렬 기준:</label>
-        <select id="sortBox" name="sortBox">
-            <option value="popular">인기순</option>
-            <option value="latest">최신순</option>
-        </select>
+        <div style="display: flex; align-items: center;">
+            <select id="sortBox" name="sortBox">
+                <option value="popular">인기순</option>
+                <option value="latest">최신순</option>
+            </select>
+        </div>
     </div>
-</div>
-</div>
+
     <div id="cardGrid" th:fragment="cards">
         <div th:each="card : ${cards}" 
              class="card">
 			<h3 th:text="${card.title}">제목</h3>
+			
 			<img th:src="${card.url} ?: @{/images/default-thumbnail.png}" alt="썸네일 이미지" />
         </div>
     </div>
