@@ -242,8 +242,8 @@ public class TranscribeService {
             // 퀴즈용 토큰 묶기
             List<String> chunks = createChunks(tokens);
 
-            ObjectMapper mapper = new ObjectMapper();
-            quiz.setJapanese(mapper.writeValueAsString(chunks));
+
+            quiz.setJapanese(String.join(",", chunks));
 
 
         }

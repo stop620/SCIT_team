@@ -405,7 +405,7 @@ function fetchMemberQuizLogs(id) {
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            //renderCards(data, 2);
+            renderQuizLogs(data);
         });
 }
 
@@ -500,3 +500,192 @@ function getYoutubeThumbnail(youtubeUrl) {
 
     return '/images/default-thumbnail.png';
 }
+
+function renderQuizLogs(data) {
+    console.log('퀴즈 응시 로그 출력');
+    const quizLogs = data;
+    const container = document.querySelector('.quiz-logs-container');
+    container.innerHTML = '';
+
+    quizLogs.forEach(log => {
+        const attemptItem = document.createElement('div');
+        attemptItem.className = 'quiz-attempt-item';
+
+        const quizSummary = document.createElement('div');
+        quizSummary.className = 'quiz-summary';
+
+        const formattedDate = new Date(log.attemptDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const levelName = getLevelName(log.level);
+
+        quizSummary.innerHTML = `
+                    <div>
+                        <span>${formattedDate}</span>
+                    </div>
+                    <div>
+                        <span>레벨: ${levelName}</span>
+                    </div>
+                    <div>
+                        <span>점수: ${log.score} / 5</span>
+                        <span class="quiz-details-toggle">▼</span>
+                    </div>
+                `;
+
+        const quizDetailContent = document.createElement('div');
+        quizDetailContent.className = 'quiz-detail-content';
+
+        const quizzes = JSON.parse(log.quizData);
+        const userAnswer = log.userAnswers;
+
+        quizzes.forEach((quiz, index) => {
+            let quizArea = document.createElement('div');
+            quizArea.className = 'quiz-area';
+            quizArea.innerHTML = `<div class="question-num">문제 ${index+1}</div>`;
+            //console.log(quizArea);
+            //console.log(quiz);
+            restoreQuizLogs(quiz, userAnswer[index], quizArea);
+            quizDetailContent.appendChild(quizArea);
+        });
+
+        //quizDetailContent.innerHTML = log.quizData;
+
+        attemptItem.appendChild(quizSummary);
+        attemptItem.appendChild(quizDetailContent);
+
+        attemptItem.addEventListener('click', () => {
+            quizDetailContent.classList.toggle('active');
+            quizSummary.querySelector('.quiz-details-toggle').classList.toggle('open');
+        })
+
+        container.appendChild(attemptItem);
+    });
+
+}
+
+function getLevelName(level) {
+    switch(level) {
+        case 1: return '초급';
+        case 2: return '중급';
+        case 3: return '고급';
+        default: return '알 수 없음';
+    }
+}
+
+
+function restoreQuizLogs(quiz, userAnswer, quizArea) {
+    console.log(quiz);
+    //console.log(quizArea);
+    let answerArea = document.createElement('div');
+    answerArea.className = 'answer-area';
+    const answer = quiz.shuffleAnswer || quiz.blankAnswer || quiz.choiceAnswer;
+    switch (quiz.quizType) {
+        case 'SHUFFLE':
+        case 'BLANK':
+            renderDragDropQuiz(quiz.quizType, quiz, quizArea);
+            break;
+        case 'CHOICE':
+            renderMultipleChoiceQuiz(quiz, quizArea);
+            break;
+    }
+    restoreAnswer(answer, quiz.korean, userAnswer, answerArea);
+    quizArea.appendChild(answerArea);
+}
+
+const renderDragDropQuiz = (type, quiz, quizArea) => {
+    let blankCounter = 0;
+    let answerHTML = '';
+    let choices = [];
+    let answerAreaContainerClass = 'blank-area';
+
+    if (type === 'SHUFFLE') {
+        answerHTML = quiz.shuffleAnswer.map(() =>
+            `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+        ).join('');
+        choices = quiz.shuffledSentence;
+        userAnswer = Array(quiz.shuffleAnswer.length).fill(null);
+    } else { // BLANK
+        answerAreaContainerClass = 'blank-sentence';
+        answerHTML = quiz.blankSentence.map(part =>
+            part === '______'
+                ? `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+                : `<span class="blank-word">${part}</span>`
+        ).join('');
+        choices = quiz.blankChoices;
+        userAnswer = Array(quiz.blankAnswer.length).fill(null);
+    }
+
+    quizArea.innerHTML += `
+            <div class="${answerAreaContainerClass}">${answerHTML}</div>
+            <div class="quizBlankWordPool"></div>
+        `;
+
+    const wordPool = quizArea.querySelector('.quizBlankWordPool');
+    choices.forEach((word, index) => {
+        const item = document.createElement('div');
+        item.className = 'wordPoolItem';
+        item.textContent = word;
+        item.dataset.originalIndex = index; // 원래 순서를 저장
+        wordPool.appendChild(item);
+    });
+};
+
+const renderMultipleChoiceQuiz = (quiz, quizArea) => {
+    console.log(quizArea);
+
+    const choiceSentences = document.createElement('div');
+    choiceSentences.className = 'choice-sentences';
+    choiceSentences.id = 'choiceSentences';
+
+    console.log(choiceSentences);
+    quiz.choiceSentences.forEach(sentence => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = sentence;
+        btn.onclick = () => selectMultipleChoice(btn);
+        choiceSentences.appendChild(btn);
+        quizArea.appendChild(choiceSentences);
+    });
+};
+
+/*
+function restoreAnswer(answer, korean, userAnswer, answerArea) {
+    console.log(typeof answer);
+    let finalAnswer;
+    let finalUserAnswer;
+    if(typeof answer != "string") {
+        finalAnswer = answer.join(" \t ");
+        const tempArr = userAnswer.answer.split(",");
+        finalUserAnswer = (tempArr).join(" \t ");
+        console.log(finalAnswer);
+    }
+    answerArea.innerHTML = `
+        <p class="korean">${korean}</p>
+        <p class="correct-answer">정답: ${finalAnswer}</p>
+        <p class="user-answer">내 답안: ${finalUserAnswer}</p>
+        `;
+
+}*/
+function restoreAnswer(answer, korean, userAnswer, answerArea) {
+    console.log(typeof answer);
+    let finalAnswer = "";
+    let finalUserAnswer = "";
+
+    if (Array.isArray(answer)) {
+        // 정답 배열 → 각 요소를 <div>로 감쌈
+        finalAnswer = answer.map(item => `<span class="answer-word-item">${item}</span>`).join("");
+
+        // 유저 답안도 배열처럼 처리
+        const tempArr = userAnswer.answer.split(",");
+        finalUserAnswer = tempArr.map(item => `<span class="answer-word-item">${item.trim()}</span>`).join("");
+    } else if (typeof answer === "string") {
+        // 문자열일 경우 그대로 출력
+        finalAnswer = answer;
+        finalUserAnswer = userAnswer.answer;
+    }
+
+    answerArea.innerHTML = `
+        <p class="korean">${korean}</p>
+        <p class="correct-answer">정답: ${finalAnswer}</p>
+        <p class="user-answer">내 답안: ${finalUserAnswer}</p>
+    `;
+}
+

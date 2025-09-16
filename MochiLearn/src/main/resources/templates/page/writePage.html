@@ -12,23 +12,8 @@
     <!-- YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script th:src="@{/js/writePage.js}"></script>
-    <script th:inline="javascript">
-        <!-- 단어장 여는 스크립트 -->
-        /*<![CDATA[*/
-        //에러 무시해도 됩니다.
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-    </script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
+    
 </head>
 
 <body>

@@ -249,7 +249,7 @@ public class QuizService {
                         .attempt(savedAttemptEntity)
                         .quizId(quizResultDTO.getQuizId())
                         .questionNo(index)
-                        .userAnswer(quizResultDTO.getUserAnswer().toString())
+                        .userAnswer(String.join(",", quizResultDTO.getUserAnswer()))
                         .isCorrect(quizResultDTO.isCorrect())
                         .build();
 

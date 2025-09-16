@@ -5,26 +5,11 @@
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-        //에러 무시해도 됩니다. 
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-</script>
 <!-- chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script th:src="@{/js/myPage.js}"></script>
+<script th:src="@{/js/wordbook-popup.js}"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -93,7 +78,7 @@
 
                 </div>
                 <div class="board">
-                    <h2>성적 조회</h2>
+                    <h2>퀴즈 기록</h2>
                         <table>
                             <tr>
                                 <th>일시</th>
@@ -118,6 +103,9 @@
                                 <td>8/10</td>
                             </tr>
                         </table>
+                    <div id="quizContainer" class="quiz-logs-container">
+                        <!-- 응시한 퀴즈 결과 공간 -->
+                    </div>
                 </div>
 
                 <div class="board">

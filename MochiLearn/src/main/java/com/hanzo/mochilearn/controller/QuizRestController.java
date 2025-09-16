@@ -38,8 +38,6 @@ public class QuizRestController {
         log.debug("[quiz controller] saveQuizResult: {}", quizResultDtoList);
 
         try {
-            // quizResult 엔티티 생성 및 저장
-            // TODO: 유저정보 생기면 로직 추가해야됨 지금은 1로 임의 저장
             Integer memberId = quizService.saveResult(quizResultDtoList, authenticatedUser.getMemberId());
 
             return ResponseEntity.ok(ApiResponse.success("퀴즈 결과 저장 성공!", memberId));

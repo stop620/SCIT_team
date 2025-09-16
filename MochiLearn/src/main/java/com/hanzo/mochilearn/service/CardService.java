@@ -69,9 +69,6 @@ public class CardService {
             case "고급": cardEntity.setLevel(3); break;
         }
 
-        // TODO: 로그인 완성 시 member_id는 현재 로그인한 사용자 정보에서 가져와야 합니다
-        // card.setMemberId( ... );
-
         log.debug("cardEntity: {}", cardEntity);
 
         CardEntity savedCard = cardRepository.save(cardEntity);

@@ -15,23 +15,8 @@
     <script th:src="@{/js/word-selection.js}"></script>
     <script th:src="@{/js/speech-practice.js}"></script>
     <script th:src="@{/js/studyCard.js}"></script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        //에러 무시해도 됩니다.
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-    </script>
 </head>
 <body>
 <div th:replace="~{navigation::navigation}"></div>
