@@ -133,6 +133,7 @@ $(document).ready(function() {
         // 단어선택, 말하기 기능 초기화 함수
         initializeWordSelectionEventListeners();
         initializeSpeechPracticeListeners();
+
     } else {
         console.warn("⚠️ URL에 cardId 파라미터가 존재하지 않음");
     }
