@@ -4,18 +4,6 @@
 <link rel="stylesheet" th:href="@{/css/wordBook.css}">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
-<!-- 나눔바른고딕 
-    font-family: 'NanumBarunGothicUltraLight';
-    font-family: 'NanumBarunGothicLight';
-    font-family: 'NanumBarunGothic';
-    font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
-
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <script th:inline="javascript">
 function wordPopup(){
 	window.open([[@{/page/word}]], "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
@@ -29,11 +17,19 @@ function wordPopup(){
     <title>word</title>
 </head>
 <body>
+    <div class="main-header">
+        <nav>
+            <div>
+                <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+            </div>
+            <span>단어장</span>
+            <div style="visibility: hidden;">
+                <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+            </div>
+        </nav>
+    </div>
 
     <div class="container">
-        <div class="wrapper">
-            <h1 style="text-align: center;">단어장</h1>
-        </div>
         <div class="wordContainer">
             <!--<div class="wordList">
                 <div class="wordCard">

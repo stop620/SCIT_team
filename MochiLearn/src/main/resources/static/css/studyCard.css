@@ -17,6 +17,24 @@ main {
     justify-content: space-between;
 }
 
+.like-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap : 10px;
+}
+
+.like-button{
+    font-size:40px;
+    border: none;
+    background-color: transparent;
+}
+
+#cardLike{
+    padding-top: 8px;
+    font-size: 18px;
+}
+
 @media (min-width: 1024px) {
     .main-grid {
         grid-template-columns: 2fr 1fr; /* 2:1 비율로 더 명확하게 구분 */

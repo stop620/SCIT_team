@@ -16,11 +16,23 @@
             <!-- <div class="cta-btn">
                 <a href="#">←</a>
             </div> -->
-            <div th:data-bookId="${book.id}">
-                <input class="delete-book-btn" type="button" value="x">
+
+            <div class="main-header">
+                <nav>
+                    <div class="logo">
+                        <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+                    </div>
+                    <span th:text="${book.title}"></span>
+                    <!-- <div style="visibility: hidden;">
+                        <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+                    </div> -->
+
+                    <div class="delete-book-btn" th:data-bookId="${book.id}">
+                        <input type="button" value="단어장 삭제">
+                    </div>
+                </nav>
             </div>
-            <h1 th:text="${book.title}"></h1>
-            <h4 th:text="${book.contents}"></h4>
+            <!-- <h4 th:text="${book.contents}"></h4> -->
             <!-- <div class="cta-btn">
                 <a href="#">↪</a>
             </div> -->

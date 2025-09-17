@@ -52,7 +52,7 @@ $(document).ready(function() {
 
     function updateLikeButton() {
         $('#cardLike').text(card.like);
-        $('#like-button').css('color', liked ? 'red' : 'black');
+        $('#like-button').css('color', liked ? '#f1c232' : 'black');
     }
 
     if (cardId) {

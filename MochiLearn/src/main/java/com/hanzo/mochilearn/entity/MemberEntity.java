@@ -40,16 +40,16 @@ public class MemberEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
-    private LocalDate birth;
+    // private LocalDate birth;
 
-    @Column(length = 10)
-    private String gender;
+    // @Column(length = 10)
+    // private String gender;
 
-    @Column(nullable = false, unique = true, length = 50)
-    private String email;
+    // @Column(nullable = false, unique = true, length = 50)
+    // private String email;
 
-    @Column(unique = true, length = 20)
-    private String phone;
+    // @Column(unique = true, length = 20)
+    // private String phone;
 
     @Column(nullable = false, unique = true, length = 20)
     private String nickname;
