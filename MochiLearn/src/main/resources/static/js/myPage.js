@@ -1,11 +1,17 @@
-
+let gradeChart;
+let levelChart;
+let gradeData = {
+    labels: [],
+    scores: []
+};
+let levelData = [0, 0, 0];
 
 document.addEventListener('DOMContentLoaded',()=>{
     // // 그래프 캔버스 선언 및 가져오기
     // var studyStats = document.getElementById('study-stats');
-    var studyTracker = document.getElementById('study-tracker');
-    var gradeTrend = document.getElementById('grade-trend');
-    var etc = document.getElementById('etc');
+    let studyTracker = document.getElementById('study-tracker');
+    let gradeTrend = document.getElementById('grade-trend');
+    let etc = document.getElementById('etc');
 
 
     fetch('/mochilearn/api/user/session', {
@@ -65,22 +71,21 @@ document.addEventListener('DOMContentLoaded',()=>{
             }
     });
 
-    const gradeTrendChart = new Chart(gradeTrend,{
+    gradeChart = new Chart(gradeTrend,{
             type : 'line',
             data : {
-                labels : ['0822','0823','0824','0825','0826','0827','0828'],
+                labels : [],
                 datasets : [{
                     backgroundColor : 'rgba(75, 192, 192, 1)',
                     borderColor : 'rgba(75, 192, 192, 1)',
                     label : '성적 통계',
                     fill : false,
-                    data : [
-                        5,4,6,7,8,9,7
-                    ]
+                    data : []
                 }]
             },
             options : {
-                maintainAspectRatio : true,
+                maintainAspectRatio : false,
+                //responsive: false,
                 title : {
                     display: true,
                     text: '성적 추이'
@@ -88,31 +93,32 @@ document.addEventListener('DOMContentLoaded',()=>{
                 scales : {
                     y: {
                         min : 0,
-                        max : 10,
+                        max : 5,
                         ticks: {
-                            stepSize :2
+                            stepSize :1
                         }
                     }
                 }
             }
         });
 
-    const etcChart = new Chart(etc, {
+    levelChart = new Chart(etc, {
         type : 'bar',
         data : {
             labels : ['초','중','고'],
             datasets : [{
-                label : '난이도별 응시 횟수',
+                label : '응시 횟수',
                 fill : false,
-                data : [2,4,8]
+                data : [0,0,0]
             }],
         },
         options : {
-            maintainAspectRatio : true,
+            maintainAspectRatio : false,
+            //responsive: false,
             plugins: {
                 title : {
                     display: true,
-                    text : '난이도별 응시 횟수'
+                    text : '응시 횟수'
                 }
             },
             scales : {
@@ -370,6 +376,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     });
 });
 
+function updateCharts() {
+    console.log('updateCharts');
+
+    gradeChart.data.labels = gradeData.labels;
+    gradeChart.data.datasets[0].data = gradeData.scores;
+    levelChart.data.datasets[0].data = levelData;
+
+    gradeChart.update();
+    levelChart.update();
+}
+
 function fetchMemberWriteCards(id) {
 
     console.log(id);
@@ -404,8 +421,53 @@ function fetchMemberQuizLogs(id) {
     })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            const dailyScores = {};
+
+            data.forEach((e, index) => {
+
+                // 응시 난이도 데이터 추가
+                if(e.level == 1) {
+                    levelData[0]++;
+                } else if(e.level == 2) {
+                    levelData[1]++;
+                } else {
+                    levelData[2]++;
+                }
+
+                // 성적 통계 데이터 추가
+                const date = new Date(e.attemptDate).toISOString().split('T')[0];
+                const score = e.score;
+
+                // 해당 날짜에 데이터가 없으면 초기화
+                if (!dailyScores[date]) {
+                    dailyScores[date] = { total: 0, count: 0 };
+                }
+                // 점수 합계와 횟수 누적
+                dailyScores[date].total += score;
+                dailyScores[date].count++;
+            });
+
+            console.log('날짜별 점수 데이터:', dailyScores);
+
+            // dailyScores 객체를 순회하며 평균 계산 및 gradeData에 저장
+            // 날짜를 오름차순으로 정렬하여 차트에 반영
+            const sortedDates = Object.keys(dailyScores).sort();
+
+            // 기존 데이터 초기화
+            gradeData.labels = [];
+            gradeData.scores = [];
+
+            sortedDates.forEach(date => {
+                const averageScore = (dailyScores[date].total / dailyScores[date].count);
+                gradeData.labels.push(date); // 날짜를 라벨로 추가
+                gradeData.scores.push(averageScore); // 평균 점수를 데이터로 추가
+            });
+
+            console.log('최종 gradeData:', gradeData);
+            console.log('최종 levelData:', levelData);
+
             renderQuizLogs(data);
+            updateCharts(); // 데이터 처리 완료 후 차트 업데이트
         });
 }
 
@@ -508,6 +570,7 @@ function renderQuizLogs(data) {
     container.innerHTML = '';
 
     quizLogs.forEach(log => {
+
         const attemptItem = document.createElement('div');
         attemptItem.className = 'quiz-attempt-item';
 

@@ -27,16 +27,25 @@
                 <div class="profilePic">
                     <img th:src="@{/img/bbb.jpg}">
                 </div>
-                <div class="dashboardMenu">나의 공부</div>
-                <div class="dashboardMenu">성적 조회</div>
-                <div class="dashboardMenu">내 게시물</div>
-                <div class="dashboardMenu">즐겨 찾기</div>
+
+                <a href="#top" class="dashboardMenu">
+                    <div>학습 통계</div>
+                </a>
+                <a href="#quizStatsSection" class="dashboardMenu">
+                    <div>퀴즈 기록</div>
+                </a>
+                <a href="#myCardsSection" class="dashboardMenu">
+                    <div>내 게시물</div>
+                </a>
+                <a href="#likeCardsSection" class="dashboardMenu">
+                    <div>즐겨 찾기</div>
+                </a>
             </div>
         </div>
         
         <div class="right-column">
-            <div class="mainContainer">
-                <h2>학습 통계</h2>
+            <div id="top" class="mainContainer">
+                <h2 >학습 통계</h2>
                 <div class="calendar-container">
                     <div class="calendar-header">
                         <button class="nav-btn" id="prevBtn">←</button>
@@ -60,26 +69,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="graphContainer">
-                    <div class="graph">
-                        <canvas id="study-tracker">
-                            공부 추적 더미 그래프
-                            <!-- 어떤 형태로 갈지 다시 이야기 할것 -->
-                        </canvas>
-                    </div>
-                    <div class="graph">
-                        <canvas id="grade-trend"></canvas>
-                    </div>
-                    <div class="graph">
-                        <canvas id="etc"></canvas>
-                    </div>
-                </div>
-                <div>
 
-                </div>
-                <div class="board">
+                <div id="quizStatsSection" class="board">
                     <h2>퀴즈 기록</h2>
-                        <table>
+                    <div class="graphContainer">
+                        <!--<div class="graph">
+                            <canvas id="study-tracker">
+                                공부 추적 더미 그래프
+                                &lt;!&ndash; 어떤 형태로 갈지 다시 이야기 할것 &ndash;&gt;
+                            </canvas>
+                        </div>-->
+                        <div class="graph">
+                            <canvas id="grade-trend"></canvas>
+                        </div>
+                        <div class="graph">
+                            <canvas id="etc"></canvas>
+                        </div>
+                    </div>
+                        <!--<table>
                             <tr>
                                 <th>일시</th>
                                 <th>학습 명</th>
@@ -102,13 +109,13 @@
                                 <td>퀴즈 3</td>
                                 <td>8/10</td>
                             </tr>
-                        </table>
+                        </table>-->
                     <div id="quizContainer" class="quiz-logs-container">
                         <!-- 응시한 퀴즈 결과 공간 -->
                     </div>
                 </div>
 
-                <div class="board">
+                <div id="myCardsSection" class="board">
                     <h2>내 게시물</h2>
                         <!--<table>
                             <tr>
@@ -137,7 +144,7 @@
                         </div>
                 </div>
 
-                <div class="board">
+                <div id="likeCardsSection" class="board">
                     <h2>즐겨찾기</h2>
                         <!--<table>
                             <tr>
@@ -169,5 +176,7 @@
         </div>
     </div>
 
+    <!-- footer -->
+    <div th:replace="~{footer::footer}"></div>
 </body>
 </html>
