@@ -738,7 +738,15 @@ function restoreAnswer(answer, korean, userAnswer, answerArea) {
 
         // 유저 답안도 배열처럼 처리
         const tempArr = userAnswer.answer.split(",");
-        finalUserAnswer = tempArr.map(item => `<span class="answer-word-item">${item.trim()}</span>`).join("");
+        finalUserAnswer = tempArr.map(item => {
+            const trimmedItem = item.trim();
+            // 공백이거나 'null' 문자열이면 공백을 반환
+            if (trimmedItem === '' || trimmedItem.toLowerCase() === 'null') {
+                return `<span class="answer-word-item"> (  ) </span>`; // 비어 있는 <span> 태그 반환
+            }
+            return `<span class="answer-word-item">${trimmedItem}</span>`;
+        }).join("");
+
     } else if (typeof answer === "string") {
         // 문자열일 경우 그대로 출력
         finalAnswer = answer;

@@ -265,6 +265,7 @@
     cursor: grab;
     transition: all 0.2s;
     user-select: none;
+    align-content: center;
 }
 .wordPoolItem:hover {
     background-color: #e9ecef;
@@ -320,14 +321,14 @@
 .answer-area p {
     margin: 0.7rem 0;
 }
-.answer-area .korean { font-weight: 500; color: #495057; }
-.answer-area .user-answer { color: #fa5252; font-weight: 600; }
-.answer-area .correct-answer { color: #20c997; font-weight: 600; }
+.answer-area .korean { font-weight: 500; color: #495057; font-size: 1.1rem; }
+.answer-area .user-answer { color: #fa5252; font-weight: 600; font-size: 1.2rem; }
+.answer-area .correct-answer { color: #20c997; font-weight: 600; font-size: 1.2rem; }
 
 .answer-word-item {
     display: inline-block;
     padding: 3px 15px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 10px;
