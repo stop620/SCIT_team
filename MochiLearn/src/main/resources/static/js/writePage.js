@@ -319,6 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     saveCardBtn.addEventListener('click', () => {
+
+        // 저장 중일 때 다시 저장 방지
+        if (saveCardBtn.dataset.isSaving === 'true') {
+            alert('저장중입니다.\n 잠시만 기다려주세요.')
+            return;
+        }
+
         const title = document.getElementById('title-input').value;
         const url = document.getElementById('url-input').value;
 
@@ -343,6 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         console.log(completedSections);
 
+        // 저장버튼 클릭시 로딩 표시
+        saveCardBtn.dataset.isSaving = 'true';
+        saveCardBtn.innerHTML = '<span spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 저장 중...';
+
         const saveData = {
                 "card": {
                     title: title,
@@ -364,8 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(response => response.ok ? response.json() : Promise.reject(response.json()))
             .then(data => {
-                alert('학습 카드가 성공적으로 저장되었습니다!');
-                window.location.href = '/mochilearn/page/study';
+                if (alert('학습 카드가 성공적으로 저장되었습니다!')) {
+                    window.location.href = `/mochilearn/page/studyCard?cardId=${data.cardId}`;
+                }
+
             })
             .catch(errorPromise => {
                 errorPromise.then(err => {
