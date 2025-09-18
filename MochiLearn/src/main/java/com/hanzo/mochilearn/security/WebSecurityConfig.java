@@ -33,7 +33,7 @@ public class WebSecurityConfig {
 
             , "/api/study/load"     // 카드 목록 불러오기 api
             , "/api/study/card"     // 카드 정보 불러오기 api
-
+            ,"/api/study/filterByTags" //태그 필터 결과
 
             /*
             , "/api/study/load"     // 카드 목록 api
