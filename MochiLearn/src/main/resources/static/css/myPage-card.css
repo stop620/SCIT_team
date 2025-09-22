@@ -163,7 +163,6 @@
 }
 
 .quiz-attempt-item {
-    cursor: pointer;
     padding: 15px;
     border-bottom: 1px solid var(--mochi-gray-light);
     display: flex;
@@ -178,6 +177,7 @@
 }
 
 .quiz-summary {
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -274,7 +274,6 @@
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 20px;
-    cursor: grab;
     transition: all 0.2s;
     user-select: none;
     align-content: center;

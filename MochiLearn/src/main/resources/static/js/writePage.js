@@ -409,9 +409,8 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(response => response.ok ? response.json() : Promise.reject(response.json()))
             .then(data => {
-                if (alert('학습 카드가 성공적으로 저장되었습니다!')) {
-                    window.location.href = `/mochilearn/page/studyCard?cardId=${data.cardId}`;
-                }
+                alert('학습 카드가 성공적으로 저장되었습니다!');
+                window.location.href = `/mochilearn/page/studyCard?cardId=${data.cardId}`;
 
             })
             .catch(errorPromise => {

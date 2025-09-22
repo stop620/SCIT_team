@@ -614,7 +614,7 @@ function renderQuizLogs(data) {
         attemptItem.appendChild(quizSummary);
         attemptItem.appendChild(quizDetailContent);
 
-        attemptItem.addEventListener('click', () => {
+        quizSummary.addEventListener('click', () => {
             quizDetailContent.classList.toggle('active');
             quizSummary.querySelector('.quiz-details-toggle').classList.toggle('open');
         })
