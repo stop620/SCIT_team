@@ -15,6 +15,20 @@
     margin-bottom: 20px;
 }
 
+.logo{
+    width: 33%;
+}
+
+.delete-book-btn{
+    width: 33%;
+    float: right;
+}
+
+.delete-book-btn input{
+    padding: 15px;
+    font-size: 16px;
+
+}
 
 .containerHeader h1{
     width: 50%;
