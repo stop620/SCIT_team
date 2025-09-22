@@ -92,6 +92,12 @@ const renderTimelines = () => {
 
         button.classList.remove('loading', 'failed', 'completed');
 
+        const timeInfo = document.createElement('span');
+        timeInfo.className = 'selected-section-display';
+        timeInfo.innerHTML = `- ${timeline.label}`;
+        const sample = document.createElement('div');
+        sample.className = 'timeline-sample';
+
         if (timeline.status === 'PROCESSING') {
             button.disabled = true;
             button.classList.add('loading');
@@ -113,9 +119,24 @@ const renderTimelines = () => {
             } else { // COMPLETED
                 button.classList.add('completed');
                 button.onclick = () => startTimelinePlayback(timeline);
+
+                let sampleJp;
+                let sampleKr;
+                if (timeline.transcript[0].japanese.length < 5) {
+                    sampleJp = timeline.transcript[1].japanese;
+                    sampleKr = timeline.transcript[1].korean;
+                } else {
+                    sampleJp = timeline.transcript[0].japanese;
+                    sampleKr = timeline.transcript[0].korean;
+                }
+
+                sample.innerHTML = `<span>${sampleJp}</span><span>${sampleKr}</span>`;
             }
         }
         wrapper.appendChild(button);
+        wrapper.appendChild(timeInfo);
+        wrapper.insertBefore(sample, wrapper.lastElementChild);
+
         timelineContainer.appendChild(wrapper);
     });
 };
@@ -202,6 +223,7 @@ const pollForResult = (jobId) => {
                 console.log("Updated timelines:", timelines);
                 console.log("Updated quiz array:", quiz);
 
+                updateLevelButton(statusData.result.level);
                 renderTimelines();
 
             } else if (statusData.status === 'FAILED') { // 실패
@@ -247,6 +269,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveCardBtn = document.getElementById('save-card-btn');
     // --- '유튜브 제목 사용' 버튼 요소 가져오기 ---
     const useYtTitleBtn = document.getElementById('use-yt-title-btn');
+
+    const levelTagInfo = document.querySelector('.level-tag-div svg');
+    const tooltip = document.getElementById("tooltip");
+
+    levelTagInfo.addEventListener('mouseenter', () => {
+        console.log('over');
+        tooltip.classList.add("show");
+    });
+    tooltip.addEventListener('mouseleave', () => {
+       console.log('out');
+        tooltip.classList.remove("show");
+    });
 
     setupTagSelection();
 
@@ -390,3 +424,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 });
+
+function updateLevelButton(level) {
+
+    const levelContainer = document.getElementById('difficulty-tags');
+    let levelButton;
+
+    switch (level) {
+        case 1:
+            levelButton = levelContainer.children.item(0);
+            console.log(levelButton);
+            break;
+        case 2:
+            levelButton = levelContainer.children.item(1);
+            console.log(levelButton);
+            break;
+        case 3:
+            levelButton = levelContainer.children.item(2);
+            console.log(levelButton);
+            break;
+        default:
+            break;
+    }
+    levelContainer.querySelectorAll('.tag-button').forEach(btn => btn.classList.remove('selected'));
+    levelButton.classList.add('selected');
+}

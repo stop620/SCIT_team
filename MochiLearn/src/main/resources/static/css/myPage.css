@@ -1,3 +1,8 @@
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* 내비게이션 바의 높이에 맞게 조정 */
+}
+
 main{
     max-width: 80%;
     padding:1.5em;
@@ -8,7 +13,6 @@ main{
     grid-template-columns:  1fr;
     gap : 2rem;
     min-height: 100vh;
-    margin-top: 1rem;
 }
 
 .left-column, .right-column {
@@ -17,6 +21,10 @@ main{
     gap: 1.5rem;
     width: 100%; 
     box-sizing: border-box; /* 패딩과 보더를 너비에 포함 */
+}
+
+h2 {
+    justify-self: center;
 }
 
 @media (min-width: 1024px){
@@ -44,7 +52,7 @@ main{
 
     .dashboard {
         position: sticky;
-        top: 2rem;
+        top: 10%;
     }
 }
 
@@ -111,23 +119,27 @@ main{
 
 .graphContainer{
     width: 100%;
+    height: auto;
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    margin: 20px;
+    justify-content: center;
+    max-width: 1250px;
+    margin: 20px 0;
+    gap: 10%;
 }
 
 .graph{
-    width: 32%;
+    width: 40%;
+    height: 250px;
+    display: block;
 }
 
 .board{
-    width: 75%;
-    display: flex;
+    width: 100%;
+    /*display: flex;*/
+    max-width: 1250px;
     flex-direction: column;
     align-items: center;
-    margin : 10px 0;
+    margin: 3% 0 10px;
 }
 
 table {

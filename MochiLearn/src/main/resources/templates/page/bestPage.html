@@ -15,22 +15,8 @@
 
     <script th:src="@{/js/jquery-3.7.1.min.js}"></script>
     <script th:src="@{/js/bestPage.js}"></script>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        //에러 무시해도 됩니다.
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-    </script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
+    <script th:src="@{/js/spinner.js}"></script>
 
 </head>
 <body>
@@ -44,6 +30,7 @@
     <section>
         <h2 class="list_title">인기 학습 카드</h2>
         <div id="popularGrid" class="cardlist">
+            <div class="loading-spinner"></div>
             <!-- 인기 카드 공간 -->
         </div>
     </section>
@@ -54,6 +41,7 @@
     <section>
         <h2 class="list_title">최신 학습 카드</h2>
         <div id="latestGrid" class="cardlist">
+            <div class="loading-spinner"></div>
             <!-- 최신 카드 공간 -->
         </div>
     </section>

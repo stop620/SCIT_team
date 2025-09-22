@@ -31,8 +31,10 @@ public class WebSecurityConfig {
             , "/page/study"         // 전체 카드 페이지
             , "/page/studyCard"     // 학습 카드 페이지
 
+            , "/api/user/session"   // 로그인 세션 정보 api
             , "/api/study/load"     // 카드 목록 불러오기 api
             , "/api/study/card"     // 카드 정보 불러오기 api
+            , "/api/study/filterByTags" // 카드 정보 필터
 
 
             /*
@@ -58,7 +60,7 @@ public class WebSecurityConfig {
                     .usernameParameter("id")
                     .passwordParameter("password")
                     .loginProcessingUrl("/member/login")
-                    .defaultSuccessUrl("/", true)
+                    //.defaultSuccessUrl("/", true) // 로그인시 기존 접근하려던 페이지로 보내기 위해 제거
                     .permitAll()
             )
             .logout(logout -> logout

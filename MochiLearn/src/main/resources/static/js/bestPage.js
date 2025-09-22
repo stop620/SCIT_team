@@ -4,6 +4,15 @@ let cards = [];
 $(document).ready(function() {
     console.log('document ready');
 
+    // 로딩 스피너를 숨기는 함수
+    function hideLoading(flag) {
+        if(flag === 'popular') {
+            $('#popularGrid .loading-spinner').remove();
+        } else {
+            $('#latestGrid .loading-spinner').remove();
+        }
+    }
+
     function loadCards(flag) {
 
         if(flag != null) {
@@ -14,6 +23,13 @@ $(document).ready(function() {
                 size: 4
 
             }).done(function(data) {
+                // 로딩 스피너 숨기기 전에 기존 내용 지우기
+                if(flag === 'popular') {
+                    $('#popularGrid').empty();
+                } else {
+                    $('#latestGrid').empty();
+                }
+
                 if (!data || data.length === 0) {
                     console.log('결과가 없습니다.');
                     return;
@@ -23,6 +39,9 @@ $(document).ready(function() {
 
             }).fail(function() {
                 console.log('카드 로드 중 오류가 발생했습니다.');
+            }).always(function() {
+                // 성공 또는 실패 여부와 관계없이 로딩 스피너 숨기기
+                hideLoading(flag);
             });
         }
     }

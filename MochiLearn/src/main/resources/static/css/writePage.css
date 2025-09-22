@@ -60,9 +60,25 @@ main {
     outline: none;
     box-shadow: 0 0 0 2px #EC4899;
 }
+.title-div {
+    display: flex;
+    gap: 0.5rem;
+}
 .title-input {
     font-size: 1.25rem;
     font-weight: 700;
+}
+.title-div svg {
+    height: 3rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.5rem;
+    padding: 0 0.5rem;
+    background-color: #fff;
+}
+
+.title-div svg:hover {
+    cursor: pointer;
+    background-color: #E5E7EB;
 }
 
 /* Player */
@@ -217,7 +233,7 @@ main {
     justify-content: space-between;
     align-items: center;
 }
-#selected-section-display {
+.selected-section-display {
     font-size: 0.875rem;
     font-weight: 500;
     color: #EC4899;
@@ -230,6 +246,10 @@ main {
 }
 .timeline-button-wrapper { /* 추가 */
     position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 .timeline-button {
     width: 4rem; /* w-16 */
@@ -282,6 +302,52 @@ main {
     opacity: 1;
 }
 
+.timeline-sample {
+    display: flex;
+    flex-direction: column;
+    width: 10rem;
+}
+.timeline-sample span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.level-tag-div {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.level-tag-div svg {
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-bottom: 0.5rem;
+    margin-block-start: 1.33em;
+    opacity: 0.75;
+}
+
+.tooltip {
+    position: absolute;
+    top: -10%;   /* 아이콘 아래에 표시 */
+    left: 30%;
+    transform: translateX(-50%);
+    background: var(--mochi-gray-dark);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 100;
+}
+.tooltip.show {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 /* Utility */
 .hidden {

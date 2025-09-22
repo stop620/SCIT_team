@@ -114,22 +114,22 @@ $(document).ready(function() {
             size,
             search: $('#searchInput').val().trim()
         })
-        .done(data => {
-            if ((!data || data.length === 0) && $('#searchInput').val().trim() !== '') {
-                alert('검색 결과가 없습니다.');
-                $('#searchInput').val('');
-                endReached = true;
+            .done(data => {
+                if ((!data || data.length === 0) && $('#searchInput').val().trim() !== '') {
+                    alert('검색 결과가 없습니다.');
+                    $('#searchInput').val('');
+                    endReached = true;
+                    loading = false;
+                    return;
+                }
+                renderCards(data, reset);
+                page++;
                 loading = false;
-                return;
-            }
-            renderCards(data, reset);
-            page++;
-            loading = false;
-        })
-        .fail(() => {
-            alert('카드 로드 중 오류가 발생했습니다.');
-            loading = false;
-        });
+            })
+            .fail(() => {
+                alert('카드 로드 중 오류가 발생했습니다.');
+                loading = false;
+            });
     }
 
     // 태그 필터 카드 로드 함수

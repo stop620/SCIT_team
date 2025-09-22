@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/studyCard.css}"/>
     <link rel="stylesheet" th:href="@{/css/word-selector.css}">
+    <link rel="stylesheet" th:href="@{/css/speech-practice.css}">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -15,23 +16,8 @@
     <script th:src="@{/js/word-selection.js}"></script>
     <script th:src="@{/js/speech-practice.js}"></script>
     <script th:src="@{/js/studyCard.js}"></script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        //에러 무시해도 됩니다.
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-    </script>
 </head>
 <body>
 <div th:replace="~{navigation::navigation}"></div>
@@ -57,7 +43,7 @@
             <!-- 자막 공간 -->
             <div class="buttonContainer">
                 <!-- js/css로 현재 언어에 맞게 하이라이트를 주기 -->
-                <button id="langChange"><strong>한 + 일</strong></button>
+                <button id="langChange"><strong>한 + 日</strong></button>
             </div>
             <div id="transcript-container" class="card transcript-container">
 
@@ -75,8 +61,19 @@
 
             <!-- 임시 말하기 기능 공간 -->
             <div class="card">
-                <input type="button" value="시작" id="startButton">
-                <input type="button" value="정지" id="stopButton">
+                <!--<input type="button" value="시작" id="startButton">
+                <input type="button" value="정지" id="stopButton">-->
+                <div class="mic-wrap" id="micWrap">
+                    <button id="micBtn" class="mic-btn" aria-pressed="false" title="녹음 시작/중지">
+                        <!-- SVG 마이크 아이콘 -->
+                        <!--?xml version="1.0" encoding="utf-8"?--><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="status-dot" id="statusDot"></div>
+                    </button>
+                </div>
+                <div class="hint" id="hint"></div>
             </div>
 
             <!-- 삭제/수정 임시 위치 -->
