@@ -7,9 +7,13 @@
 }
 
 .quizPageContainer{
-    margin: 20px 0;
+    margin: 50px 0;
+    padding: 30px 0;
+    width: 100%;
     text-align: center;
+    background-color: var(--mochi-gray-light);
 }
+
 
 .containerWrapper{
     width: 100%;
@@ -22,15 +26,26 @@
     width: 70%;
     display : grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 5px;
+    gap: 20px;
     justify-content: center;
     align-content: center;
+    margin-top: 20px;
 }
 
 .quizCard{
     border-radius: 5px;
     /* border: solid 3px #000; */
     padding: 20px;
+    height: 400px;
+    box-shadow: #33333333 0px 1px 3px, #33333333 0px 1px 2px;
+}
+
+.quizCard img{
+    width: 250px;
+}
+
+.quizCard p{
+    font-size: 18px;
 }
 
 .quizContainer .quizCard{

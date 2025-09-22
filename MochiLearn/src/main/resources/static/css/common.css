@@ -145,19 +145,14 @@ button[type="submit"]{
 
 .quizContainer .quizCard{
     cursor: pointer;
-    border: 2px solid var(--mochi-blue);
     border-radius: 10px;
     transition: all 0.3s ease;
 }
 
 .quizContainer .quizCard:hover{
     background-color: rgba(50, 217, 255, 0.1); /* mochi-blue의 연한 버전 */
-    transform: scale(1.02);
+    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(50, 217, 255, 0.3);
-}
-
-.quizCard{
-	cursor:pointer;
 }
 
 /* Footer Section */
