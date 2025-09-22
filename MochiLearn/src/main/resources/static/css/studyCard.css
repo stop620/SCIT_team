@@ -155,7 +155,7 @@ main {
 #timeline-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1.5rem;
     margin-top: 1rem;
 }
 .timeline-button-wrapper { /* 추가 */
@@ -169,47 +169,35 @@ main {
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s;
+    background-color: #E5E7EB;
     border: none;
     cursor: pointer;
 }
-.timeline-button.loading {
-    background-color: #D1D5DB; /* bg-gray-300 */
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.timeline-button:hover {
+    background-color: #FBCFE8;
 }
-.timeline-button.failed {
-    background-color: #FCA5A5; /* bg-red-300 */
-}
-.timeline-button.completed {
-    background-color: #E5E7EB; /* bg-gray-200 */
-}
-.timeline-button.completed:hover {
-    background-color: #FBCFE8; /* hover:bg-pink-200 */
-}
+
 .timeline-button-label {
     color: #374151; /* text-gray-700 */
     font-weight: 600;
     font-size: 0.875rem;
 }
-.timeline-delete-button { /* 추가 */
-    position: absolute;
-    top: -0.25rem;
-    right: -0.25rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    background-color: #EF4444; /* red-500 */
-    color: white;
-    border-radius: 9999px;
+.timeline-button-wrapper { /* 추가 */
+    position: relative;
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 10;
+    justify-content: space-between;
 }
-.timeline-button-wrapper:hover .timeline-delete-button { /* 추가 */
-    opacity: 1;
+.timeline-sample {
+    display: flex;
+    flex-direction: column;
+    width: 10rem;
+}
+.timeline-sample span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* button */
@@ -225,6 +213,12 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.selected-section-display {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #EC4899;
 }
 
 /* Utility */

@@ -12,6 +12,7 @@ const dictionaryCache = {};
 
 function initializeWordSelectionEventListeners() {
     const japaneseLine = document.getElementById('japanese-line');
+    const langChangeBtn = document.getElementById('langChange');
     if (japaneseLine) {
         japaneseLine.addEventListener('mouseover', handleTokenMouseOver);
         japaneseLine.addEventListener('mouseout', handleTokenMouseOut);
@@ -19,6 +20,7 @@ function initializeWordSelectionEventListeners() {
         japaneseLine.addEventListener('mousemove', handleSelectionMove);
         document.addEventListener('mouseup', handleSelectionEnd);
     }
+    langChangeBtn.addEventListener('click', langChangeFunction);
 }
 
 const isActionableToken = (token) => {
@@ -391,3 +393,22 @@ function hidePopups() {
     clearGlobalClickListener();
 }
 
+// 한/일 자막 전환 함수
+function langChangeFunction() {
+    console.log('change');
+    const jp = $('#japanese-line');
+    const kr = $('#korean-line');
+    const langChange = $('#langChange');
+
+    if (jp.is(':visible') && kr.is(':visible')) {
+        kr.hide();
+        langChange.html('한 / <strong>日</strong>');
+    } else if (jp.is(':visible')) {
+        jp.hide();
+        kr.show();
+        langChange.html('<strong>한</strong> / 日');
+    } else {
+        jp.show();
+        langChange.html('<strong>한 + 日</strong>');
+    }
+}
