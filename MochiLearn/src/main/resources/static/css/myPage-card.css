@@ -192,14 +192,26 @@
     transform: rotate(180deg);
 }
 .quiz-detail-content {
-    display: none;
-    padding-top: 10px;
-    border-top: 1px dashed #ddd;
-    margin-top: 10px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding-top: 0; /* 기본은 접힐 때 여백 없애기 */
+    margin-top: 0;
+    border-top: 1px dashed transparent;
+    transition:
+            max-height 0.4s ease,
+            opacity 0.3s ease,
+            padding-top 0.3s ease,
+            margin-top 0.3s ease,
+            border-top-color 0.3s ease;
 }
-.quiz-detail-content.active {
-    display: block;
 
+.quiz-detail-content.active {
+    max-height: 3000px; /* 펼쳤을 때 예상 높이보다 크게 잡아두면 자동으로 맞춰짐 */
+    opacity: 1;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top-color: #ddd;
 }
 
 /* 복원된 퀴즈 CSS */

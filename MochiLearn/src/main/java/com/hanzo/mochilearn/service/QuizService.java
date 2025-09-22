@@ -285,6 +285,7 @@ public class QuizService {
 
             //퀴즈 시도 데이터
             QuizAttemptEntity attemptEntity = quizAttemptRepository.findBySessionId(sessionEntity.getId());
+            log.debug("[Quiz Attempt]: {}", attemptEntity);
 
             quizLog.setAttemptId(attemptEntity.getAttemptId());
             quizLog.setAttemptNo(attemptEntity.getAttemptNo());
