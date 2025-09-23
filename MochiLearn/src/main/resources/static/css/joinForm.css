@@ -14,6 +14,7 @@ body{
 
 
 form{
+    justify-content: center;
     display: flex;
     width:33.33%;
     border-radius : 15px;
