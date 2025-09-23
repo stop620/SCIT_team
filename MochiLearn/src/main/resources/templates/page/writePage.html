@@ -12,23 +12,8 @@
     <!-- YouTube IFrame API -->
     <script src="https://www.youtube.com/iframe_api"></script>
     <script th:src="@{/js/writePage.js}"></script>
-    <script th:inline="javascript">
-        <!-- 단어장 여는 스크립트 -->
-        /*<![CDATA[*/
-        //에러 무시해도 됩니다.
-        var wordPageUrl = [[@{/page/word}]];
-        window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        }
-        /*]]>*/
-    </script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
+    
 </head>
 
 <body>
@@ -39,14 +24,14 @@
         <!-- 왼쪽 공간 - 제목, 영상, 자막, 태그 등 -->
         <div class="left-column">
             <!-- 제목 공간 -->
-            <div>
+            <div class="title-div">
+                <svg id="use-yt-title-btn" viewBox="0 -7 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" stroke="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>유튜브 제목 사용</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Color-" transform="translate(-200.000000, -368.000000)" fill="#3ED6D0"> <path d="M219.044,391.269916 L219.0425,377.687742 L232.0115,384.502244 L219.044,391.269916 Z M247.52,375.334163 C247.52,375.334163 247.0505,372.003199 245.612,370.536366 C243.7865,368.610299 241.7405,368.601235 240.803,368.489448 C234.086,368 224.0105,368 224.0105,368 L223.9895,368 C223.9895,368 213.914,368 207.197,368.489448 C206.258,368.601235 204.2135,368.610299 202.3865,370.536366 C200.948,372.003199 200.48,375.334163 200.48,375.334163 C200.48,375.334163 200,379.246723 200,383.157773 L200,386.82561 C200,390.73817 200.48,394.64922 200.48,394.64922 C200.48,394.64922 200.948,397.980184 202.3865,399.447016 C204.2135,401.373084 206.612,401.312658 207.68,401.513574 C211.52,401.885191 224,402 224,402 C224,402 234.086,401.984894 240.803,401.495446 C241.7405,401.382148 243.7865,401.373084 245.612,399.447016 C247.0505,397.980184 247.52,394.64922 247.52,394.64922 C247.52,394.64922 248,390.73817 248,386.82561 L248,383.157773 C248,379.246723 247.52,375.334163 247.52,375.334163 L247.52,375.334163 Z" id="Youtube"> </path> </g> </g> </g></svg>
                 <input
                         id="title-input"
                         type="text"
                         class="input-field title-input"
                         placeholder="학습 카드 제목을 입력하세요"/>
 
-                <input id="use-yt-title-btn" type="button" value="유튜브 제목 사용">
             </div>
             <!-- 유튜브 영상 로드 공간 -->
             <div id="player-container" class="player-container hidden">
@@ -80,7 +65,17 @@
             <!-- 태그 공간 -->
             <div class="card tag-section">
                 <div>
-                    <h4 class="tag-title">난이도</h4>
+                    <div class="level-tag-div">
+                        <h4 class="tag-title">난이도</h4>
+                        <svg fill="#333333" width="800px" height="800px" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                            <g id="SVGRepo_iconCarrier"> <path d="M224.00244,128a96,96,0,1,1-96-96A95.99983,95.99983,0,0,1,224.00244,128Z" opacity="0.2"/> <path d="M128.002,23.99963a104,104,0,1,0,104,104A104.11791,104.11791,0,0,0,128.002,23.99963Zm0,192a88,88,0,1,1,88-88A88.09957,88.09957,0,0,1,128.002,215.99963Zm16-40a8.00039,8.00039,0,0,1-8,8h-8a8.00039,8.00039,0,0,1-8-8v-48a8,8,0,0,1,0-16h8a8.00039,8.00039,0,0,1,8,8v48A8.00039,8.00039,0,0,1,144.002,175.99963ZM114.00244,84a12,12,0,1,1,12,12A12,12,0,0,1,114.00244,84Z"/> </g>
+                        </svg>
+                        <div id="tooltip" class="tooltip">
+                            학습 구간을 추가하면 자동으로 선택됩니다.<br>수동으로 변경할 수 있습니다.
+                        </div>
+                    </div>
                     <div id="difficulty-tags" class="tag-group">
                         <button class="tag-button">초급</button>
                         <button class="tag-button">중급</button>

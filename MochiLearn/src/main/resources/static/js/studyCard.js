@@ -52,7 +52,7 @@ $(document).ready(function() {
 
     function updateLikeButton() {
         $('#cardLike').text(card.like);
-        $('#like-button').css('color', liked ? 'red' : 'black');
+        $('#like-button').css('color', liked ? '#f1c232' : 'black');
     }
 
     if (cardId) {
@@ -290,10 +290,33 @@ function renderSectionButtons(sections) {
     container.innerHTML = '';
 
     sections.forEach(section => {
+        console.log(section);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'timeline-button-wrapper';
+
         const button = document.createElement('button');
         button.className = 'timeline-button';
         button.textContent = section.section_num || section.sectionNum || "구간";
         button.setAttribute('data-section-id', section.id);
+
+        const timeInfo = document.createElement('span');
+        timeInfo.className = 'selected-section-display';
+        timeInfo.innerHTML = `- ${time(section.start_seconds)}~${time(section.end_seconds)}`;
+
+        const sample = document.createElement('div');
+        sample.className = 'timeline-sample';
+
+        let sampleJp;
+        let sampleKr;
+        if (section.sentences[0].japanese.length < 5) {
+            sampleJp = section.sentences[1].japanese;
+            sampleKr = section.sentences[1].korean;
+        } else {
+            sampleJp = section.sentences[0].japanese;
+            sampleKr = section.sentences[0].korean;
+        }
+
+        sample.innerHTML = `<span>${sampleJp}</span><span>${sampleKr}</span>`;
 
         button.addEventListener('click', () => {
             console.log(`🎯 섹션 버튼 클릭 - ID: ${section.id}, 번호: ${section.section_num || section.sectionNum}`);
@@ -311,7 +334,11 @@ function renderSectionButtons(sections) {
             });
         });
 
-        container.appendChild(button);
+        wrapper.appendChild(button);
+        wrapper.appendChild(sample);
+        wrapper.appendChild(timeInfo);
+
+        container.appendChild(wrapper);
     });
 }
 
@@ -372,3 +399,18 @@ const startTimelinePlayback = (timeline) => {
         }, 100);
     }
 };
+
+function time(seconds) {
+
+    //3항 연산자를 이용하여 10보다 작을 경우 0을 붙이도록 처리 하였다.
+    let hour = parseInt(seconds/3600) < 10 ? '0'+ parseInt(seconds/3600) : parseInt(seconds/3600);
+    let min = parseInt((seconds%3600)/60) < 10 ? '0'+ parseInt((seconds%3600)/60) : parseInt((seconds%3600)/60);
+    let sec = seconds % 60 < 10 ? '0'+seconds % 60 : seconds % 60;
+
+    if(hour == '00') {
+        return min+":" + sec;
+    } else {
+        return hour+":"+min+":" + sec;
+    }
+
+}

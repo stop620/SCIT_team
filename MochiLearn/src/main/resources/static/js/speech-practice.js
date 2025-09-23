@@ -3,13 +3,43 @@
 
 let mediaRecorder;
 let audioChunks = [];
+//
+let micWrap;
+let hint;
+
+let isListening = false;
+let audioContext = null;
+let analyser = null;
+let sourceNode = null;
+let mediaStream = null;
+let rafId = null;
+
+const THRESHOLD = 0.02;      // 감지 임계값 (0 ~ 1). 필요시 조절하세요.
+const MIN_PULSE_INTERVAL = 300; // 밀리초 단위: 연속 펄스 제한
+let micBtn;
+let lastPulseAt = 0;
 
 /**
  * 발음 평가 관련 UI 컨트롤(버튼)의 이벤트 리스너 초기화
  */
 function initializeSpeechPracticeListeners() {
-    $('#startButton').click(startRecording);
-    $('#stopButton').click(stopRecording);
+    // $('#startButton').click(startRecording);
+    // $('#stopButton').click(stopRecording);
+
+    // UI 토글
+    micBtn = document.getElementById('micBtn');
+    micWrap = document.getElementById('micWrap');
+    hint = document.getElementById('hint');
+    console.log(micBtn);
+    micBtn.addEventListener('click', async (e) => {
+        if (!isListening) {
+            console.log('start');
+            await startRecording();
+        } else {
+            console.log('stop');
+            stopRecording();
+        }
+    });
 }
 
 /**
@@ -25,24 +55,48 @@ async function startRecording() {
         mediaRecorder.onstop = sendAudioToServer; // 녹음 중지 시 서버로 전송
 
         mediaRecorder.start();
-        $('#startButton').prop('disabled', true);
-        $('#stopButton').prop('disabled', false);
         console.log("녹음 시작");
+
+        audioContext = new window.AudioContext();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.6;
+
+        sourceNode = audioContext.createMediaStreamSource(stream);
+        sourceNode.connect(analyser);
+
+        isListening = true;
+        micWrap.classList.add('listening');
+        micBtn.setAttribute('aria-pressed','true');
+        hint.textContent = '감지 중... 소리를 내면 파동이 생성됩니다. 다시 클릭하면 중지합니다.';
+
+        monitorVolume();
 
     } catch (err) {
         console.error("마이크 접근에 실패했습니다:", err);
         alert("마이크 접근 권한이 필요합니다. 브라우저 설정을 확인해주세요.");
     }
+
+
 }
 
 /**
  * 녹음을 중지
  */
 function stopRecording() {
+    isListening = false;
+    micWrap.classList.remove('listening');
+    micBtn.setAttribute('aria-pressed','false');
+    hint.textContent = '마이크가 중지되었습니다. 아이콘을 클릭해 다시 시작하세요.';
+
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+    if (sourceNode) { try { sourceNode.disconnect(); } catch(e){} sourceNode = null; }
+    if (analyser) { try { analyser.disconnect(); } catch(e){} analyser = null; }
+
     if (mediaRecorder) {
         mediaRecorder.stop();
-        $('#startButton').prop('disabled', false);
-        $('#stopButton').prop('disabled', true);
+
         console.log("녹음 중지");
     }
 }
@@ -84,3 +138,59 @@ async function sendAudioToServer() {
         alert("발음 평가 서버에 연결할 수 없습니다.");
     }
 }
+
+
+
+
+
+// RMS 계산 (float time domain 데이터)
+function calcRMS(float32Array) {
+    let sum = 0;
+    for (let i = 0; i < float32Array.length; i++){
+        const v = float32Array[i];
+        sum += v * v;
+    }
+    return Math.sqrt(sum / float32Array.length);
+}
+
+// 파동(펄스) 생성 함수
+function createPulse() {
+    const now = Date.now();
+    if (now - lastPulseAt < MIN_PULSE_INTERVAL) return; // 너무 빠른 연속 생성 방지
+    lastPulseAt = now;
+
+    const pulse = document.createElement('div');
+    pulse.className = 'pulse';
+    micWrap.appendChild(pulse);
+
+    // 애니메이션이 끝나면 제거
+    pulse.addEventListener('animationend', () => {
+        pulse.remove();
+    }, { once: true });
+}
+
+// 감지 루프
+function monitorVolume() {
+    const bufferLen = analyser.fftSize;
+    const data = new Float32Array(bufferLen);
+
+    function loop() {
+        analyser.getFloatTimeDomainData(data);
+        const rms = calcRMS(data); // 0 ~ 1 범위(대략)
+
+        // 임계값 넘어가면 펄스 생성
+        if (rms > THRESHOLD) {
+            createPulse();
+        }
+
+        rafId = requestAnimationFrame(loop);
+    }
+    rafId = requestAnimationFrame(loop);
+}
+
+
+
+// 페이지 벗어날 때 정리
+window.addEventListener('beforeunload', () => {
+    if (isListening) stopRecording();
+});

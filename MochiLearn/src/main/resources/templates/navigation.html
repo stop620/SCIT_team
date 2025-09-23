@@ -12,11 +12,12 @@
         <div class="nav-links">
             <a th:href="@{/page/study}" class="nav-link">학습하기</a>
             <a th:href="@{/page/quiz}" class="nav-link">퀴즈풀기</a>
-            <a th:href="@{/page/mypage}" class="nav-link">마이페이지</a>
             <a class="nav-link" id="wordPageBtn">단어장</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/page/mypage}" class="nav-link">마이페이지</a>
             <a sec:authorize="!isAuthenticated()" class="nav-link" th:href="@{/member/loginForm}">로그인</a>
             <form th:action="@{/member/logout}" method="POST" sec:authorize="isAuthenticated()">
-                <button class="nav-link" type="submit">로그아웃</button>
+                <a th:href="@{/member/logout}" class="nav-link">로그아웃</a>
             </form>
 <!--            <a th:href="@{/member/loginForm}" class="nav-link">로그인</a>-->
             <a th:href="@{/page/best}" class="cta-btn">시작하기</a>

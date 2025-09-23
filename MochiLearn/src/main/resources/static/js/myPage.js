@@ -1,9 +1,38 @@
+let gradeChart;
+let levelChart;
+let gradeData = {
+    labels: [],
+    scores: []
+};
+let levelData = [0, 0, 0];
+
 document.addEventListener('DOMContentLoaded',()=>{
     // // 그래프 캔버스 선언 및 가져오기
     // var studyStats = document.getElementById('study-stats');
-    var studyTracker = document.getElementById('study-tracker');
-    var gradeTrend = document.getElementById('grade-trend');
-    var etc = document.getElementById('etc');
+    let studyTracker = document.getElementById('study-tracker');
+    let gradeTrend = document.getElementById('grade-trend');
+    let etc = document.getElementById('etc');
+
+
+    fetch('/mochilearn/api/user/session', {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            
+            if(data.loggedIn) {
+                sessionStorage.setItem("member", JSON.stringify(data.member));
+                console.log(data.member);
+            } else {
+                console.log('로그인 안됨')
+            }
+            const member = sessionStorage.getItem("member");
+            const id = JSON.parse(member).id;
+
+            fetchMemberWriteCards(id);
+            fetchMemberLikeCards(id);
+            fetchMemberQuizLogs(id);
+        });
 
 
 
@@ -42,22 +71,21 @@ document.addEventListener('DOMContentLoaded',()=>{
             }
     });
 
-    const gradeTrendChart = new Chart(gradeTrend,{
+    gradeChart = new Chart(gradeTrend,{
             type : 'line',
             data : {
-                labels : ['0822','0823','0824','0825','0826','0827','0828'],
+                labels : [],
                 datasets : [{
                     backgroundColor : 'rgba(75, 192, 192, 1)',
                     borderColor : 'rgba(75, 192, 192, 1)',
                     label : '성적 통계',
                     fill : false,
-                    data : [
-                        5,4,6,7,8,9,7
-                    ]
+                    data : []
                 }]
             },
             options : {
-                maintainAspectRatio : true,
+                maintainAspectRatio : false,
+                //responsive: false,
                 title : {
                     display: true,
                     text: '성적 추이'
@@ -65,31 +93,32 @@ document.addEventListener('DOMContentLoaded',()=>{
                 scales : {
                     y: {
                         min : 0,
-                        max : 10,
+                        max : 5,
                         ticks: {
-                            stepSize :2
+                            stepSize :1
                         }
                     }
                 }
             }
         });
 
-    const etcChart = new Chart(etc, {
+    levelChart = new Chart(etc, {
         type : 'bar',
         data : {
             labels : ['초','중','고'],
             datasets : [{
-                label : '난이도별 응시 횟수',
+                label : '응시 횟수',
                 fill : false,
-                data : [2,4,8]
+                data : [0,0,0]
             }],
         },
         options : {
-            maintainAspectRatio : true,
+            maintainAspectRatio : false,
+            //responsive: false,
             plugins: {
                 title : {
                     display: true,
-                    text : '난이도별 응시 횟수'
+                    text : '응시 횟수'
                 }
             },
             scales : {
@@ -346,3 +375,388 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     });
 });
+
+function updateCharts() {
+    console.log('updateCharts');
+
+    gradeChart.data.labels = gradeData.labels;
+    gradeChart.data.datasets[0].data = gradeData.scores;
+    levelChart.data.datasets[0].data = levelData;
+
+    gradeChart.update();
+    levelChart.update();
+}
+
+function fetchMemberWriteCards(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/mycard?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            renderCards(data, 0);
+        });
+}
+
+function fetchMemberLikeCards(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/likecard?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            renderCards(data, 1);
+        });
+}
+
+function fetchMemberQuizLogs(id) {
+
+    console.log(id);
+    fetch(`/mochilearn/api/member/quizlogs?id=${id}`, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            const dailyScores = {};
+
+            data.forEach((e, index) => {
+
+                // 응시 난이도 데이터 추가
+                if(e.level == 1) {
+                    levelData[0]++;
+                } else if(e.level == 2) {
+                    levelData[1]++;
+                } else {
+                    levelData[2]++;
+                }
+
+                // 성적 통계 데이터 추가
+                const date = new Date(e.attemptDate).toISOString().split('T')[0];
+                const score = e.score;
+
+                // 해당 날짜에 데이터가 없으면 초기화
+                if (!dailyScores[date]) {
+                    dailyScores[date] = { total: 0, count: 0 };
+                }
+                // 점수 합계와 횟수 누적
+                dailyScores[date].total += score;
+                dailyScores[date].count++;
+            });
+
+            console.log('날짜별 점수 데이터:', dailyScores);
+
+            // dailyScores 객체를 순회하며 평균 계산 및 gradeData에 저장
+            // 날짜를 오름차순으로 정렬하여 차트에 반영
+            const sortedDates = Object.keys(dailyScores).sort();
+
+            // 기존 데이터 초기화
+            gradeData.labels = [];
+            gradeData.scores = [];
+
+            sortedDates.forEach(date => {
+                const averageScore = (dailyScores[date].total / dailyScores[date].count);
+                gradeData.labels.push(date); // 날짜를 라벨로 추가
+                gradeData.scores.push(averageScore); // 평균 점수를 데이터로 추가
+            });
+
+            console.log('최종 gradeData:', gradeData);
+            console.log('최종 levelData:', levelData);
+
+            renderQuizLogs(data);
+            updateCharts(); // 데이터 처리 완료 후 차트 업데이트
+        });
+}
+
+function renderCards(cardData, flag) {
+    // flag >> 0: 멤버의 카드, 1: 즐겨찾기 카드
+    const myCardGrid = document.getElementById('myCardGrid');
+    const likeCardGrid = document.getElementById('likeCardGrid');
+
+    console.log('render card: ' + flag);
+
+    cardData.forEach(card => {
+
+        console.log(card.tag);
+        const thumbUrl = getYoutubeThumbnail(card.url);
+        let difficulty;
+        let levelKor;
+        let tagList = card.tag.split(',');
+        switch (card.level) {
+            case '1':
+                difficulty = 'beginner';
+                levelKor = '초급';
+                break;
+            case '2':
+                difficulty = 'intermediate';
+                levelKor = '중급';
+                break;
+            case '3':
+                difficulty = 'advanced';
+                levelKor = '고급';
+                break;
+            default:
+                break;
+        }
+
+        let cardHtml = `
+                    <div class="card" onclick="location.href='/mochilearn/page/studyCard?cardId=${card.id}'">
+                        <div class="card-thumbnail">
+                            <!-- 썸네일 공간 -->
+                            <img class="thumbnail-image" src="${thumbUrl}" alt="썸네일 이미지" />
+                            <div class="play-icon">▶</div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">${card.title}</h3>
+                            <div class="video-meta">
+                                <span class="difficulty-tag ${difficulty}">${levelKor}</span>
+                                <div class="video-stats">
+                                    <span class="star">⭐</span> ${card.like}
+                                </div>
+                            </div>
+                            <div class="tag-container">
+                            `;
+
+        tagList.forEach(tag => {
+            cardHtml += `<span class="genre-tag-item">${tag}</span>`;
+        });
+        cardHtml += `</div>
+                        </div>
+                    </div>`;
+
+        if(flag == 0) {
+            myCardGrid.innerHTML += cardHtml;
+
+        } else {
+            likeCardGrid.innerHTML += cardHtml;
+
+        }
+    })
+}
+
+function getYoutubeThumbnail(youtubeUrl) {
+    let videoId = '';
+    if (!youtubeUrl) {
+        return '/images/default-thumbnail.png';
+    }
+
+    // 쇼츠 URL (youtube.com/shorts/) 처리
+    if (youtubeUrl.includes('youtube.com/shorts/')) {
+        videoId = youtubeUrl.split('youtube.com/shorts/')[1].split(/[?&]/)[0];
+    }
+    // 짧은 URL (youtu.be/) 처리
+    else if (youtubeUrl.includes('youtu.be/')) {
+        videoId = youtubeUrl.split('youtu.be/')[1].split(/[?&]/)[0];
+    }
+    // 일반 URL (v=) 처리
+    else if (youtubeUrl.includes('v=')) {
+        videoId = youtubeUrl.split('v=')[1].split(/[?&]/)[0];
+    }
+
+    if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+
+    return '/images/default-thumbnail.png';
+}
+
+function renderQuizLogs(data) {
+    console.log('퀴즈 응시 로그 출력');
+    const quizLogs = data;
+    const container = document.querySelector('.quiz-logs-container');
+    container.innerHTML = '';
+
+    quizLogs.forEach(log => {
+
+        const attemptItem = document.createElement('div');
+        attemptItem.className = 'quiz-attempt-item';
+
+        const quizSummary = document.createElement('div');
+        quizSummary.className = 'quiz-summary';
+
+        const formattedDate = new Date(log.attemptDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const levelName = getLevelName(log.level);
+
+        quizSummary.innerHTML = `
+                    <div>
+                        <span>${formattedDate}</span>
+                    </div>
+                    <div>
+                        <span>레벨: ${levelName}</span>
+                    </div>
+                    <div>
+                        <span>점수: ${log.score} / 5</span>
+                        <span class="quiz-details-toggle">▼</span>
+                    </div>
+                `;
+
+        const quizDetailContent = document.createElement('div');
+        quizDetailContent.className = 'quiz-detail-content';
+
+        const quizzes = JSON.parse(log.quizData);
+        const userAnswer = log.userAnswers;
+
+        quizzes.forEach((quiz, index) => {
+            let quizArea = document.createElement('div');
+            quizArea.className = 'quiz-area';
+            quizArea.innerHTML = `<div class="question-num">문제 ${index+1}</div>`;
+            //console.log(quizArea);
+            //console.log(quiz);
+            restoreQuizLogs(quiz, userAnswer[index], quizArea);
+            quizDetailContent.appendChild(quizArea);
+        });
+
+        //quizDetailContent.innerHTML = log.quizData;
+
+        attemptItem.appendChild(quizSummary);
+        attemptItem.appendChild(quizDetailContent);
+
+        quizSummary.addEventListener('click', () => {
+            quizDetailContent.classList.toggle('active');
+            quizSummary.querySelector('.quiz-details-toggle').classList.toggle('open');
+        })
+
+        container.appendChild(attemptItem);
+    });
+
+}
+
+function getLevelName(level) {
+    switch(level) {
+        case 1: return '초급';
+        case 2: return '중급';
+        case 3: return '고급';
+        default: return '알 수 없음';
+    }
+}
+
+
+function restoreQuizLogs(quiz, userAnswer, quizArea) {
+    console.log(quiz);
+    //console.log(quizArea);
+    let answerArea = document.createElement('div');
+    answerArea.className = 'answer-area';
+    const answer = quiz.shuffleAnswer || quiz.blankAnswer || quiz.choiceAnswer;
+    switch (quiz.quizType) {
+        case 'SHUFFLE':
+        case 'BLANK':
+            renderDragDropQuiz(quiz.quizType, quiz, quizArea);
+            break;
+        case 'CHOICE':
+            renderMultipleChoiceQuiz(quiz, quizArea);
+            break;
+    }
+    restoreAnswer(answer, quiz.korean, userAnswer, answerArea);
+    quizArea.appendChild(answerArea);
+}
+
+const renderDragDropQuiz = (type, quiz, quizArea) => {
+    let blankCounter = 0;
+    let answerHTML = '';
+    let choices = [];
+    let answerAreaContainerClass = 'blank-area';
+
+    if (type === 'SHUFFLE') {
+        answerHTML = quiz.shuffleAnswer.map(() =>
+            `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+        ).join('');
+        choices = quiz.shuffledSentence;
+        userAnswer = Array(quiz.shuffleAnswer.length).fill(null);
+    } else { // BLANK
+        answerAreaContainerClass = 'blank-sentence';
+        answerHTML = quiz.blankSentence.map(part =>
+            part === '______'
+                ? `<div class="quizBlank" data-blank-index="${blankCounter++}"></div>`
+                : `<span class="blank-word">${part}</span>`
+        ).join('');
+        choices = quiz.blankChoices;
+        userAnswer = Array(quiz.blankAnswer.length).fill(null);
+    }
+
+    quizArea.innerHTML += `
+            <div class="${answerAreaContainerClass}">${answerHTML}</div>
+            <div class="quizBlankWordPool"></div>
+        `;
+
+    const wordPool = quizArea.querySelector('.quizBlankWordPool');
+    choices.forEach((word, index) => {
+        const item = document.createElement('div');
+        item.className = 'wordPoolItem';
+        item.textContent = word;
+        item.dataset.originalIndex = index; // 원래 순서를 저장
+        wordPool.appendChild(item);
+    });
+};
+
+const renderMultipleChoiceQuiz = (quiz, quizArea) => {
+    console.log(quizArea);
+
+    const choiceSentences = document.createElement('div');
+    choiceSentences.className = 'choice-sentences';
+    choiceSentences.id = 'choiceSentences';
+
+    console.log(choiceSentences);
+    quiz.choiceSentences.forEach(sentence => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = sentence;
+        btn.onclick = () => selectMultipleChoice(btn);
+        choiceSentences.appendChild(btn);
+        quizArea.appendChild(choiceSentences);
+    });
+};
+
+/*
+function restoreAnswer(answer, korean, userAnswer, answerArea) {
+    console.log(typeof answer);
+    let finalAnswer;
+    let finalUserAnswer;
+    if(typeof answer != "string") {
+        finalAnswer = answer.join(" \t ");
+        const tempArr = userAnswer.answer.split(",");
+        finalUserAnswer = (tempArr).join(" \t ");
+        console.log(finalAnswer);
+    }
+    answerArea.innerHTML = `
+        <p class="korean">${korean}</p>
+        <p class="correct-answer">정답: ${finalAnswer}</p>
+        <p class="user-answer">내 답안: ${finalUserAnswer}</p>
+        `;
+
+}*/
+function restoreAnswer(answer, korean, userAnswer, answerArea) {
+    console.log(typeof answer);
+    let finalAnswer = "";
+    let finalUserAnswer = "";
+
+    if (Array.isArray(answer)) {
+        // 정답 배열 → 각 요소를 <div>로 감쌈
+        finalAnswer = answer.map(item => `<span class="answer-word-item">${item}</span>`).join("");
+
+        // 유저 답안도 배열처럼 처리
+        const tempArr = userAnswer.answer.split(",");
+        finalUserAnswer = tempArr.map(item => {
+            const trimmedItem = item.trim();
+            // 공백이거나 'null' 문자열이면 공백을 반환
+            if (trimmedItem === '' || trimmedItem.toLowerCase() === 'null') {
+                return `<span class="answer-word-item"> (  ) </span>`; // 비어 있는 <span> 태그 반환
+            }
+            return `<span class="answer-word-item">${trimmedItem}</span>`;
+        }).join("");
+
+    } else if (typeof answer === "string") {
+        // 문자열일 경우 그대로 출력
+        finalAnswer = answer;
+        finalUserAnswer = userAnswer.answer;
+    }
+
+    answerArea.innerHTML = `
+        <p class="korean">${korean}</p>
+        <p class="correct-answer">정답: ${finalAnswer}</p>
+        <p class="user-answer">내 답안: ${finalUserAnswer}</p>
+    `;
+}
+

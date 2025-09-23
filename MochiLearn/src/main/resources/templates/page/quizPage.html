@@ -5,42 +5,9 @@
 <link rel="stylesheet" th:href="@{/css/common.css}">
 <link rel="stylesheet" th:href="@{/css/quizPage.css}">
 
-<script th:inline="javascript">
-    /*<![CDATA[*/
-        //에러 무시해도 됩니다. 
-        var wordPageUrl = [[@{/page/word}]];
-        var quizPageUrl = [[@{/page/quizCardPage}]];
-            
-    	window.onload = function() {
-            console.log("Navigation script loaded");
-            const wordPageBtn = document.getElementById("wordPageBtn");
-            const quizCard1 = document.getElementById("quizCard1");
-            const quizCard2 = document.getElementById("quizCard2");
-            const quizCard3 = document.getElementById("quizCard3");
-            wordPageBtn.onclick = function() {
-                wordPage();
-            };
-            quizCard1.onclick = function(){
-                console.log(this);
-            	quizOpen(1);
-            };
-            quizCard2.onclick = function(){
-                console.log(this);
-                quizOpen(2);
-            };
-            quizCard3.onclick = function(){
-                console.log(this);
-                quizOpen(3);
-            };
-        };
-        function wordPage() {
-            window.open(wordPageUrl, "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
-        };
-        function quizOpen(level){
-        	location.href = quizPageUrl + "?level=" + level;
-        };
-        /*]]>*/
-</script>
+<script th:src="@{/js/quiz-level-select.js}"></script>
+<script th:src="@{/js/wordbook-popup.js}"></script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

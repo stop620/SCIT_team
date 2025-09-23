@@ -50,6 +50,30 @@ main {
     gap: 2rem;
 }
 
+.title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.like-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap : 10px;
+}
+
+.like-button{
+    font-size:40px;
+    border: none;
+    background-color: transparent;
+}
+
+#cardLike{
+    padding-top: 8px;
+    font-size: 18px;
+}
+
 @media (min-width: 1024px) {
     .main-grid {
         grid-template-columns: 2fr 1fr;
@@ -281,7 +305,7 @@ main {
 #timeline-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 1.5rem;
     margin-top: 1rem;
 }
 .timeline-button-wrapper {
@@ -294,6 +318,7 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+<<<<<<< HEAD
     transition: background-color var(--transition-speed);
     border: none;
     cursor: pointer;
@@ -311,12 +336,23 @@ main {
 .timeline-button.completed:hover {
     background-color: var(--color-primary-pink);
     transform: scale(1.05);
+=======
+    transition: background-color 0.3s;
+    background-color: #E5E7EB;
+    border: none;
+    cursor: pointer;
 }
+.timeline-button:hover {
+    background-color: #FBCFE8;
+>>>>>>> develop
+}
+
 .timeline-button-label {
     color: var(--color-primary-dark);
     font-weight: 600;
     font-size: 0.875rem;
 }
+<<<<<<< HEAD
 .timeline-delete-button {
     position: absolute;
     top: -0.25rem;
@@ -341,6 +377,58 @@ main {
 
 /* --- Tags --- */
 .tags {
+=======
+.timeline-button-wrapper { /* 추가 */
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.timeline-sample {
+    display: flex;
+    flex-direction: column;
+    width: 10rem;
+}
+.timeline-sample span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* button */
+.button {
+    width: 100%;
+    color: white;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-section-display {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #EC4899;
+}
+
+/* Utility */
+.hidden {
+    display: none;
+}
+
+.kr p, .jp p{
+    word-break: keep-all; /* 한국어/일본어 단어 단위 줄바꿈 */
+    line-height: 1.6; /* 가독성을 위한 줄 간격 */
+}
+
+.tags{
+>>>>>>> develop
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
