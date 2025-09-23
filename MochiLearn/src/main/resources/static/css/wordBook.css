@@ -35,7 +35,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 20px;
-    background-color: var(--mochi-mint);
+    background-color: var(--mochi-blue);
 }
 
 .wordList,.addWordList h2,a{
