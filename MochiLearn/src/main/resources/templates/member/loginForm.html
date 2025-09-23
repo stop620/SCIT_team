@@ -8,10 +8,8 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <script th:src="@{/js/wordbook-popup.js}"></script>
+<script th:src="@{/js/login.js}"></script>
 
-<head>
-	<meta charset="UTF-8">
-	<title>로그인</title>
 <style>
 	img{
 		width: 50%;
@@ -68,6 +66,25 @@
 			<div class="buttonContainer">
 				<input type="submit" value="로그인">
 				<input type="button" value="회원가입"  th:onclick="|location.href='@{/member/joinForm}'|">
+
+				<!-- 구글로그인 -->
+				<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+				<div id="g_id_onload"
+					 data-client_id="985885360227-1cbr9mhq7gbga2psfao8a04eknurh5fn.apps.googleusercontent.com"
+					 data-ux_mode="popup"
+					 data-callback="handleCredentialResponse"> </div>
+
+				<div class="g_id_signin"
+					 data-type="standard"
+					 data-size="large"
+					 data-theme="outline"
+					 data-text="sign_in_with"
+					 data-shape="rectangular"
+					 data-logo_alignment="left">
+				</div>
+
+
 			</div>
 		</form>
 		<div class="sideContainer">
