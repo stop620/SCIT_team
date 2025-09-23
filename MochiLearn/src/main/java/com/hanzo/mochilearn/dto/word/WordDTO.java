@@ -16,6 +16,6 @@ public class WordDTO {
     private List<String> kana;
     private List<String> partOfSpeech;
     private List<String> gloss;
-    private List<String> example;
+    private List<String> examples;
 }
 

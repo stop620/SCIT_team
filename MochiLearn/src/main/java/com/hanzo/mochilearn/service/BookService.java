@@ -103,7 +103,7 @@ public class BookService {
             examples.add(entity.getJpExample());
             examples.add(entity.getKrExample());
 
-            wordDTO.setExample(examples);
+            wordDTO.setExamples(examples);
 
             wordDTOs.add(wordDTO);
         }

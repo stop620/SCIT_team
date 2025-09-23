@@ -103,8 +103,8 @@ public class WordService {
                     .pos(String.join(",", wordDTO.getPartOfSpeech()))
                     .kanji(String.join(",", wordDTO.getKanji()))
                     .kana(String.join(",", wordDTO.getKana()))
-                    .jpExample(wordDTO.getExample().get(0))
-                    .krExample(wordDTO.getExample().get(1))
+                    .jpExample(wordDTO.getExamples().get(0))
+                    .krExample(wordDTO.getExamples().get(1))
                     .build();
 
         }
