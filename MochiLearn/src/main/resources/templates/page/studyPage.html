@@ -63,7 +63,14 @@
 			<img th:src="${card.url} ?: @{/images/default-thumbnail.png}" alt="썸네일 이미지" />
         </div>
     </div>
+
+    <!-- 로딩 스피너 -->
+    <div class="loading-spinner"></div>
+
     <button id="scrollTopBtn" >위로가기</button>
+
+<!-- Footer -->
+<div th:replace="~{footer::footer}"></div>
 
 </body>
 </html>
