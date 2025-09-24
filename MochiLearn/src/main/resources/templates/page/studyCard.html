@@ -63,8 +63,18 @@
 
             <!-- 임시 말하기 기능 공간 -->
             <div class="card">
+
+                <!-- 스크립트 재생 버튼 -->
+                <div class="btn-container">
+                    <button id="playScriptBtn" class="play-script-btn" title="자막 재생">▶</button>
+                </div>
+
+                <div class="practice-comment" id="practiceComment">
+                    듣고 따라해보세요!
+                </div>
+
+                <!-- 마이크 녹음 버튼 UI -->
                 <div class="mic-wrap" id="micWrap">
-                    <div class="mic-btn-bg"></div>
                     <button id="micBtn" class="mic-btn" aria-pressed="false" title="녹음 시작/중지">
                         <svg class="mic-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22M8 22H16M12 15C10.3431 15 9 13.6569 9 12V5C9 3.34315 10.3431 2 12 2C13.6569 2 15 3.34315 15 5V12C15 13.6569 13.6569 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -72,10 +82,31 @@
                         <div class="status-dot" id="statusDot"></div>
                     </button>
                 </div>
+
                 <div class="hint" id="hint"></div>
 
-                <div class="btn-container">
-                    <button id="playScriptBtn" class="play-script-btn" title="자막 재생">▶</button>
+                <!-- 점수 표시 영역 -->
+                <div class="score-container hidden" id="scoreContainer">
+                    <div class="score-box accuracy">
+                        <div class="score-title">정확도</div>
+                        <div class="score-value" id="accuracyScore">--</div>
+                        <div class="score-bar-wrap">
+                            <div class="score-bar" id="accuracyBar"></div>
+                        </div>
+                    </div>
+                    <div class="score-box fluency">
+                        <div class="score-title">유창성</div>
+                        <div class="score-value" id="fluencyScore">--</div>
+                        <div class="score-bar-wrap">
+                            <div class="score-bar" id="fluencyBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 상세 피드백 영역 -->
+                <div class="feedback-message-container" id="feedbackMessageContainer">
+                    <h4>발음 피드백</h4>
+                    <div id="feedbackMessage"></div>
                 </div>
             </div>
 
@@ -101,6 +132,17 @@
             </div>
         </div>
 
+    </div>
+    <!-- 커스텀 모달 UI -->
+    <div id="customModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage"></p>
+            <div class="modal-buttons">
+                <button id="modalConfirmBtn" class="modal-btn confirm" style="display: none;">확인</button>
+                <button id="modalCancelBtn" class="modal-btn cancel" style="display: none;">취소</button>
+                <button id="modalCloseBtn" class="modal-btn confirm" style="display: none;">닫기</button>
+            </div>
+        </div>
     </div>
 </main>
 <!-- 단어 팝업 관련 div -->

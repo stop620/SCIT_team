@@ -20,7 +20,9 @@ window.onload = function() {
                         const userConfirmed = confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?');
                         // 확인을 누르면 로그인 페이지로 이동
                         if (userConfirmed) {
-                            window.location.href = '/mochilearn/member/loginForm';
+                            // window.location.href = '/mochilearn/member/loginForm';
+                            window.location.href = '/mochilearn/member/loginForm?redirect=' + encodeURIComponent(window.location.href);
+                            
                         }
                     }
                 })

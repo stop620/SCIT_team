@@ -3,40 +3,65 @@
 
 let mediaRecorder;
 let audioChunks = [];
-//
 let micWrap;
 let hint;
-
 let isListening = false;
 let audioContext = null;
 let analyser = null;
 let sourceNode = null;
-let mediaStream = null;
 let rafId = null;
+let micBtn;
+let lastPulseAt = 0;
+
+let practiceComment;
+let scoreContainer;
+let accuracyScoreElem;
+let fluencyScoreElem;
+let feedbackMessageContainer;
+let feedbackMessageElem;
+
+// 점수 막대그래프 요소
+let accuracyBar;
+let fluencyBar;
 
 const THRESHOLD = 0.02;      // 감지 임계값 (0 ~ 1). 필요시 조절하세요.
 const MIN_PULSE_INTERVAL = 300; // 밀리초 단위: 연속 펄스 제한
-let micBtn;
-let lastPulseAt = 0;
 
 /**
  * 발음 평가 관련 UI 컨트롤(버튼)의 이벤트 리스너 초기화
  */
 function initializeSpeechPracticeListeners() {
-    // $('#startButton').click(startRecording);
-    // $('#stopButton').click(stopRecording);
 
     // UI 토글
     micBtn = document.getElementById('micBtn');
     micWrap = document.getElementById('micWrap');
     hint = document.getElementById('hint');
+
+    practiceComment = document.getElementById('practiceComment');
+    scoreContainer = document.getElementById('scoreContainer');
+    accuracyScoreElem = document.getElementById('accuracyScore');
+    fluencyScoreElem = document.getElementById('fluencyScore');
+    feedbackMessageContainer = document.getElementById('feedbackMessageContainer');
+    feedbackMessageElem = document.getElementById('feedbackMessage');
+
+    accuracyBar = document.getElementById('accuracyBar');
+    fluencyBar = document.getElementById('fluencyBar');
+
     console.log(micBtn);
     micBtn.addEventListener('click', async (e) => {
+
+        const isLogin = await fetch('/mochilearn/api/user/session').then(res => res.json());
+
+        if (!isLogin.loggedIn) {
+            if (confirm('로그인 후 말하기 점수를 확인해보세요!')) {
+                window.location.href = '/mochilearn/member/loginForm?redirect=' + encodeURIComponent(window.location.href);
+            }
+            return;
+        }
+
         if (!isListening) {
-            console.log('start');
             await startRecording();
         } else {
-            console.log('stop');
             stopRecording();
         }
     });
@@ -68,7 +93,7 @@ async function startRecording() {
         isListening = true;
         micWrap.classList.add('listening');
         micBtn.setAttribute('aria-pressed','true');
-        hint.textContent = '감지 중... 소리를 내면 파동이 생성됩니다. 다시 클릭하면 중지합니다.';
+        hint.textContent = '감지 중... 다시 버튼을 클릭하면 점수를 측정합니다.';
 
         monitorVolume();
 
@@ -105,7 +130,10 @@ function stopRecording() {
  * 녹음된 오디오 파일을 평가 서버로 전송
  */
 async function sendAudioToServer() {
-    if (audioChunks.length === 0) return;
+    if (audioChunks.length === 0) {
+        hint.textContent = '녹음된 내용이 없습니다. 다시 시도해주세요.';
+        return;
+    }
 
     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
     const referenceText = currentTranscript[currentTranscriptIndex]?.japanese;
@@ -127,21 +155,70 @@ async function sendAudioToServer() {
 
         if (response.ok) {
             const result = await response.json();
-            console.log('Pronunciation Assessment Result:', result);
-            alert(`평가 결과:\n정확도: ${result.accuracyScore}\n유창성: ${result.fluencyScore}`);
+            displayResult(result);
         } else {
             console.error('Server error:', response.statusText);
-            alert("발음 평가 서버에서 오류가 발생했습니다.");
+            hint.textContent = "발음 평가 서버에서 오류가 발생했습니다.";
         }
     } catch (error) {
         console.error('Network error:', error);
-        alert("발음 평가 서버에 연결할 수 없습니다.");
+        hint.textContent = "발음 평가 서버에 연결할 수 없습니다.";
     }
+
 }
 
+function displayResult(result) {
+    // 숫자 점수 업데이트
+    const accuracyScore = Math.round(result.accuracyScore);
+    const fluencyScore = Math.round(result.fluencyScore);
 
+    accuracyScoreElem.textContent = accuracyScore;
+    fluencyScoreElem.textContent = fluencyScore;
+    scoreContainer.classList.remove('hidden');
 
+    // 막대 그래프와 숫자 색상 업데이트
+    accuracyScoreElem.style.color = getScoreColor(accuracyScore);
+    fluencyScoreElem.style.color = getScoreColor(fluencyScore);
+    accuracyBar.style.width = `${accuracyScore}%`;
+    fluencyBar.style.width = `${fluencyScore}%`;
+    accuracyBar.style.backgroundColor = getScoreColor(accuracyScore);
+    fluencyBar.style.backgroundColor = getScoreColor(fluencyScore);
 
+    let feedbackHtml = '';
+    let lowestAccuracyWord = null;
+    let omittedWords = [];
+    if (result.words) {
+        result.words.forEach(word => {
+            if (word.errorType === 'Omission') {
+                omittedWords.push(word.word);
+            }
+            if (word.accuracyScore > 0 && (lowestAccuracyWord === null || word.accuracyScore < lowestAccuracyWord.accuracyScore)) {
+                lowestAccuracyWord = word;
+            }
+        });
+    }
+
+    if (omittedWords.length > 0) {
+        feedbackHtml += `<p><strong>🚨 빠뜨린 단어:</strong> ${omittedWords.join(', ')}</p>`;
+    }
+
+    if (lowestAccuracyWord && lowestAccuracyWord.accuracyScore < 80) {
+        feedbackHtml += `<p><strong>💡 발음 유의:</strong> '${lowestAccuracyWord.word}'의 발음을 더 신경 써보세요!</p>`;
+    } else if (accuracyScore > 80) {
+        feedbackHtml += `<p><strong>🎉 아주 잘했어요!</strong> 훌륭한 발음입니다.</p>`;
+    } else {
+        feedbackHtml += `<p>다시 한번 도전해보세요! 화이팅!</p>`;
+    }
+
+    if (accuracyScore === 0 && fluencyScore === 0 && omittedWords.length === 0) {
+        feedbackHtml = `<p>아직 녹음된 내용이 없거나 발음이 감지되지 않았습니다. 다시 한번 시도해주세요.</p>`;
+    }
+
+    feedbackMessageElem.innerHTML = feedbackHtml;
+    feedbackMessageContainer.style.display = 'block';
+
+    hint.textContent = '평가 결과입니다! 다시 말해보려면 마이크를 누르세요.';
+}
 
 // RMS 계산 (float time domain 데이터)
 function calcRMS(float32Array) {
@@ -188,7 +265,14 @@ function monitorVolume() {
     rafId = requestAnimationFrame(loop);
 }
 
-
+function getScoreColor(score) {
+    if (score >= 95) return 'var(--score-color-perfect)';
+    if (score >= 75) return 'var(--score-color-excellent)';
+    if (score >= 50) return 'var(--score-color-good)';
+    if (score >= 25) return 'var(--score-color-fair)';
+    if (score > 0) return 'var(--score-color-poor)';
+    return 'var(--score-color-fail)';
+}
 
 // 페이지 벗어날 때 정리
 window.addEventListener('beforeunload', () => {

@@ -1,6 +1,8 @@
 package com.hanzo.mochilearn.security;
 
 import com.hanzo.mochilearn.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 /**
  * 시큐리티 환경설정
@@ -36,6 +41,7 @@ public class WebSecurityConfig {
             , "/page/best"          // 인기/최신 카드 페이지
             , "/page/study"         // 전체 카드 페이지
             , "/page/studyCard"     // 학습 카드 페이지
+            , "/page/quiz"          // 퀴즈 선택 페이지
 
             , "/api/user/session"   // 로그인 세션 정보 api
             , "/api/study/load"     // 카드 목록 불러오기 api
@@ -68,12 +74,13 @@ public class WebSecurityConfig {
                     .usernameParameter("id")
                     .passwordParameter("password")
                     .loginProcessingUrl("/member/login")
-                    //.defaultSuccessUrl("/", true) // 로그인시 기존 접근하려던 페이지로 보내기 위해 제거
+                    .successHandler(authenticationSuccessHandler()) // 로그인 성공 시 핸들러
                     .permitAll()
             )
             .logout(logout -> logout
                     .logoutUrl("/member/logout")
-                    .logoutSuccessUrl("/")
+                    .logoutSuccessHandler(logoutSuccessHandler()) // 로그아웃 성공 시 핸들러
+                    .invalidateHttpSession(true)
             );
 
         http
@@ -81,6 +88,29 @@ public class WebSecurityConfig {
             .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
+    }
+
+    // 로그인 성공시 이전 페이지로 리디렉션하는 핸들러
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        SimpleUrlAuthenticationSuccessHandler successHandler = new SimpleUrlAuthenticationSuccessHandler();
+        successHandler.setDefaultTargetUrl("/");
+        successHandler.setAlwaysUseDefaultTargetUrl(false);
+        successHandler.setTargetUrlParameter("redirect");
+        return successHandler;
+    }
+
+    // 로그아웃 성공 시 이전 페이지로 리디렉션하는 핸들러
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.Authentication authentication) -> {
+            String referer = request.getHeader("Referer");
+            if (referer != null && !referer.contains("/member/logout")) {
+                response.sendRedirect(referer);
+            } else {
+                response.sendRedirect("/");
+            }
+        };
     }
 
     @Bean

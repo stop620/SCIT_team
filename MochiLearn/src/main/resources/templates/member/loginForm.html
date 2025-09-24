@@ -63,6 +63,9 @@
 				<label for="password"></label>
 				<input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
 			</div>
+			<!-- 리다이렉트용 히든 인풋 -->
+			<input type="hidden" name="redirect" th:value="${param.redirect}">
+
 			<div class="buttonContainer">
 				<input type="submit" value="로그인">
 				<input type="button" value="회원가입"  th:onclick="|location.href='@{/member/joinForm}'|">

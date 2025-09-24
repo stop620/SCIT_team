@@ -90,7 +90,8 @@ $(document).ready(function() {
         $('#like-button').click(function() {
             if (!isLoggedIn) {
                 if (confirm('좋아요를 누르려면 로그인해야 합니다. 로그인 페이지로 이동하시겠습니까?')) {
-                    window.location.href = '/mochilearn/member/loginForm'; // 로그인 페이지 URL에 맞게 변경
+                    window.location.href = '/mochilearn/member/loginForm?redirect=' + encodeURIComponent(window.location.href);
+
                 }
                 return;
             }
@@ -420,7 +421,11 @@ function time(seconds) {
 
 // 문장 단위 재생 버튼 이벤트
 $(document).on('click', '.play-script-btn', function() {
-    if (!player || currentTranscript.length === 0) return;
+
+    if (!player || currentTranscript.length === 0) {
+        hint.textContent = "먼저 학습 구간을 선택해주세요.";
+        return;
+    }
 
     const startTime = currentSectionStart + parseAITime(currentTranscript[currentTranscriptIndex].time);
     const endTime = (currentTranscriptIndex + 1 < currentTranscript.length)
