@@ -1,78 +1,108 @@
+/* 새로운 mochi-blue 색상 변수 (더 차분한 톤) */
+:root {
+    --mochi-blue-calm: #7cdfff;
+}
 
-.mic-wrap{
+/* 마이크 버튼을 감싸는 컨테이너 */
+.mic-wrap {
     justify-self: center;
-    position:relative;
-    width:100px;
-    height:100px;
+    position: relative;
+    width: 240px; /* 버튼의 가로 길이 늘림 */
+    height: 60px; /* 버튼의 세로 길이 조절 */
+    border-radius: 30px; /* 알약 모양을 위해 세로 길이의 절반으로 설정 */
+    overflow: visible;
 }
 
-/* 버튼 */
-.mic-btn{
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    border:0;
-    background:var(--mochi-blue);
-    display:grid;
-    place-items:center;
-    box-shadow:0 6px 18px rgba(2,6,23,0.6), inset 0 -6px 18px rgba(255,255,255,0.03);
-    cursor:pointer;
-    transition:transform .12s ease, box-shadow .12s ease;
-    position:relative;
-    overflow:visible;
-}
-.mic-btn:active{ transform:scale(.97); }
-
-/* 마이크 아이콘 (간단한 SVG) */
-.mic-icon{
-    width:44%;
-    height:44%;
-    display:block;
-    color:var(--mochi-gray-light);
-    filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+/* 마이크 버튼 */
+.mic-btn {
+    width: 100%;
+    height: 100%;
+    border-radius: 30px; /* 알약 모양 */
+    border: 0;
+    background: var(--mochi-blue-calm);
+    display: flex; /* 내부 아이콘 정렬을 위해 flexbox 사용 */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2),
+    inset 0 -6px 18px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .3s ease;
+    position: relative;
 }
 
-/* 소리 감지시 생성되는 pulse 요소 스타일(동적으로 추가/제거) */
-.pulse{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    width:150px;
-    height:150px;
-    border-radius:50%;
-    pointer-events:none;
-    background:radial-gradient(circle at 50% 50%, var(--mochi-pink) 0%, transparent 40%);
-    animation: pulseScale 700ms ease-out forwards;
-    z-index: -1;
+.mic-btn:active {
+    transform: scale(.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 -3px 10px rgba(255, 255, 255, 0.2);
 }
-@keyframes pulseScale{
-    0%{ transform: translate(-50%,-50%) scale(0.6); opacity:0.9; }
-    60%{ transform: translate(-50%,-50%) scale(1.6); opacity:0.45; }
-    100%{ transform: translate(-50%,-50%) scale(2.4); opacity:0; }
+
+/* 마이크 아이콘 (SVG) */
+.mic-icon {
+    width: 44px; /* 아이콘 크기 고정 */
+    height: 44px;
+    color: var(--mochi-gray-light);
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+    transition: color .3s ease;
+}
+
+/* 소리 감지 시 생성되는 펄스 요소 */
+.pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 240px; /* 버튼과 동일한 크기 */
+    height: 60px;
+    border-radius: 30px; /* 알약 모양 */
+    pointer-events: none;
+    background: transparent;
+    border: 5px solid var(--mochi-mint);
+    opacity: 0;
+    animation: pulseWave 1s ease-out forwards;
+}
+
+/* 펄스 애니메이션 - 알약 선이 퍼져나가는 효과 */
+@keyframes pulseWave {
+    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
 }
 
 /* 작은 상태 점 (녹음중 표시) */
-.status-dot{
-    position:absolute;
-    right:-6px;
-    bottom:-6px;
-    width:18px;
-    height:18px;
-    border-radius:50%;
-    background:#ef4444;
-    box-shadow:0 2px 6px rgba(0,0,0,0.4);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    font-size:10px;
+.status-dot {
+    position: absolute;
+    right: 8px; /* 버튼 우측에 위치 */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--mochi-pink);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: none;
+    transition: background-color .3s ease;
+    animation: dotPulse 1.5s infinite; /* 애니메이션 추가 */
 }
-.listening .status-dot{ display:flex; }
+
+/* 'listening' 클래스가 추가되면 활성화 */
+.listening .status-dot { display: block; }
+.listening .mic-btn {
+    box-shadow:
+            0 0 10px var(--mochi-mint),
+            0 0 20px var(--mochi-mint),
+            0 0 30px var(--mochi-mint),
+            inset 0 -6px 18px rgba(255, 255, 255, 0.2);
+}
 
 /* 도움 텍스트 */
-.hint{
-    margin-top:18px;
-    text-align:center;
-    font-size:14px;
-    opacity:0.9;
+.hint {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+@keyframes dotPulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
 }

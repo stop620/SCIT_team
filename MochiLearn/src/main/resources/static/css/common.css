@@ -83,6 +83,7 @@ body {
     color: var(--mochi-gray-dark);
     transition: color 0.3s ease;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .nav-link:hover {

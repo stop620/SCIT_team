@@ -9,6 +9,7 @@ let liked = false;
 let likeCount = 0;
 let currentSectionStart = 0; // 현재 섹션 시작 시간
 let currentSectionEnd = null; // 현재 섹션 종료 시간
+let singleLineMode = false; // 한 문장만 재생 모드 여부
 
 function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
@@ -190,29 +191,31 @@ const onPlayerStateChange = (event) => {
             const lastIndex = currentTranscript.length - 1;
             const lastTime = lastIndex >= 0 ? parseAITime(currentTranscript[lastIndex].time) : 0;
 
-            let newIndex = -1;
-            for (let i = 0; i < currentTranscript.length; i++) {
-                const itemTime = parseAITime(currentTranscript[i].time);
-                const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
+            if (!singleLineMode) { // 한 문장 모드일 땐 인덱스 안바꿈
+                let newIndex = -1;
+                for (let i = 0; i < currentTranscript.length; i++) {
+                    const itemTime = parseAITime(currentTranscript[i].time);
+                    const nextItemTime = (i + 1 < currentTranscript.length) ? parseAITime(currentTranscript[i + 1].time) : Infinity;
 
-                if (relativeTime >= itemTime && relativeTime < nextItemTime) {
-                    newIndex = i;
-                    break;
+                    if (relativeTime >= itemTime && relativeTime < nextItemTime) {
+                        newIndex = i;
+                        break;
+                    }
                 }
-            }
 
-            if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
-                newIndex = lastIndex;
-            }
+                if (newIndex === -1 && currentTranscript.length > 0 && relativeTime >= lastTime) {
+                    newIndex = lastIndex;
+                }
 
-            if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
-                currentTranscriptIndex = newIndex;
-                updateSingleTranscriptLine();
-            }
+                if (newIndex !== currentTranscriptIndex && newIndex !== -1) {
+                    currentTranscriptIndex = newIndex;
+                    updateSingleTranscriptLine();
+                }
 
-            if (currentTime >= currentSectionStart + lastTime + 0.5) {
-                clearInterval(subtitleInterval);
-                return;
+                if (currentTime >= currentSectionStart + lastTime + 0.5) {
+                    clearInterval(subtitleInterval);
+                    return;
+                }
             }
         }, 100);
     } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
@@ -414,3 +417,34 @@ function time(seconds) {
     }
 
 }
+
+// 문장 단위 재생 버튼 이벤트
+$(document).on('click', '.play-script-btn', function() {
+    if (!player || currentTranscript.length === 0) return;
+
+    const startTime = currentSectionStart + parseAITime(currentTranscript[currentTranscriptIndex].time);
+    const endTime = (currentTranscriptIndex + 1 < currentTranscript.length)
+        ? currentSectionStart + parseAITime(currentTranscript[currentTranscriptIndex + 1].time)
+        : (currentSectionEnd !== null ? currentSectionEnd : player.getDuration());
+
+    // 모드 켜기
+    singleLineMode = true;
+
+    // 영상 재생
+    player.seekTo(startTime, true);
+    player.playVideo();
+
+    // 기존 타이머 정리
+    clearInterval(timelineTimeout);
+
+    // 종료 지점에서 멈춤
+    timelineTimeout = setInterval(() => {
+        if (player && typeof player.getCurrentTime === 'function') {
+            if (player.getCurrentTime() >= endTime) {
+                player.pauseVideo();
+                clearInterval(timelineTimeout);
+                singleLineMode = false; // 정지 후 다시 원래 모드로
+            }
+        }
+    }, 100);
+});
