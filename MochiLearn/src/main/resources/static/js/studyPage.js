@@ -103,6 +103,8 @@ $(document).ready(function() {
         if (loading || endReached || isTagFilterActive) return;
 
         loading = true;
+        toggleLoading(1);
+
         if (reset) {
             page = 0;
             endReached = false;
@@ -124,11 +126,13 @@ $(document).ready(function() {
                 }
                 renderCards(data, reset);
                 page++;
-                loading = false;
             })
             .fail(() => {
                 alert('카드 로드 중 오류가 발생했습니다.');
+            })
+            .always(() => {
                 loading = false;
+                toggleLoading(0);
             });
     }
 
@@ -137,6 +141,8 @@ $(document).ready(function() {
         if (loading || tagFilterEnd) return;
 
         loading = true;
+        toggleLoading(1);
+
         if (reset) {
             tagFilterPage = 0;
             tagFilterEnd = false;
@@ -157,11 +163,13 @@ $(document).ready(function() {
                 }
                 renderCards(response.content, reset);
                 tagFilterPage++;
-                loading = false;
             },
             error: function() {
                 alert('태그 필터링 중 오류가 발생했습니다.');
+            },
+            complete: function() {
                 loading = false;
+                toggleLoading(0);
             }
         });
     }
@@ -201,10 +209,11 @@ $(document).ready(function() {
     $(window).scroll(() => {
         if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
             if (loading) return;
+
             if (isTagFilterActive) {
-                loadCardsByTags();
+                if (!tagFilterEnd) loadCardsByTags();
             } else {
-                loadCards();
+                if (!endReached) loadCards();
             }
         }
     });
@@ -217,3 +226,13 @@ $(document).ready(function() {
         $('html, body').animate({ scrollTop: 0 }, 300);
     });
 });
+
+function toggleLoading(flag) {
+    if(flag == 0) {
+        $('.loading-spinner').hide();
+        $('#cardGrid').css("padding", "2rem 15px 10rem");
+    } else {
+        $('.loading-spinner').show();
+        $('#cardGrid').css("padding", "2rem 15px");
+    }
+}

@@ -1,5 +1,7 @@
 package com.hanzo.mochilearn.security;
 
+import com.hanzo.mochilearn.service.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -15,7 +17,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+
     //로그인 없이 접근 가능 경로
     private static final String[] PUBLIC_URLS = {
             "/"                     //root
@@ -33,7 +39,14 @@ public class WebSecurityConfig {
 
             , "/api/study/load"     // 카드 목록 불러오기 api
             , "/api/study/card"     // 카드 정보 불러오기 api
+<<<<<<< HEAD
             ,"/api/study/filterByTags" //태그 필터 결과
+=======
+            , "/api/study/filterByTags" // 카드 정보 필터
+
+            , "/api/auth/google"        // 구글로그인 api
+
+>>>>>>> develop
 
             /*
             , "/api/study/load"     // 카드 목록 api
@@ -45,7 +58,7 @@ public class WebSecurityConfig {
     };
 
     @Bean
-    protected SecurityFilterChain config(HttpSecurity http) throws Exception {
+    protected SecurityFilterChain config(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService) throws Exception {
         http
             .authorizeHttpRequests(author -> author
                 .requestMatchers(PUBLIC_URLS).permitAll()

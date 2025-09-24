@@ -13,7 +13,8 @@ window.onload = function() {
                 .then(data => {
                     if (data.loggedIn) {
                         // 로그인 상태인 경우, 팝업 창을 엽니다.
-                        window.open('/mochilearn/page/word', "_blank", "toolbar=yes,scrollbars=yes,resizable=yes,top=100,left=500,width=700,height=400");
+                        window.open('/mochilearn/page/word', "_blank",
+                            "toolbar=yes, scrollbars=yes, resizable=yes, top=100, left=500, width=470, height=700");
                     } else {
                         // 로그인 상태가 아닐 때 컨펌창
                         const userConfirmed = confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?');

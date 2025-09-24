@@ -27,6 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const level = params.get("level");
     console.log('선택한 퀴즈 난이도: ', level);
 
+    const quizTitle = document.getElementById('quiz-title');
+    switch (level) {
+        case '1':
+            quizTitle.textContent = "퀴즈 난이도: 초급";
+            break;
+        case '2':
+            quizTitle.textContent = "퀴즈 난이도: 중급";
+            break;
+        case '3':
+            quizTitle.textContent = "퀴즈 난이도: 고급";
+            break;
+        default:
+            break;
+    }
+
     // --- 데이터 로딩 (sessionStorage 적용) ---
     function loadQuizzes() {
         const storedQuizzes = sessionStorage.getItem('quizzes');

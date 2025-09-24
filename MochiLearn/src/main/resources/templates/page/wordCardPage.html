@@ -64,8 +64,8 @@
             <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
             <div class="word-label">예문</div>
             <div class="word-content">
-                <p th:text="${word.example[0]}"></p>
-                <p class="kr-example" th:text="${word.example[1]}"></p>
+                <p th:text="${word.examples[0]}"></p>
+                <p class="kr-example" th:text="${word.examples[1]}"></p>
 
             </div>
         </div>

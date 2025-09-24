@@ -4,6 +4,12 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    padding: 0;
+}
+
+.main-header nav {
+    padding: 0;
+    white-space: nowrap;
 }
 
 .wrapper{
@@ -12,7 +18,7 @@
 }
 
 .wordContainer{
-    background-color: var(--mochi-gray-light);
+    background-color: #fff;
     width: 66%;
     display: grid;
     gap: 10px;
@@ -30,12 +36,21 @@
 .wordList,.addWordList{
     width: 66%;
     text-align: center;
+    font-weight: 600;
     margin: 10px auto;
     border-radius: 5px;
     flex-wrap: wrap;
     justify-content: space-between;
     padding: 20px;
-    background-color: var(--mochi-mint);
+    background-color: var(--mochi-blue);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.wordList:hover,.addWordList:hover {
+    transition: all 0.2s ease;
+
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .wordList,.addWordList h2,a{
