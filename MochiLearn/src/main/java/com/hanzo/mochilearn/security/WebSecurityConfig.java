@@ -1,7 +1,5 @@
 package com.hanzo.mochilearn.security;
 
-import com.hanzo.mochilearn.service.CustomOAuth2UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -10,6 +8,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.hanzo.mochilearn.service.CustomOAuth2UserService;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 시큐리티 환경설정
@@ -37,16 +39,13 @@ public class WebSecurityConfig {
             , "/page/study"         // 전체 카드 페이지
             , "/page/studyCard"     // 학습 카드 페이지
 
+            , "/api/user/session"
             , "/api/study/load"     // 카드 목록 불러오기 api
             , "/api/study/card"     // 카드 정보 불러오기 api
-<<<<<<< HEAD
-            ,"/api/study/filterByTags" //태그 필터 결과
-=======
             , "/api/study/filterByTags" // 카드 정보 필터
 
             , "/api/auth/google"        // 구글로그인 api
 
->>>>>>> develop
 
             /*
             , "/api/study/load"     // 카드 목록 api

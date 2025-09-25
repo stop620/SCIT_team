@@ -14,7 +14,7 @@ function renderCard(cardData) {
     document.getElementById('cardTitle').innerText = cardData.title || "";
     document.getElementById('cardLike').innerText = cardData.like || "";
 
-    const tagsContainer = document.querySelector('.tags.card');
+    const tagsContainer = document.getElementById('tags-container');
     tagsContainer.innerHTML = ''; // 초기화
 
     const levelMap = {
@@ -50,10 +50,15 @@ $(document).ready(function() {
 
     console.log("🏷️ URL에서 추출한 cardId:", cardId);
 
-    function updateLikeButton() {
-        $('#cardLike').text(card.like);
-        $('#like-button').css('color', liked ? '#f1c232' : 'black');
-    }
+	function updateLikeButton() {
+	    $('#cardLike').text(card.like);
+
+	    // 클릭 상태(liked)가 true일 때 카드 라이크 숫자 색상을 빨간색으로 설정, 아니면 기본색(예: 검정)
+	    $('#cardLike').css('color', liked ? 'red' : 'black');
+
+	    // 기존 좋아요 버튼 색상 변경 유지
+	    $('#like-button').css('color', liked ? '#f1c232' : 'black');
+	}
 
     if (cardId) {
         $.get(`/mochilearn/api/study/card?cardId=${cardId}`)

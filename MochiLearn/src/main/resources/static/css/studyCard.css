@@ -1,16 +1,24 @@
+/* --- Global Styles & Variables --- */
 :root {
-    --color-primary-pink: #EC4899; /* Pink-500 */
-    --color-primary-dark: #1F2937; /* Gray-800 */
-    --color-secondary-gray: #6B7280; /* Gray-500 */
-    --color-light-gray: #E5E7EB; /* Gray-200 */
-    --color-background: #F3F4F6; /* Gray-100 */
-    --color-card-background: #ffffff;
-    --color-border: #D1D5DB; /* Gray-300 */
+    /* Color Palette */
+    --color-primary-pink: #EC4899; /* Vibrant Pink (Main Accent) */
+    --color-primary-pink-light: #FBCFE8; /* Light Pink (Tags, Soft Hover) */
+    --color-primary-dark: #1F2937; /* Dark Gray (Main Text) */
+    --color-secondary-gray: #6B7280; /* Medium Gray (Sub Text, Inactive) */
+    --color-light-gray: #E5E7EB; /* Light Gray (Border/Default Button) */
+    --color-background: #F9FAFB; /* Off-White (Body Background) */
+    --color-card-background: #ffffff; /* Pure White (Card Background) */
+    --color-destructive: #DC2626; /* Strong Red (Delete/Error) */
 
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* Shadows */
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 
+    /* Spacing & Radius */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
     --radius-sm: 0.5rem;
     --radius-full: 9999px;
     
@@ -25,10 +33,11 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: 'Pretendard Variable JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: var(--color-background);
     color: var(--color-primary-dark);
     line-height: 1.6;
+    min-height: 100vh;
 }
 
 a {
@@ -36,11 +45,13 @@ a {
     color: inherit;
 }
 
+/* ------------------------------------------------------------------------- */
 /* --- Layout --- */
+/* ------------------------------------------------------------------------- */
 main {
-    max-width: 80rem; /* max-w-7xl */
+    max-width: 80rem; 
     margin: auto;
-    padding: 1.5rem; /* p-6 */
+    padding: var(--spacing-lg);
 }
 
 .main-grid {
@@ -49,116 +60,185 @@ main {
     gap: 2rem;
 }
 
-.title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.like-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap : 10px;
-}
-
-.like-button{
-    font-size:40px;
-    border: none;
-    background-color: transparent;
-}
-
-#cardLike{
-    padding-top: 8px;
-    font-size: 18px;
-}
-
 @media (min-width: 1024px) {
     .main-grid {
         grid-template-columns: 2fr 1fr;
         gap: 3rem;
-        align-items: start;
+        align-items: flex-start;
     }
     .left-column {
         grid-column: 1;
-        max-width: 100%;
     }
     .right-column {
         grid-column: 2;
-        max-width: 100%;
-        top: 1.5rem;
-        align-self: start;
-    }
-    .sticky {
         position: sticky;
-        top: 5rem;
+        top: var(--spacing-lg);
+        align-self: flex-start;
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
     }
 }
 
 .left-column, .right-column {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--spacing-lg);
     width: 100%;
 }
 
+/* ------------------------------------------------------------------------- */
 /* --- Card & Section Styles --- */
+/* ------------------------------------------------------------------------- */
 .card {
     background-color: var(--color-card-background);
-    padding: 1.5rem;
+    padding: var(--spacing-lg);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-md);
+    position: relative; 
 }
 
-.card-title {
-    font-weight: 700;
-    font-size: 1.125rem;
-    color: var(--color-primary-dark);
-}
-
-/* --- Title & Like Button --- */
+/* --- Title, Tags, Like Section --- */
 .title {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column; 
+    gap: var(--spacing-md);
+}
+
+/* ★ 수정: 제목과 딜리트 버튼을 포함하는 Flex 컨테이너 */
+.header-content {
+    display: flex;
+    /* 제목과 버튼을 양 끝으로 분리 */
+    justify-content: space-between; 
+    align-items: flex-start; /* 제목과 버튼을 상단 정렬 */
+    width: 100%;
+    margin-bottom: var(--spacing-md); /* 제목 영역과 태그 영역 분리 */
+}
+
+/* 제목 컨테이너 */
+.title-container {
+    /* 딜리트 버튼을 오른쪽으로 밀어내기 위해, 제목 컨테이너가 공간을 차지하지 않도록 설정 */
+    flex-grow: 0; 
+    /* 딜리트 버튼이 왼쪽에 오도록 순서를 조정 (옵션) */
+    /* order: 1; */
 }
 
 #cardTitle {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
+    line-height: 1.2;
+    color: var(--color-primary-dark);
+    /* 딜리트 버튼을 오른쪽으로 밀어내기 위해 제목 컨테이너의 flex-grow를 0으로 설정했으므로, 
+       제목이 공간을 최대한 차지하고 싶다면 title-container에 flex-grow: 1을 주고,
+       버튼을 title-container 밖으로 빼는 방식(현재 방식)을 사용해야 합니다. */
+    flex-grow: 1; 
+    margin-bottom: 0.625rem; 
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Delete Button (제목의 오른쪽 상단에 배치, 숨김/표시) --- */
+/* ------------------------------------------------------------------------- */
+
+/* 딜리트 버튼 감싸는 div (.delete-wrap 클래스 사용) */
+.card.title .delete-wrap { 
+    position: static; 
+    
+    /* 버튼을 오른쪽으로 정렬하도록 flex-shrink: 0와 align-self: flex-start 적용 */
+    flex-shrink: 0; 
+    align-self: flex-start; /* 제목 텍스트 상단에 맞춤 */
+    
+    /* 기본적으로 숨김 */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+
+/* 제목 카드에 마우스 호버 시 딜리트 버튼 보이기 */
+.card.title:hover .delete-wrap {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 딜리트 버튼 자체 스타일 (텍스트만 보이도록) */
+#delete-button {
+    background-color: transparent; 
+    color: var(--color-destructive); 
+    border: none; 
+    
+    padding: var(--spacing-sm) 0; 
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    line-height: 1;
+    border-radius: var(--radius-sm); 
+    box-shadow: none; 
+    white-space: nowrap;
+}
+
+
+/* --- Tags --- */
+#tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+.tag-item {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    border: none;
+    background-color: var(--color-primary-pink-light); 
+    color: white; 
+    white-space: nowrap;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+/* --- Like Button / Count (오른쪽 아래 절대 위치 유지) --- */
+.like-container {
+    position: absolute; 
+    bottom: var(--spacing-lg); 
+    right: var(--spacing-lg); 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    z-index: 10;
+}
+
+/* 좋아요 개수 크기 키우기 */
+#cardLike {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-primary-pink);
+    flex-shrink: 0; 
 }
 
 .like-button {
-    background-color: transparent; /* 배경 없애기 */
+    background-color: transparent;
     color: var(--color-secondary-gray);
-    font-weight: 600;
-    padding: 0;
-    border-radius: 0;
     border: none;
     cursor: pointer;
-    transition: color var(--transition-speed);
-    font-size: 2.5rem; /* 별 크기 키우기 */
+    transition: color var(--transition-speed), transform 0.2s ease;
+    font-size: 2.5rem;
     line-height: 1;
-    width: auto;
-    height: auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
 }
-
 .like-button:hover {
     color: var(--color-primary-pink);
+    transform: scale(1.1);
 }
 
-#cardLike {
-    font-size: 1rem;
-    color: var(--color-secondary-gray);
-    margin-left: -0.5rem;
-}
-
+/* ------------------------------------------------------------------------- */
 /* --- Player --- */
+/* ------------------------------------------------------------------------- */
 .player-container {
     position: relative;
     width: 100%;
@@ -176,20 +256,26 @@ main {
     height: 100%;
 }
 
-/* --- Transcript Display --- */
+/* ------------------------------------------------------------------------- */
+/* --- Transcript Display (자막 컨테이너 크기 고정) --- */
+/* ------------------------------------------------------------------------- */
 .transcript-container {
-    height: 13rem;
+    height: 13rem; /* ★ 자막 컨테이너 크기 고정 */
+    padding-bottom: calc(var(--spacing-lg) + 3rem); /* 버튼 공간 확보 */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; 
 }
+
 .transcript-header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-sm) 0;
-    position: sticky;
-    top: 0;
-    background-color: var(--color-card-background);
-    z-index: 1;
+    align-items: center; 
+    justify-content: space-between; 
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
 }
+
 .transcript-nav-btn {
     padding: var(--spacing-sm);
     border-radius: var(--radius-full);
@@ -197,132 +283,136 @@ main {
     border: none;
     cursor: pointer;
     transition: background-color var(--transition-speed);
-    height: 2.5rem;
+    height: 2.5rem; 
+    width: 2.5rem;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.2rem;
+    color: var(--color-secondary-gray);
 }
 .transcript-nav-btn:hover {
-    background-color: var(--color-background);
+    background-color: var(--color-primary-pink-light);
+    color: var(--color-primary-dark);
 }
 
 .transcript-text {
     flex-grow: 1;
     text-align: center;
     max-width: 70%;
+    min-width: 50%;
+    word-break: keep-all;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto; 
 }
 #japanese-line {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     color: var(--color-primary-dark);
     font-weight: 600;
+    line-height: 1.4;
 }
 #korean-line {
     font-size: 1rem;
     color: var(--color-secondary-gray);
-    margin-top: 0.25rem;
+    margin-top: var(--spacing-xs);
+    line-height: 1.4;
+}
+.kr p, .jp p {
+    word-break: keep-all;
+    line-height: inherit; 
 }
 #transcript-index {
     text-align: center;
     font-size: 0.875rem;
-    color: #9CA3AF;
-    margin-top: 1rem;
+    color: var(--color-secondary-gray);
+    margin-top: var(--spacing-md);
+}
+
+/* 한일전환 버튼 위치 고정 (우측 하단) */
+.buttonContainer {
+    position: absolute;
+    bottom: var(--spacing-lg); 
+    right: var(--spacing-lg);
+    z-index: 10;
+    margin: 0;
 }
 
 /* 한일전환 버튼 스타일 */
 #langChange {
-    background-color: var(--color-background);
+    background-color: var(--color-card-background);
     color: var(--color-primary-pink);
     border: 1px solid var(--color-primary-pink);
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
     border-radius: var(--radius-full);
     transition: all var(--transition-speed);
     cursor: pointer;
+    white-space: nowrap;
 }
-#langChange:hover {
+.langChange:hover {
+    background-color: var(--color-primary-pink-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary-pink);
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Speech Practice & Timeline (이전과 동일) --- */
+/* ------------------------------------------------------------------------- */
+.mic-wrap {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+.mic-btn {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: var(--radius-full);
     background-color: var(--color-primary-pink);
-    color: white;
-}
-
-/* --- Speech & Action Buttons --- */
-.button-group {
-    display: flex;
-    gap: 1rem;
-}
-
-.button {
-    color: white;
-    font-weight: 700;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-sm);
-    transition: background-color var(--transition-speed);
     border: none;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* --- Remove width: 100% from .button to avoid making tag full width */
-
-.button.primary {
-    background-color: var(--color-primary-pink);
-}
-
-.button.primary:hover {
-    background-color: #D6336C;
-}
-
-.button.secondary {
-    background-color: var(--color-secondary-gray);
-}
-
-.button.secondary:hover {
-    background-color: #4B5563;
-}
-
-#delete-button {
-    background-color: #DC2626; /* 조금 더 진한 레드 */
-    color: white;
-    border-radius: var(--radius-full);
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    border: 2px solid #B91C1C; /* 진한 레드 테두리 추가 */
-    cursor: pointer;
-    transition: background-color var(--transition-speed), transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    white-space: nowrap;
-    text-transform: uppercase; /* 대문자 처리 */
-    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.6); /* 붉은 음영 그림자 */
+    box-shadow: 0 4px 10px rgba(236, 72, 153, 0.4);
 }
-
-#delete-button:hover {
-    background-color: #B91C1C; /* 호버시 더 진한 레드 */
+.mic-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 10px rgba(185, 28, 28, 0.8);
+    box-shadow: 0 6px 12px rgba(236, 72, 153, 0.6);
 }
-
-/* --- Right Column - Timeline --- */
+.mic-btn svg {
+    width: 2rem;
+    height: 2rem;
+    stroke: white;
+}
+.mic-btn[aria-pressed="true"] {
+    background-color: var(--color-destructive);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+}
 .timeline-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+.card-title {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-primary-dark);
 }
 #selected-section-display {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--color-primary-pink);
 }
 #timeline-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
 }
 .timeline-button-wrapper {
     position: relative;
@@ -331,79 +421,46 @@ main {
     width: 4rem;
     height: 4rem;
     border-radius: var(--radius-full);
+    background-color: var(--color-light-gray);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: background-color var(--transition-speed);
+    transition: all var(--transition-speed);
     border: none;
     cursor: pointer;
+    font-weight: 600;
 }
 
 .timeline-button:hover {
-    background-color: #FBCFE8;
+    background-color: var(--color-primary-pink);
+    color: white;
+    transform: scale(1.05);
 }
 
 .timeline-button-label {
     color: var(--color-primary-dark);
     font-weight: 600;
     font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
-
-
-/* --- Tags --- */
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.tag-item {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: var(--radius-full);
-    border: none;
-    background-color: var(--color-primary-pink);
+.timeline-button:hover .timeline-button-label {
     color: white;
-    white-space: nowrap;
-    flex-shrink: 0;
-    display: inline-flex;
-    cursor: pointer;
-}
-
-/* --- Utility --- */
-.hidden {
-    display: none !important;
-}
-
-.kr p, .jp p{
-    word-break: keep-all; /* 한국어/일본어 단어 단위 줄바꿈 */
-    line-height: 1.6; /* 가독성을 위한 줄 간격 */
-}
-
-/* --- Word Selection CSS --- */
-.japanese-token.non-actionable {
-    cursor: default;
-    user-select: none;
-}
-.japanese-token.token-hover {
-    background-color: var(--color-border);
-    cursor: pointer;
 }
 .japanese-token.selected-token {
     background-color: var(--color-primary-pink);
     color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
     transition: background-color var(--transition-speed);
 }
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
+.japanese-token.token-hover {
+    background-color: var(--color-light-gray);
+    cursor: pointer;
+}
+/* Utility */
+.hidden {
+    display: none !important;
 }
