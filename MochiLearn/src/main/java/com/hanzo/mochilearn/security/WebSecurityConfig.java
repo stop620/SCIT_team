@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,6 +39,7 @@ public class WebSecurityConfig {
             , "/member/joinForm"    //회원가입
             , "/member/join"
             , "/member/loginForm"
+            , "/member/login"
 
             , "/page/best"          // 인기/최신 카드 페이지
             , "/page/study"         // 전체 카드 페이지
@@ -82,6 +85,8 @@ public class WebSecurityConfig {
                     .logoutSuccessHandler(logoutSuccessHandler()) // 로그아웃 성공 시 핸들러
                     .invalidateHttpSession(true)
             );
+/*        http.formLogin(AbstractHttpConfigurer::disable);
+        http.logout(AbstractHttpConfigurer::disable);*/
 
         http
             .cors(AbstractHttpConfigurer::disable)
@@ -118,4 +123,8 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
