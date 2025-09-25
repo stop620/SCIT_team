@@ -66,9 +66,10 @@ function validationLoginForm(e) {
     // 유효성 검사 통과 시
     if (isValid) {
         console.log('로그인');
-        e.target.submit();
-
-        /*// 리디렉션할 url 파싱
+        // csrf 토큰
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+        // 리디렉션할 url 파싱
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
 
@@ -86,7 +87,8 @@ function validationLoginForm(e) {
         fetch(fetchUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
             },
             body: JSON.stringify(formData)
         })
@@ -116,7 +118,7 @@ function validationLoginForm(e) {
                 } else {
                     idErr.textContent = error.message;
                 }
-            });*/
+            });
     }
 }
 
@@ -185,6 +187,10 @@ function validationJoinForm(e) {
     if(isValid) {
         console.log('회원가입 데이터 전송');
 
+        // csrf 토큰
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
         const formData = {
             userId: joinId.value.trim(),
             password: joinPw.value.trim(),
@@ -195,7 +201,8 @@ function validationJoinForm(e) {
         fetch('/mochilearn/member/join', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
             },
             body: JSON.stringify(formData)
         })
@@ -206,7 +213,7 @@ function validationJoinForm(e) {
                 }
                 // 실패
                 return response.json().then(errorData => {
-                    throw new Error(errorData.message || '가입 중 오류가 발생했습니다.');
+                    throw new Error(errorData.code || '가입 중 오류가 발생했습니다.');
                 });
             })
             .then(data => {
@@ -215,6 +222,7 @@ function validationJoinForm(e) {
                 // TODO: 가입 폼 초기화
 
                 // 성공 후 로그인 폼 보여주기
+                document.getElementById('joinForm').reset();
                 document.getElementById('form-title').textContent = "로그인";
                 document.getElementById('loginForm').classList.add('active');
                 document.getElementById('joinForm').classList.remove('active');
@@ -225,7 +233,11 @@ function validationJoinForm(e) {
             .catch(error => {
                 // 서버에서 보낸 에러 메시지 출력
                 console.error('회원가입 실패:', error);
-                idErr.textContent = error.message;
+                if (error.message == '001') {
+                    idErr.textContent = '이미 사용중인 이메일입니다.';
+                } else if (error.message == '002') {
+                    nicknameErr.textContent = '이미 사용중인 닉네임입니다.';
+                }
             });
     }
 }
@@ -235,11 +247,16 @@ function handleCredentialResponse(response) {
     // response.credential은 구글이 암호화해서 보내주는 사용자의 ID 토큰(JWT)
     const idToken = response.credential;
 
+    // csrf 토큰
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
     // 이 ID 토큰을 우리 백엔드 서버로 전송합니다
     fetch('/mochilearn/api/auth/google', { // 백엔드에 새로 만들 API 주소
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
         },
         body: JSON.stringify({ idToken: idToken }), // JSON 형태로 토큰을 전송
     })

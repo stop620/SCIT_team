@@ -12,6 +12,11 @@
 
 <head>
 	<meta charset="UTF-8">
+
+	<!-- 시큐리티 csrf 토큰 -->
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
 	<title>로그인</title>
 	<!-- jQuery 파일 불러오기 -->
 	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
@@ -25,12 +30,7 @@
 
 		<div class="header">
 			<div class="logo-container">
-				<svg xmlns="http://www.w3.org/2000/svg" class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<circle cx="12" cy="12" r="10"></circle>
-					<path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-					<line x1="9" y1="9" x2="9.01" y2="9"></line>
-					<line x1="15" y1="9" x2="15.01" y2="9"></line>
-				</svg>
+				<img th:src="@{/img/mochi_write.png}">
 			</div>
 			<h1 id="form-title" class="form-title">로그인</h1>
 		</div>
@@ -107,5 +107,8 @@
 
 	</div>
 </section>
+
+<!-- Footer -->
+<div th:replace="~{footer::footer}"></div>
 </body>
 </html>

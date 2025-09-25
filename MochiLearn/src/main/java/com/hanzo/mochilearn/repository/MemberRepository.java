@@ -15,4 +15,6 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
 	List<MemberEntity> findByNicknameContainingIgnoreCase(String nickname);
 
     Optional<MemberEntity> findByUserId(String userId);
+
+    Optional<MemberEntity> findByNickname(String nickname);
 }

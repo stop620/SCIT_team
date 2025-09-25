@@ -40,6 +40,7 @@ public class WebSecurityConfig {
             , "/member/join"
             , "/member/loginForm"
             , "/member/login"
+            , "/member/logout"
 
             , "/page/best"          // 인기/최신 카드 페이지
             , "/page/study"         // 전체 카드 페이지
@@ -70,9 +71,8 @@ public class WebSecurityConfig {
                 .requestMatchers(PUBLIC_URLS).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
-            )
-//            .httpBasic(Customizer.withDefaults())
-            .formLogin(formLogin -> formLogin
+            );
+            /*.formLogin(formLogin -> formLogin
                     .loginPage("/member/loginForm")
                     .usernameParameter("id")
                     .passwordParameter("password")
@@ -84,13 +84,13 @@ public class WebSecurityConfig {
                     .logoutUrl("/member/logout")
                     .logoutSuccessHandler(logoutSuccessHandler()) // 로그아웃 성공 시 핸들러
                     .invalidateHttpSession(true)
-            );
-/*        http.formLogin(AbstractHttpConfigurer::disable);
-        http.logout(AbstractHttpConfigurer::disable);*/
+            );*/
+        http.formLogin(AbstractHttpConfigurer::disable);
+        http.logout(AbstractHttpConfigurer::disable);
 
         http
-            .cors(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable);
+            .cors(AbstractHttpConfigurer::disable);
+            //.csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
@@ -109,12 +109,9 @@ public class WebSecurityConfig {
     @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {
         return (HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.Authentication authentication) -> {
-            String referer = request.getHeader("Referer");
-            if (referer != null && !referer.contains("/member/logout")) {
-                response.sendRedirect(referer);
-            } else {
-                response.sendRedirect("/");
-            }
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"status\":\"ok\"}");
         };
     }
 

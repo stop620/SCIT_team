@@ -4,6 +4,7 @@ import com.hanzo.mochilearn.dto.member.MemberDTO;
 import com.hanzo.mochilearn.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +44,7 @@ public class MemberController {
         return "member/joinForm";
     }
 
-/*    @PostMapping("login")
+    @PostMapping("login")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData,
                                                      @RequestParam(value = "redirect", required = false) String redirectUrl,
@@ -70,6 +72,8 @@ public class MemberController {
 
             // 인증 성공 시 SecurityContext에 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            HttpSession session = request.getSession(true);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
             log.debug("로그인 성공! 사용자: {}", authentication.getName());
             response.put("success", true);
@@ -92,7 +96,7 @@ public class MemberController {
             response.put("message", "로그인 중 오류가 발생했습니다. 다시 시도해 주세요.");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }*/
+    }
 
     @PostMapping("join")
     @ResponseBody
@@ -110,7 +114,12 @@ public class MemberController {
         } catch (DuplicateUserIdException e) {
             log.debug("가입 실패... {}", e.getMessage());
             response.put("success", false);
-            response.put("message", "이미 사용중인 이메일입니다.");
+            response.put("code", "001");
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 Conflict 상태 코드 반환
+        } catch (DuplicateNicknameException e) {
+            log.debug("가입 실패... {}", e.getMessage());
+            response.put("success", false);
+            response.put("code", "002");
             return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 Conflict 상태 코드 반환
         } catch (Exception e) {
             log.debug("가입 실패... {}", e.getMessage());
@@ -120,9 +129,11 @@ public class MemberController {
         }
     }
 
-/*    @PostMapping("logout")
+    @PostMapping("logout")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> logoutApi(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> logoutApi(HttpServletRequest request,
+                                                         HttpServletResponse response) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
@@ -130,6 +141,6 @@ public class MemberController {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("success", true);
         return ResponseEntity.ok(responseBody);
-    }*/
+    }
 
 }

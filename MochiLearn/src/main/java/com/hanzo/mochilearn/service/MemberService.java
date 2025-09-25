@@ -1,5 +1,6 @@
 package com.hanzo.mochilearn.service;
 
+import com.hanzo.mochilearn.controller.DuplicateNicknameException;
 import com.hanzo.mochilearn.controller.DuplicateUserIdException;
 import com.hanzo.mochilearn.dto.member.MemberDTO;
 import com.hanzo.mochilearn.entity.MemberEntity;
@@ -27,9 +28,10 @@ public class MemberService {
 
         log.debug("[service] joining processing...");
 
-        Optional<MemberEntity> memberEntity = memberRepository.findByUserId(member.getUserId());
-        if(memberEntity.isPresent()) {
+        if(isUserIdExist(member.getUserId())) {
             throw new DuplicateUserIdException("아이디 중복 오류");
+        } else if (isNicknameExist(member.getNickname())) {
+            throw new DuplicateNicknameException("닉네임 중복 오류");
         }
         MemberEntity entity = MemberEntity.builder()
                 .userId(member.getUserId())
@@ -43,10 +45,17 @@ public class MemberService {
         memberRepository.save(entity);
     }
 
-/*    public boolean isUserIdExist(String userId) {
+    public boolean isUserIdExist(String userId) {
 
         Optional<MemberEntity> memberEntity = memberRepository.findByUserId(userId);
 
         return memberEntity.isPresent();
-    }*/
+    }
+
+    public boolean isNicknameExist(String nickname) {
+
+        Optional<MemberEntity> memberEntity = memberRepository.findByNickname(nickname);
+
+        return memberEntity.isPresent();
+    }
 }
