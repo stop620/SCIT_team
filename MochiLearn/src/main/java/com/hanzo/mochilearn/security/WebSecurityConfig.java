@@ -92,6 +92,8 @@ public class WebSecurityConfig {
             .cors(AbstractHttpConfigurer::disable);
             //.csrf(AbstractHttpConfigurer::disable);
 
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
+
         return http.build();
     }
 

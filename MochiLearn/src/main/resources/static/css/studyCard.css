@@ -1,38 +1,63 @@
-/* Main Layout */
+/* --- Global Styles & Variables --- */
+:root {
+    /* Color Palette */
+    --color-primary-pink: #EC4899; /* Vibrant Pink (Main Accent) */
+    --color-primary-pink-light: #FBCFE8; /* Light Pink (Tags, Soft Hover) */
+    --color-primary-dark: #1F2937; /* Dark Gray (Main Text) */
+    --color-secondary-gray: #6B7280; /* Medium Gray (Sub Text, Inactive) */
+    --color-light-gray: #E5E7EB; /* Light Gray (Border/Default Button) */
+    --color-background: #F9FAFB; /* Off-White (Body Background) */
+    --color-card-background: #ffffff; /* Pure White (Card Background) */
+    --color-destructive: #DC2626; /* Strong Red (Delete/Error) */
+
+    /* Shadows */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+    /* Spacing & Radius */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --radius-sm: 0.5rem;
+    --radius-full: 9999px;
+    
+    --transition-speed: 0.3s;
+}
+
+/* Reset and Base Styles */
+/** {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Pretendard Variable JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-primary-dark);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}*/
+
+/* ------------------------------------------------------------------------- */
+/* --- Layout --- */
+/* ------------------------------------------------------------------------- */
 main {
-    max-width: 80rem; /* max-w-7xl */
+    max-width: 80rem; 
     margin: auto;
-    padding: 1.5rem; /* p-6 */
+    padding: var(--spacing-lg);
 }
 
 .main-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 2rem;
-}
-
-.title {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.like-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap : 10px;
-}
-
-.like-button{
-    font-size:40px;
-    border: none;
-    background-color: transparent;
-}
-
-#cardLike{
-    padding-top: 8px;
-    font-size: 18px;
 }
 
 @media (min-width: 1024px) {
@@ -78,7 +103,170 @@ main {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
-/* Player */
+/* --- Title, Tags, Like Section --- */
+.title {
+    display: flex;
+    flex-direction: column; 
+    gap: var(--spacing-md);
+    position: relative;
+}
+
+/* ★ 수정: 제목과 딜리트 버튼을 포함하는 Flex 컨테이너 */
+.header-content {
+    display: flex;
+    /* 제목과 버튼을 양 끝으로 분리 */
+    justify-content: space-between; 
+    align-items: flex-start; /* 제목과 버튼을 상단 정렬 */
+    width: 100%;
+    margin-bottom: var(--spacing-md); /* 제목 영역과 태그 영역 분리 */
+}
+
+/* 제목 컨테이너 */
+.title-container {
+    /* 딜리트 버튼을 오른쪽으로 밀어내기 위해, 제목 컨테이너가 공간을 차지하지 않도록 설정 */
+    flex-grow: 0; 
+    /* 딜리트 버튼이 왼쪽에 오도록 순서를 조정 (옵션) */
+    /* order: 1; */
+}
+
+#cardTitle {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--color-primary-dark);
+    /* 딜리트 버튼을 오른쪽으로 밀어내기 위해 제목 컨테이너의 flex-grow를 0으로 설정했으므로, 
+       제목이 공간을 최대한 차지하고 싶다면 title-container에 flex-grow: 1을 주고,
+       버튼을 title-container 밖으로 빼는 방식(현재 방식)을 사용해야 합니다. */
+    flex-grow: 1; 
+    margin-bottom: 0.625rem; 
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Delete Button (제목의 오른쪽 상단에 배치, 숨김/표시) --- */
+/* ------------------------------------------------------------------------- */
+
+/* 딜리트 버튼 감싸는 div (.delete-wrap 클래스 사용) */
+.card.title .delete-wrap { 
+    position: static; 
+    
+    /* 버튼을 오른쪽으로 정렬하도록 flex-shrink: 0와 align-self: flex-start 적용 */
+    flex-shrink: 0; 
+    align-self: flex-start; /* 제목 텍스트 상단에 맞춤 */
+    
+    /* 기본적으로 숨김 */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+
+/* 제목 카드에 마우스 호버 시 딜리트 버튼 보이기 */
+.card.title:hover .delete-wrap {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 딜리트 버튼 자체 스타일 (텍스트만 보이도록) */
+#delete-button {
+    background-color: transparent; 
+    color: var(--color-destructive); 
+    border: none; 
+    
+    padding: var(--spacing-sm) 0; 
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    line-height: 1;
+    border-radius: var(--radius-sm); 
+    box-shadow: none; 
+    white-space: nowrap;
+}
+
+
+/* --- Tags --- */
+#tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+.tag-item {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--radius-full);
+    border: none;
+    background-color: #ffa6e1; 
+    color: white; 
+    white-space: nowrap;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+/* --- Like Button / Count (오른쪽 아래 절대 위치 유지) --- */
+.like-container {
+    position: absolute; 
+    bottom: var(--spacing-lg); 
+    right: var(--spacing-lg); 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    z-index: 10;
+}
+
+/* 좋아요 개수 크기 키우기 */
+#cardLike {
+    font-size: 1.2rem;
+    font-weight: 700;
+    /*color: var(--color-primary-pink);*/
+    flex-shrink: 0; 
+}
+
+.like-button {
+    background-color: transparent;
+    color: var(--color-secondary-gray);
+    border: none;
+    cursor: pointer;
+    transition: color var(--transition-speed), transform 0.2s ease;
+    font-size: 2.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 2.3rem;
+
+    --main-fill: #ababab;
+    --top-fill: #c7c7c7;
+    --right-fill: #828282;
+}
+.like-button.toggled {
+    --main-fill: #fdd835;
+    --top-fill: #ffff8d;
+    --right-fill: #f4b400;
+}
+#like-button #main-body {
+    fill: var(--main-fill);
+}
+#like-button #top-highlight {
+    fill: var(--top-fill);
+}
+#like-button #right-highlight {
+    fill: var(--right-fill);
+}
+.like-button:hover {
+    transform: scale(1.1);
+}
+.like-button:active {
+    transform: scale(0.8);
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Player --- */
+/* ------------------------------------------------------------------------- */
 .player-container {
     position: relative;
     width: 100%;
@@ -99,6 +287,7 @@ main {
 /* Transcript Display */
 .transcript-container {
     height: 13rem;
+    position: relative;
 }
 .transcript-header {
     min-height: 50%;
@@ -117,22 +306,39 @@ main {
     background-color: transparent;
     border: none;
     cursor: pointer;
+    transition: background-color var(--transition-speed);
+    height: 2.5rem; 
+    width: 2.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--color-secondary-gray);
 }
 .transcript-nav-btn:hover {
-    background-color: #F3F4F6; /* hover:bg-gray-100 */
+    background-color: var(--color-primary-pink-light);
+    color: var(--color-primary-dark);
+}
+.transcript-nav-btn:active {
+    transition: all var(--transition-speed);
+    scale: 0.8;
 }
 .transcript-text {
     max-width: 70%;
     text-align: center;
 }
 #japanese-line {
-    font-size: 1.25rem; /* text-xl */
-    color: #1F2937; /* text-gray-800 */
+    font-size: 1.4rem;
+    color: var(--color-primary-dark);
+    font-weight: 600;
+    line-height: 1.4;
 }
 #korean-line {
-    font-size: 1rem; /* text-base */
-    color: #6B7280; /* text-gray-500 */
-    margin-top: 0.25rem;
+    font-size: 1rem;
+    color: var(--color-secondary-gray);
+    margin-top: var(--spacing-xs);
+    line-height: 1.4;
 }
 #transcript-index {
     text-align: center;
@@ -141,64 +347,119 @@ main {
     margin-top: 1rem;
 }
 
-/* Right Column */
-.card-title {
+/* 한일전환 버튼 위치 고정 (우측 하단) */
+.buttonContainer {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: 10;
+    margin: 0;
+}
+
+/* 한일전환 버튼 스타일 */
+#langChange {
+    background-color: var(--color-card-background);
+    color: var(--color-primary-pink);
+    border: 1px solid var(--color-primary-pink);
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    font-size: 1.125rem;
-    color: #1F2937;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-speed);
+    cursor: pointer;
+    white-space: nowrap;
 }
-.time-input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+#langChange:hover {
+    background-color: var(--color-primary-pink-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary-pink);
 }
-.time-input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 0.5rem;
+#langChange:active {
+    scale: 0.8;
+}
+
+/* ------------------------------------------------------------------------- */
+/* --- Speech Practice & Timeline (이전과 동일) --- */
+/* ------------------------------------------------------------------------- */
+/*.mic-wrap {
     text-align: center;
+    margin-bottom: var(--spacing-md);
 }
+.mic-btn {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary-pink);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(236, 72, 153, 0.4);
+}
+.mic-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(236, 72, 153, 0.6);
+}
+.mic-btn svg {
+    width: 2rem;
+    height: 2rem;
+    stroke: white;
+}
+.mic-btn[aria-pressed="true"] {
+    background-color: var(--color-destructive);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
+}*/
 .timeline-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: var(--spacing-md);
 }
-#selected-section-display {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #EC4899;
+.card-title {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-primary-dark);
+    position: relative;
 }
 #timeline-buttons-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 1rem;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
 }
-.timeline-button-wrapper { /* 추가 */
+.timeline-button-wrapper {
     position: relative;
 }
 .timeline-button {
-    width: 4rem; /* w-16 */
-    height: 4rem; /* h-16 */
-    border-radius: 9999px;
+    width: 4rem;
+    height: 4rem;
+    border-radius: var(--radius-full);
+    background-color: var(--color-light-gray);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s;
-    background-color: #E5E7EB;
+    transition: all var(--transition-speed);
     border: none;
     cursor: pointer;
+    font-weight: 600;
 }
 .timeline-button:hover {
-    background-color: #FBCFE8;
+    background-color: var(--color-primary-pink);
+    color: white;
+    transform: scale(1.1);
+}
+.timeline-button:active {
+    transform: scale(0.8);
 }
 
 .timeline-button-label {
-    color: #374151; /* text-gray-700 */
+    color: var(--color-primary-dark);
     font-weight: 600;
     font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
 .timeline-button-wrapper { /* 추가 */
     position: relative;
@@ -217,20 +478,8 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* button */
-.button {
-    width: 100%;
+.timeline-button:hover .timeline-button-label {
     color: white;
-    font-weight: 700;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.3s;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .selected-section-display {
@@ -241,29 +490,12 @@ main {
 
 /* Utility */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .kr p, .jp p{
     word-break: keep-all; /* 한국어/일본어 단어 단위 줄바꿈 */
     line-height: 1.6; /* 가독성을 위한 줄 간격 */
-}
-
-.tags{
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.tag-item{
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 9999px;
-    border: none;
-    background-color: #EC4899; /* bg-pink-500 */
-    color: white;
-    white-space: nowrap; /* 태그 텍스트 줄바꿈 방지 */
 }
 
 /* 추가적인 반응형 처리 */

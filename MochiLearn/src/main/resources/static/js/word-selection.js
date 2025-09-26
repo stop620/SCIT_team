@@ -402,13 +402,13 @@ function langChangeFunction() {
 
     if (jp.is(':visible') && kr.is(':visible')) {
         kr.hide();
-        langChange.html('한 / <strong>일</strong>');
+        langChange.html('<strong>日</strong>');
     } else if (jp.is(':visible')) {
         jp.hide();
         kr.show();
-        langChange.html('<strong>한</strong> / 일');
+        langChange.html('<strong>한</strong>');
     } else {
         jp.show();
-        langChange.html('<strong>한 + 일</strong>');
+        langChange.html('<strong>한 + 日</strong>');
     }
 }
