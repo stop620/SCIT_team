@@ -26,10 +26,9 @@
                     <!-- <div style="visibility: hidden;">
                         <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
                     </div> -->
-
-                    <div class="delete-book-btn" th:data-bookId="${book.id}">
-                        <input type="button" value="단어장 삭제">
+                    <div class="delete-book-btn" th:data-bookId="${book.id}" style="visibility: hidden;">
                     </div>
+
                 </nav>
             </div>
             <!-- <h4 th:text="${book.contents}"></h4> -->
@@ -61,32 +60,6 @@
             </div>
         </div>
 
-        <!--<div class="wordPageContent">
-            <div class="word">
-                <span>憧れる</span>
-            </div>
-            <div class="meaning">
-                <span>あこがれる / 동경하다 </span>
-            </div>
-            <div class="example">
-                <span>未知みちの世界せかいに憧あこがれる</span>
-                <br>
-                <span>미지의 세계를 동경하다</span>
-            </div>
-        </div>
-        
-        <div class="wordPageContent">
-            <div class="word">
-                <span>味わう</span>
-            </div>
-            <div class="meaning">
-                <span>あじわう / 맛보다 </span>
-            </div>
-            <div class="example">
-                <span>塩しお加減かげんはどうかと味あじわう</span><br>
-                <span>간이 어떤가 맛보다</span>
-            </div>
-        </div>-->
     </div>
 </body>
 </html>

@@ -2,7 +2,8 @@
 <html lang="ko"
       xmlns:th="http://thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<link rel="stylesheet" th:href="@{/css/main.css}">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/addWordCard.css}">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
 
 <script th:inline="javascript">
@@ -57,14 +58,14 @@ function wordPopup(){
     <title>WordCardPage</title>
 </head>
 <body>
-    <!--<div th:replace="~{navigation::navigation}"></div>-->
-    <div class="addCardForm">
-        <form id="addWordbookForm">
-            <input type="text" id="name" name="name" placeholder="단어장 이름" required><br>
-            <input type="text" id="description" name="description" placeholder="단어장 설명" required><br>
-            <input type="text" id="code" name="code" placeholder="공유 코드가 있다면 입력하세요"><br>
-            <input type="submit" value="단어장 추가">
-        </form>
+    <div class="container">
+        <div class="addCardForm">
+            <form id="addWordbookForm">
+                <input type="text" id="name" name="name" placeholder="단어장 이름" required><br>
+                <input type="text" id="description" name="description" placeholder="단어장 설명" required><br>
+                <input type="submit" value="단어장 추가">
+            </form>
+        </div>
     </div>
 </body>
 </html>

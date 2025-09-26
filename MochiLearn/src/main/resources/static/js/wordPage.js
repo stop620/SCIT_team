@@ -24,23 +24,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderBooks() {
 
         let bookHtml = '';
+        
+        bookHtml += `<div class="addWordCard">
+                <a href="/mochilearn/page/addWordCard">단어장 추가</a>
+            </div>
+            <ul>`;
+
+        // books.forEach((book,index) => {
+        //     bookHtml += `
+        //         <div class="wordList">
+        //         <div class="wordCard">
+        //             <a href="/mochilearn/page/wordCard?bookId=${book.id}">${book.title}</a>
+        //         </div>
+        //     </div>
+        //     `;
+        // });
 
         books.forEach((book,index) => {
             bookHtml += `
-                <div class="wordList">
-                <div class="wordCard">
+            <li>
+                <div class="wordCardList">
                     <a href="/mochilearn/page/wordCard?bookId=${book.id}">${book.title}</a>
+                    <a class="wordCount">200 단어</a>
+                    <a class="deleteBook">
+                        <img src="/mochilearn/img/trash-bin.png" class="deleteBtn" data-book-id="${book.id}">
+                    </a>
                 </div>
-            </div>
-            `;
+            </li>`;
         });
-
         wordContainer.innerHTML = bookHtml +
-            `<div class="addWordList">
-                <div class="wordCard">
-                    <a href="/mochilearn/page/addWordCard">단어장 추가</a>
-                </div>
-            </div>`;
+            `</ul>`;
+            // `<div class="addWordList">
+            //     <div class="wordCard">
+            //         <a href="/mochilearn/page/addWordCard">단어장 추가</a>
+            //     </div>
+            // </div>`;
 
     }
 

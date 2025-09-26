@@ -46,7 +46,7 @@
     height: 30px;
     text-align: center;
     line-height: 30px;
-    background-color: #007bff;
+    background-color: var(--mochi-blue);
     color: white;
     border-radius: 5px;
     text-decoration: none;
@@ -59,7 +59,7 @@
     justify-self: center;
     padding: 15px;
     margin: 10px 0;
-    background-color: var(--mochi-blue);
+    background-color: #a1eeff;
     border-radius: 5px;
 /* 
     display: grid;
@@ -104,7 +104,7 @@
 
 input[type="button"]{
     padding: 5px 10px;
-    background-color: #007bff;
+    background-color: var(--mochi-blue);
     color: white;
     border: none;
     border-radius: 5px;
