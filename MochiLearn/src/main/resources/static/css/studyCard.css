@@ -200,7 +200,7 @@ main {
     font-weight: 500;
     border-radius: var(--radius-full);
     border: none;
-    background-color: #ffa6e1; 
+    background-color: #ffa6e1;
     color: white; 
     white-space: nowrap;
     cursor: default;
@@ -370,8 +370,8 @@ main {
     white-space: nowrap;
 }
 #langChange:hover {
-    background-color: var(--color-primary-pink-light);
-    color: var(--color-primary-dark);
+    background-color: #ffa6e1;
+    color: #fff;
     border-color: var(--color-primary-pink);
 }
 #langChange:active {

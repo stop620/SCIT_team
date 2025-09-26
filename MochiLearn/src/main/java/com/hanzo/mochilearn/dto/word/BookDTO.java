@@ -25,6 +25,8 @@ public class BookDTO {
 
     private Integer memberId;
 
+    private Integer wordCount;
+
     public static BookDTO toDTO(Book bookEntity) {
         BookDTO bookDTO = new BookDTO();
 

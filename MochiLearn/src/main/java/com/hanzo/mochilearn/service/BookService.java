@@ -38,11 +38,14 @@ public class BookService {
         List<Book> bookEntities = bookRepository.findAllByMemberId(memberId);
 
         for (Book entity : bookEntities) {
+            Integer wordCount = wordBookMapRepository.countByBookId(entity.getId());
+
             BookDTO bookDTO = BookDTO.builder()
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
                     .memberId(memberId)
+                    .wordCount(wordCount)
                     .build();
 
             books.add(bookDTO);

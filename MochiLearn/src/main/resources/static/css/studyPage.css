@@ -1,14 +1,3 @@
-:root {
-    --mochi-pink: #FFB6C1;
-    --mochi-mint: #3ED6D0;
-    --mochi-blue: #32D9FF;
-    --mochi-gray-light: #F5F5F5;
-    --mochi-gray-dark: rgba(51, 51, 51, 0.75);
-    /* Difficulty-based colors */
-    --mochi-level-beginner: #FFB6C1;
-    --mochi-level-intermediate: #3ED6D0;
-    --mochi-level-advanced: #C8A2C8;
-}
 
 body {
     color: var(--mochi-gray-dark);
@@ -306,7 +295,6 @@ body {
 }
 
 .card h3 {
-    margin: 1rem;
     font-weight: 600;
     font-size: 1.1rem;
     color: var(--mochi-gray-dark);
@@ -357,6 +345,7 @@ body {
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 0.5rem;
+    margin-top: 0;
 }
 
 /* 위로가기 버튼 */

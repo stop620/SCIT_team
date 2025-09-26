@@ -324,10 +324,13 @@
 
 /* 퀴즈 정답 */
 .answer-area {
-    background-color: #fff9db;
+    background-color: #ffdbdbcc;
     padding: 1rem;
     border-radius: 8px;
     margin: 1rem;
+}
+.correct {
+    background-color: #dbffe8cc;
 }
 .answer-area p {
     margin: 0.7rem 0;

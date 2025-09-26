@@ -72,11 +72,11 @@ $(document).ready(function() {
 					<div class="video-info">
                     <h3 class="video-title">${card.title}</h3>
 					
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span class="difficulty-tag ${difficultyClass}">${levelKor}</span>
                         <div style="color: #FFBB46; font-weight: 600;">⭐ ${card.like || 0}</div>
                     </div>
-                    <div class="tag-container" style="padding:0 1rem 1rem 1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <div class="tag-container" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                         ${tagHtml}
                     </div>
                 </div>

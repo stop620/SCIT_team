@@ -1,13 +1,5 @@
-:root {
-    --mochi-pink: #FFB6C1;
-    --mochi-mint: #3ED6D0;
-    --mochi-blue: #32D9FF;
-    --mochi-gray-light: #F5F5F5;
-    --mochi-gray-dark: #333333;
-}
 
 body{
-    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 	text-align : center;
 	/*background-color : #b4f1ff;*/
     background: linear-gradient(360deg, var(--mochi-blue), #b4f1ff);

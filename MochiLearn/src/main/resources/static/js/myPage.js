@@ -565,6 +565,7 @@ function getYoutubeThumbnail(youtubeUrl) {
 
 function renderQuizLogs(data) {
     console.log('퀴즈 응시 로그 출력');
+    console.log(data);
     const quizLogs = data;
     const container = document.querySelector('.quiz-logs-container');
     container.innerHTML = '';
@@ -692,13 +693,13 @@ const renderDragDropQuiz = (type, quiz, quizArea) => {
 };
 
 const renderMultipleChoiceQuiz = (quiz, quizArea) => {
-    console.log(quizArea);
+    //console.log(quizArea);
 
     const choiceSentences = document.createElement('div');
     choiceSentences.className = 'choice-sentences';
     choiceSentences.id = 'choiceSentences';
 
-    console.log(choiceSentences);
+    //console.log(choiceSentences);
     quiz.choiceSentences.forEach(sentence => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
@@ -709,26 +710,9 @@ const renderMultipleChoiceQuiz = (quiz, quizArea) => {
     });
 };
 
-/*
 function restoreAnswer(answer, korean, userAnswer, answerArea) {
-    console.log(typeof answer);
-    let finalAnswer;
-    let finalUserAnswer;
-    if(typeof answer != "string") {
-        finalAnswer = answer.join(" \t ");
-        const tempArr = userAnswer.answer.split(",");
-        finalUserAnswer = (tempArr).join(" \t ");
-        console.log(finalAnswer);
-    }
-    answerArea.innerHTML = `
-        <p class="korean">${korean}</p>
-        <p class="correct-answer">정답: ${finalAnswer}</p>
-        <p class="user-answer">내 답안: ${finalUserAnswer}</p>
-        `;
+    console.log(answer, userAnswer.answer);
 
-}*/
-function restoreAnswer(answer, korean, userAnswer, answerArea) {
-    console.log(typeof answer);
     let finalAnswer = "";
     let finalUserAnswer = "";
 
@@ -747,10 +731,18 @@ function restoreAnswer(answer, korean, userAnswer, answerArea) {
             return `<span class="answer-word-item">${trimmedItem}</span>`;
         }).join("");
 
+        if(finalAnswer == finalUserAnswer) {
+            answerArea.classList.add('correct');
+        }
+
     } else if (typeof answer === "string") {
         // 문자열일 경우 그대로 출력
         finalAnswer = answer;
         finalUserAnswer = userAnswer.answer;
+
+        if(finalAnswer == finalUserAnswer) {
+            answerArea.classList.add('correct');
+        }
     }
 
     answerArea.innerHTML = `

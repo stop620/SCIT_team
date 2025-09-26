@@ -84,7 +84,7 @@ $(document).ready(function() {
                             <div class="video-meta">
                                 <span class="difficulty-tag ${difficulty}">${levelKor}</span>
                                 <div class="video-stats">
-                                    <span class="star">⭐</span> ${card.like}
+                                    <div style="color: #FFBB46; font-weight: 600;">⭐ ${card.like || 0}</div>
                                 </div>
                             </div>
                             <div class="tag-container">

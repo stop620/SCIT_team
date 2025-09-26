@@ -90,6 +90,7 @@ main {
     min-height: 50px;
 }
 .wordPoolItem {
+    justify-content: center;
     padding: 8px 16px;
     font-size: 1rem;
     background-color: #f8f9fa;
@@ -181,7 +182,7 @@ main {
 
 /* 버튼 및 피드백 */
 .action-container { display: flex; justify-content: center; }
-.action-btn { width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; color: white; cursor: pointer; transition: background-color 0.2s; }
+.action-btn { width: 20%; padding: 1rem; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px; color: white; cursor: pointer; transition: background-color 0.2s; }
 #check-btn { background-color: #4c6ef5; }
 #check-btn:hover:not(:disabled) { background-color: #3b5bdb; }
 #check-btn:disabled { background-color: #adb5bd; cursor: not-allowed; }

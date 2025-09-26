@@ -4,98 +4,52 @@
 <link rel="stylesheet" th:href="@{/css/wordCard.css}">
 <script th:src="@{/js/wordCardPage.js}"></script>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
-
-<!-- 나눔바른고딕 
-    font-family: 'NanumBarunGothicUltraLight';
-    font-family: 'NanumBarunGothicLight';
-    font-family: 'NanumBarunGothic';
-    font-family: 'NanumBarunGothicBold';
--->
-<link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-barun-gothic.css" rel="stylesheet">
-
-<!-- noto sans jpn-->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordCardPage</title>
 </head>
 <body>
-    <!--<div th:replace="~{navigation::navigation}"></div>-->
+<div class="main-header">
+    <nav>
+        <a th:href="@{./word}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <span>단어장</span>
+        <div style="visibility: hidden;">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </div>
+    </nav>
+</div>
     <div class="container">
         <div class="containerHeader">
-            <!-- <div class="cta-btn">
-                <a href="#">←</a>
-            </div> -->
-
-            <div class="main-header">
-                <nav>
-                    <div class="logo">
-                        <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
-                    </div>
-                    <span th:text="${book.title}"></span>
-                    <!-- <div style="visibility: hidden;">
-                        <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
-                    </div> -->
-
-                    <div class="delete-book-btn" th:data-bookId="${book.id}">
-                        <input type="button" value="단어장 삭제">
-                    </div>
-                </nav>
-            </div>
-            <!-- <h4 th:text="${book.contents}"></h4> -->
-            <!-- <div class="cta-btn">
-                <a href="#">↪</a>
-            </div> -->
+            <h3 class="wordBook-title" th:text="${book.title}"></h3>
+            <p class="wordBook-content" th:text="${book.contents}"></p>
         </div>
 
         <div class="wordPageContent" th:each="word : ${wordList}">
-            <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
-                <input class="delete-word-btn" type="button" value="x">
-            </div>
-            <div class="select-word">
-                <span th:text="${word.selectWord}"></span>
-            </div>
-            <div class="word-label">표기</div><div class="word-content" th:text="${#strings.listJoin(word.kanji, ', ')}"></div>
-            <div class="word-label">읽기</div><div class="word-content" th:text="${#strings.listJoin(word.kana, ', ')}"></div>
-            <div class="word-label">품사</div><div class="word-content" th:text="${#strings.listJoin(word.partOfSpeech, ', ')}"></div>
-            <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
-            <div class="word-label">예문</div>
-            <div class="word-content">
-                <p th:text="${word.examples[0]}"></p>
-                <p class="kr-example" th:text="${word.examples[1]}"></p>
 
+            <div class="wordHeader">
+                <div class="select-word">
+                    <span th:text="${word.selectWord}"></span>
+                </div>
+                <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
+                    <input class="delete-word-btn" type="button" value="x">
+                </div>
+            </div>
+            <div class="wordDetails">
+                <div class="word-label">표기</div><div class="word-content" th:text="${#strings.listJoin(word.kanji, ', ')}"></div>
+                <div class="word-label">읽기</div><div class="word-content" th:text="${#strings.listJoin(word.kana, ', ')}"></div>
+                <div class="word-label">품사</div><div class="word-content" th:text="${#strings.listJoin(word.partOfSpeech, ', ')}"></div>
+                <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
+                <div class="word-label">예문</div>
+                <div class="word-content">
+                    <p th:text="${word.examples[0]}"></p>
+                    <p class="kr-example" th:text="${word.examples[1]}"></p>
+                </div>
             </div>
         </div>
 
-        <!--<div class="wordPageContent">
-            <div class="word">
-                <span>憧れる</span>
-            </div>
-            <div class="meaning">
-                <span>あこがれる / 동경하다 </span>
-            </div>
-            <div class="example">
-                <span>未知みちの世界せかいに憧あこがれる</span>
-                <br>
-                <span>미지의 세계를 동경하다</span>
-            </div>
-        </div>
-        
-        <div class="wordPageContent">
-            <div class="word">
-                <span>味わう</span>
-            </div>
-            <div class="meaning">
-                <span>あじわう / 맛보다 </span>
-            </div>
-            <div class="example">
-                <span>塩しお加減かげんはどうかと味あじわう</span><br>
-                <span>간이 어떤가 맛보다</span>
-            </div>
-        </div>-->
     </div>
 </body>
 </html>

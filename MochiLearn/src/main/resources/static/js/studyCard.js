@@ -55,7 +55,7 @@ $(document).ready(function() {
 	    $('#cardLike').text(card.like);
 
 	    // 클릭 상태(liked)가 true일 때 카드 라이크 숫자 색상을 빨간색으로 설정, 아니면 기본색(예: 검정)
-	    //$('#cardLike').css('color', liked ? 'red' : 'black');
+	    $('#cardLike').css('color', liked ? '#FFBB46' : 'black');
 
 	    // 기존 좋아요 버튼 색상 변경 유지
 	    if (liked) {

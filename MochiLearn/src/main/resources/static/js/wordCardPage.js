@@ -17,22 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
-
-    document.querySelector('.delete-book-btn').addEventListener('click', (event) => {
-        console.log('단어장 삭제 클릭');
-
-        if(confirm('단어장을 삭제하시겠습니까?')) {
-            const parentDiv = event.target.closest('div');
-            console.log(parentDiv);
-            if(parentDiv) {
-                const bookId = parentDiv.getAttribute('data-bookId');
-
-                console.log('삭제할 단어장: ' + bookId);
-                removeBook(bookId);
-            }
-        }
-    })
-
 });
 
 function removeWord(bookId, wordId) {
@@ -54,27 +38,5 @@ function removeWord(bookId, wordId) {
         .catch(error => {
             console.error('Error', error);
             alert('단어 삭제에 실패했습니다.');
-        });
-}
-
-function removeBook(bookId) {
-
-    fetch(`/mochilearn/api/wordbook/delete?bookId=${bookId}`,
-        {
-            method: 'DELETE',
-            headers: {'Content-Type': 'application/json'}
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-        })
-        .then(data => {
-            console.log('단어장 삭제 성공', data);
-            window.location.href = "../page/word";
-        })
-        .catch(error => {
-            console.error('Error', error);
-            alert('단어장 삭제에 실패했습니다.');
         });
 }
