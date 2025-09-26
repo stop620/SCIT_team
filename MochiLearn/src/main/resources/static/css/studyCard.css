@@ -284,7 +284,6 @@ main {
     height: 100%;
 }
 
-<<<<<<< HEAD
 /* ------------------------------------------------------------------------- */
 /* --- Transcript Display (자막 컨테이너 크기 고정 및 개행 수정) --- */
 /* ------------------------------------------------------------------------- */
@@ -293,11 +292,10 @@ main {
     padding-bottom: calc(var(--spacing-lg) + 3rem); /* 버튼 공간 확보 */
     display: flex;
     flex-direction: column;
-=======
+}
 /* Transcript Display */
 .transcript-container {
     height: 13rem;
->>>>>>> develop
     position: relative;
 }
 .transcript-header {
@@ -337,7 +335,6 @@ main {
 }
 .transcript-text {
     max-width: 70%;
-<<<<<<< HEAD
     min-width: 50%;
     /* ★ 수정: word-break을 제거하여 기본 개행 허용 (컨테이너 크기에 맞춤) */
     /* word-break: keep-all; (이전 코드를 주석 처리하고 삭제) */
@@ -345,9 +342,7 @@ main {
     flex-direction: column;
     justify-content: center;
     margin: 0 auto; 
-=======
     text-align: center;
->>>>>>> develop
 }
 #japanese-line {
     font-size: 1.4rem;
@@ -363,15 +358,12 @@ main {
     line-height: 1.4;
     white-space: normal; /* 개행이 자연스럽게 일어나도록 보장 */
 }
-<<<<<<< HEAD
 .kr p, .jp p {
     /* ★ 수정: word-break: keep-all을 제거하거나 word-break: break-word로 변경 */
     word-break: break-word; /* 컨테이너를 벗어날 경우 강제로 개행 */
     line-height: inherit; 
     white-space: normal;
 }
-=======
->>>>>>> develop
 #transcript-index {
     text-align: center;
     font-size: 0.875rem; /* text-sm */
