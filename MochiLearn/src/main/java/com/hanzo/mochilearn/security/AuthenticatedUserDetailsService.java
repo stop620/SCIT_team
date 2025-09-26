@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
+
 /**
  * 사용자 인증 처리
  */
@@ -38,6 +40,8 @@ public class AuthenticatedUserDetailsService implements UserDetailsService {
                 .build();
 		
 		log.debug("인증정보 : {}", user);
+        memberEntity.setLastLoginDate(LocalDateTime.now());
+        memberRepository.save(memberEntity);
 	
 		return user;
     }

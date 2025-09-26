@@ -42,6 +42,8 @@ public class CustomOAuth2UserService{
     public void loginUser(String idTokenString, HttpServletRequest request) throws GeneralSecurityException, IOException {
         // ID 토큰으로 사용자 정보 조회/생성
         MemberEntity member = processAndGetUser(idTokenString);
+        member.setLastLoginDate(LocalDateTime.now());
+        memberRepository.save(member);
 
         // AuthenticatedUser Principal 생성
         AuthenticatedUser principal = AuthenticatedUser.builder()

@@ -26,7 +26,7 @@
 }
 
 /* Reset and Base Styles */
-* {
+/** {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -43,7 +43,7 @@ body {
 a {
     text-decoration: none;
     color: inherit;
-}
+}*/
 
 /* ------------------------------------------------------------------------- */
 /* --- Layout --- */
@@ -62,39 +62,45 @@ main {
 
 @media (min-width: 1024px) {
     .main-grid {
-        grid-template-columns: 2fr 1fr;
-        gap: 3rem;
-        align-items: flex-start;
+        grid-template-columns: 2fr 1fr; /* 2:1 비율로 더 명확하게 구분 */
+        gap: 3rem; /* 간격을 더 넓게 */
+        align-items: start; /* 상단 정렬로 침범 방지 */
     }
     .left-column {
-        grid-column: 1;
+        grid-column: 1; /* 첫 번째 컬럼만 차지 */
+        max-width: 100%; /* 최대 너비 제한 */
+        /* overflow: hidden; 내용 넘침 방지 */
     }
     .right-column {
-        grid-column: 2;
+        grid-column: 2; /* 두 번째 컬럼만 차지 */
+        max-width: 100%; /* 최대 너비 제한 */
+        /* overflow: hidden; 내용 넘침 방지 */
+        top: 1.5rem; /* 상단에서 약간 떨어진 위치에 고정 */
+        align-self: start; /* 자체적으로 상단 정렬 */
+    }
+
+    .sticky {
         position: sticky;
-        top: var(--spacing-lg);
-        align-self: flex-start;
-        max-height: calc(100vh - 3rem);
-        overflow-y: auto;
+        top: 5rem;
     }
 }
 
 .left-column, .right-column {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 1.5rem;
     width: 100%;
+    box-sizing: border-box; /* 패딩과 보더를 너비에 포함 */
 }
 
-/* ------------------------------------------------------------------------- */
-/* --- Card & Section Styles --- */
-/* ------------------------------------------------------------------------- */
+
+
+/* Card Styles */
 .card {
-    background-color: var(--color-card-background);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-md);
-    position: relative; 
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 /* --- Title, Tags, Like Section --- */
@@ -102,6 +108,7 @@ main {
     display: flex;
     flex-direction: column; 
     gap: var(--spacing-md);
+    position: relative;
 }
 
 /* ★ 수정: 제목과 딜리트 버튼을 포함하는 Flex 컨테이너 */
@@ -193,7 +200,7 @@ main {
     font-weight: 500;
     border-radius: var(--radius-full);
     border: none;
-    background-color: var(--color-primary-pink-light); 
+    background-color: #ffa6e1; 
     color: white; 
     white-space: nowrap;
     cursor: default;
@@ -217,7 +224,7 @@ main {
 #cardLike {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--color-primary-pink);
+    /*color: var(--color-primary-pink);*/
     flex-shrink: 0; 
 }
 
@@ -230,10 +237,31 @@ main {
     font-size: 2.5rem;
     line-height: 1;
     flex-shrink: 0;
+    width: 2.3rem;
+
+    --main-fill: #ababab;
+    --top-fill: #c7c7c7;
+    --right-fill: #828282;
+}
+.like-button.toggled {
+    --main-fill: #fdd835;
+    --top-fill: #ffff8d;
+    --right-fill: #f4b400;
+}
+#like-button #main-body {
+    fill: var(--main-fill);
+}
+#like-button #top-highlight {
+    fill: var(--top-fill);
+}
+#like-button #right-highlight {
+    fill: var(--right-fill);
 }
 .like-button:hover {
-    color: var(--color-primary-pink);
     transform: scale(1.1);
+}
+.like-button:active {
+    transform: scale(0.8);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -244,9 +272,9 @@ main {
     width: 100%;
     padding-top: 56.25%; /* 16:9 Aspect Ratio */
     background-color: #000;
-    border-radius: var(--radius-sm);
+    border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 #player {
     position: absolute;
@@ -256,6 +284,7 @@ main {
     height: 100%;
 }
 
+<<<<<<< HEAD
 /* ------------------------------------------------------------------------- */
 /* --- Transcript Display (자막 컨테이너 크기 고정 및 개행 수정) --- */
 /* ------------------------------------------------------------------------- */
@@ -264,21 +293,27 @@ main {
     padding-bottom: calc(var(--spacing-lg) + 3rem); /* 버튼 공간 확보 */
     display: flex;
     flex-direction: column;
+=======
+/* Transcript Display */
+.transcript-container {
+    height: 13rem;
+>>>>>>> develop
     position: relative;
-    overflow: hidden; 
 }
-
 .transcript-header {
+    min-height: 50%;
     display: flex;
-    align-items: center; 
-    justify-content: space-between; 
-    margin-top: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
-
 .transcript-nav-btn {
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-full);
+    padding: 0.5rem;
+    border-radius: 9999px;
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -296,11 +331,13 @@ main {
     background-color: var(--color-primary-pink-light);
     color: var(--color-primary-dark);
 }
-
+.transcript-nav-btn:active {
+    transition: all var(--transition-speed);
+    scale: 0.8;
+}
 .transcript-text {
-    flex-grow: 1;
-    text-align: center;
     max-width: 70%;
+<<<<<<< HEAD
     min-width: 50%;
     /* ★ 수정: word-break을 제거하여 기본 개행 허용 (컨테이너 크기에 맞춤) */
     /* word-break: keep-all; (이전 코드를 주석 처리하고 삭제) */
@@ -308,6 +345,9 @@ main {
     flex-direction: column;
     justify-content: center;
     margin: 0 auto; 
+=======
+    text-align: center;
+>>>>>>> develop
 }
 #japanese-line {
     font-size: 1.4rem;
@@ -323,23 +363,26 @@ main {
     line-height: 1.4;
     white-space: normal; /* 개행이 자연스럽게 일어나도록 보장 */
 }
+<<<<<<< HEAD
 .kr p, .jp p {
     /* ★ 수정: word-break: keep-all을 제거하거나 word-break: break-word로 변경 */
     word-break: break-word; /* 컨테이너를 벗어날 경우 강제로 개행 */
     line-height: inherit; 
     white-space: normal;
 }
+=======
+>>>>>>> develop
 #transcript-index {
     text-align: center;
-    font-size: 0.875rem;
-    color: var(--color-secondary-gray);
-    margin-top: var(--spacing-md);
+    font-size: 0.875rem; /* text-sm */
+    color: #9CA3AF; /* text-gray-400 */
+    margin-top: 1rem;
 }
 
 /* 한일전환 버튼 위치 고정 (우측 하단) */
 .buttonContainer {
     position: absolute;
-    bottom: var(--spacing-lg); 
+    bottom: var(--spacing-lg);
     right: var(--spacing-lg);
     z-index: 10;
     margin: 0;
@@ -358,16 +401,19 @@ main {
     cursor: pointer;
     white-space: nowrap;
 }
-.langChange:hover {
+#langChange:hover {
     background-color: var(--color-primary-pink-light);
     color: var(--color-primary-dark);
     border-color: var(--color-primary-pink);
+}
+#langChange:active {
+    scale: 0.8;
 }
 
 /* ------------------------------------------------------------------------- */
 /* --- Speech Practice & Timeline (이전과 동일) --- */
 /* ------------------------------------------------------------------------- */
-.mic-wrap {
+/*.mic-wrap {
     text-align: center;
     margin-bottom: var(--spacing-md);
 }
@@ -396,7 +442,7 @@ main {
 .mic-btn[aria-pressed="true"] {
     background-color: var(--color-destructive);
     box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4);
-}
+}*/
 .timeline-header {
     display: flex;
     justify-content: space-between;
@@ -407,11 +453,7 @@ main {
     font-weight: 700;
     font-size: 1.125rem;
     color: var(--color-primary-dark);
-}
-#selected-section-display {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-primary-pink);
+    position: relative;
 }
 #timeline-buttons-container {
     display: flex;
@@ -436,11 +478,13 @@ main {
     cursor: pointer;
     font-weight: 600;
 }
-
 .timeline-button:hover {
     background-color: var(--color-primary-pink);
     color: white;
-    transform: scale(1.05);
+    transform: scale(1.1);
+}
+.timeline-button:active {
+    transform: scale(0.8);
 }
 
 .timeline-button-label {
@@ -449,23 +493,82 @@ main {
     font-size: 0.875rem;
     margin-top: 0.25rem;
 }
+.timeline-button-wrapper { /* 추가 */
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.timeline-sample {
+    display: flex;
+    flex-direction: column;
+    width: 10rem;
+}
+.timeline-sample span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .timeline-button:hover .timeline-button-label {
     color: white;
 }
-.japanese-token.selected-token {
-    background-color: var(--color-primary-pink);
-    color: white;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.25rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color var(--transition-speed);
+
+.selected-section-display {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #EC4899;
 }
-.japanese-token.token-hover {
-    background-color: var(--color-light-gray);
-    cursor: pointer;
-}
+
 /* Utility */
 .hidden {
     display: none !important;
+}
+
+.kr p, .jp p{
+    word-break: keep-all; /* 한국어/일본어 단어 단위 줄바꿈 */
+    line-height: 1.6; /* 가독성을 위한 줄 간격 */
+}
+
+/* 추가적인 반응형 처리 */
+@media (max-width: 1023px) {
+    .main-grid {
+        gap: 1.5rem;
+    }
+
+    .left-column, .right-column {
+        max-width: 100%;
+    }
+}
+
+/* 매우 작은 화면에서의 추가 처리 */
+@media (max-width: 768px) {
+    main {
+        max-width: 95%;
+        padding: 1rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .main-grid {
+        gap: 1rem;
+    }
+}
+/* 문장에서 단어 드래그 관련 css */
+/* 액션이 불가능한 토큰 (조사, 조동사 등) */
+.japanese-token.non-actionable {
+    cursor: default; /* 마우스 커서를 기본 모양으로 */
+}
+
+/* 액션 가능한 토큰에 마우스 오버 시 */
+.japanese-token.token-hover {
+    background-color: lightgrey;
+    cursor: pointer;
+}
+
+/* 액션 가능한 토큰을 드래그하여 선택 시 */
+.japanese-token.selected-token {
+    background-color: var(--mochi-pink);
 }
