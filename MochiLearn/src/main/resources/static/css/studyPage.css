@@ -352,21 +352,24 @@ body {
 #scrollTopBtn {
     position: fixed;
     bottom: 30px;
-    right: 30px;
-    padding: 10px 15px;
-    font-size: 14px;
+    right: 40px;
+    padding: 0; /* 패딩 없애기 */
+    font-size: 50px; /* 아이콘 크기 */
     border: none;
-    border-radius: 6px;
-    background-color: #333;
+    border-radius: 0; /* 둥근 모서리 없애기 */
+    background-color: transparent; /* 배경 없애기 */
     color: white;
     cursor: pointer;
     z-index: 1000;
     transition: background-color 0.3s ease;
+    width: auto; /* 크기 자동 조절 */
+    height: auto;
+    display: inline; /* 박스 모양 최소화 */
+}
+#scrollTopBtn:hover {
+    background-color: transparent; /* 호버 시에도 배경 없음 */
 }
 
-#scrollTopBtn:hover {
-    background-color: var(--mochi-mint);
-}
 
 /* 로딩 스피너를 위한 CSS */
 .loading-spinner {
