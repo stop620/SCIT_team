@@ -115,6 +115,7 @@
     color: var(--color-primary-dark); 
     text-align: right; 
     font-size: 0.9em;
+    align-self: center;
 }
 .dict-content { 
     color: var(--color-secondary-gray); 
@@ -123,6 +124,7 @@
 .dict-content .jp-example { 
     font-weight: 500;
     color: var(--color-primary-dark);
+    margin: 0.5rem 0;
 }
 .dict-content .kr-example { 
     font-size: 0.85em; 
