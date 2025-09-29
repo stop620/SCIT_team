@@ -27,8 +27,7 @@
 .carousel-slide {
     flex-shrink: 0;
     width: 100%;
-    padding-top: 3rem;
-    padding-bottom: 5rem;
+
 }
 
 .slide-content {
@@ -37,7 +36,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding-top: 20px;
+    padding-top: 0px;
     padding-bottom: 50px;
 }
 
@@ -95,8 +94,8 @@
     overflow: hidden;
 }
 
-.hero-image-item{
-    top: 22%;
+.hero-image-item {
+    top: 18%;
     width: 300px;
     object-fit: cover;
     position: absolute;
@@ -238,10 +237,6 @@
         overflow: hidden;
     }
 
-    .carousel-slide {
-        padding-top: 6rem;
-        padding-bottom: 6rem;
-    }
 
     .slide-content {
         flex-direction: row;
@@ -266,13 +261,77 @@
 
     .hero-image-placeholder, .thumbnail-section {
         width: 50%;
+        display: flex;
         justify-content: center;
+        margin: 0 auto;
     }
-    .carousel-thumbnails {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: none;
-        justify-content: center;
+
+    /* 1. 포스터 컨테이너 (.carousel-thumbnails) 설정: absolute 기준점 역할 */
+    .thumbnail-section .carousel-thumbnails {
+        /* 기존 grid 속성 제거 */
+        display: block; 
+        position: relative; 
+        width: 600px; /* 포스터가 흩어질 충분한 공간 확보 */
+        height: 500px; 
+        margin: 30px 0; 
     }
+
+    /* 2. 개별 포스터 아이템 (.thumbnail-item) 설정 */
+    .thumbnail-section .thumbnail-item {
+        position: absolute; /* 불규칙한 위치 지정을 위해 absolute 사용 */
+        padding: 0;
+        margin: 0;
+        width: auto; /* width: 250px 제거 */
+        height: auto;
+        border: 7px solid white; /* 테두리 추가 */
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); /* 그림자 */
+        transition: all 0.3s ease-in-out; 
+    }
+    
+    /* 3. 포스터 이미지 크기 설정 */
+    .thumbnail-section .thumbnail-item img {
+        display: block;
+        width: 100%;        
+        max-width: none;    
+        height: auto;
+        max-height: 300px; /* 포스터의 최대 높이 지정 */
+        object-fit: contain;
+    }
+
+    /* 4. 개별 포스터의 불규칙한 위치, 크기, 회전 설정 */
+    
+    .thumbnail-section #thumbnail-item1 {
+        top: 60px;
+        right: 200px;
+        width: 301px;
+        transform: rotate(9deg);
+        z-index: 20;
+    }
+
+        .thumbnail-section #thumbnail-item2 {
+        top: 60px;
+        left: 100px;
+        width: 260px;
+        transform: rotate(355deg);
+        z-index: 30;
+    }
+
+        .thumbnail-section #thumbnail-item3 {
+        bottom: 50px;
+        left: 100px;
+        width: 200px;
+        transform: rotate(3deg);
+        z-index: 15;
+    }
+
+        .thumbnail-section #thumbnail-item4 {
+        bottom: 50px;
+        right: 157px;
+        width: 333px;
+        transform: rotate(349deg);
+        z-index: 13;
+    }
+
 
     .placeholder-box {
         width: 24rem;
