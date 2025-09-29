@@ -41,11 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // });
 
         books.forEach((book,index) => {
+            // 단어 갯수을 어떻게 가져올지?
+
             bookHtml += `
             <li>
                 <div class="wordCardList">
-                    <a href="/mochilearn/page/wordCard?bookId=${book.id}">${book.title}</a>
-                    <a class="wordCount">200 단어</a>
+                    <a class="wordTitle" href="/mochilearn/page/wordCard?bookId=${book.id}">${book.title}</a>
+                    <a class="wordCount"></a>
                     <a class="deleteBook">
                         <img src="/mochilearn/img/trash-bin.png" class="deleteBtn" data-book-id="${book.id}">
                     </a>

@@ -42,16 +42,21 @@
     cursor: pointer; 
 }
 
-.wordCardList{
+.wordCardList {
     display: grid;
-    width : 100%;
+    width: 100%;
     grid-template-columns: repeat(3,1fr);
     gap: space-between;
-    justify-items: center;
+    justify-items: center;  /* 기본적으로 모든 항목 중앙 정렬 */
     align-items: center;
     padding-bottom: 7px;
-    border-bottom:solid 1px #aaaaaa;
+    border-bottom: solid 1px #aaaaaa;
+}
 
+/* wordTitle 클래스를 가진 a 태그만 왼쪽 정렬 */
+.wordCardList a.wordTitle {
+    justify-self: start;  /* grid 아이템 왼쪽 정렬 */
+    padding-left: 20px;   /* 왼쪽 여백 추가 */
 }
 
 ul{
