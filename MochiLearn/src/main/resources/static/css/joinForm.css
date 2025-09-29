@@ -121,7 +121,7 @@ img{
     align-self: start;
     color: mediumvioletred;
     font-size: 0.8rem;
-    margin-bottom: 1rem;
+    margin: 0.5rem;
 }
 
 .errorMsg{
