@@ -1,12 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<!--<link rel="stylesheet" th:href="@{/css/main.css}">-->
+<link rel="stylesheet" th:href="@{/css/myPage.css}">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+<!-- chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:src="@{/js/myPage.js}"></script>
+<script th:src="@{/js/wordbook-popup.js}"></script>
+
 <head>
     <meta charset="UTF-8">
     <title>mypage</title>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/myPage-card.css}">
+
 </head>
 <body>
     <div th:replace="~{navigation::navigation}"></div>
+    <div class="main-grid">
+        <div class="left-column">
+            <div class="dashboard">
+                <div class="profilePic">
+                    <img th:src="@{/img/bbb.jpg}">
+                </div>
 
-    mypage
+                <a href="#top" class="dashboardMenu">
+                    <div>학습 통계</div>
+                </a>
+                <a href="#quizStatsSection" class="dashboardMenu">
+                    <div>퀴즈 기록</div>
+                </a>
+                <a href="#myCardsSection" class="dashboardMenu">
+                    <div>내 게시물</div>
+                </a>
+                <a href="#likeCardsSection" class="dashboardMenu">
+                    <div>즐겨 찾기</div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div id="top" class="mainContainer">
+                <h2 >학습 통계</h2>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="nav-btn" id="prevBtn">←</button>
+                        <div class="current-month" id="currentMonth"></div>
+                        <button class="nav-btn" id="nextBtn">→</button>
+                    </div>
+                    
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- 달력이 동적으로 생성됩니다 -->
+                    </div>
+                    
+                </div>
+
+                <div id="quizStatsSection" class="board">
+                    <h2>퀴즈 기록</h2>
+                    <div class="graphContainer">
+                        <!--<div class="graph">
+                            <canvas id="study-tracker">
+                                공부 추적 더미 그래프
+                                &lt;!&ndash; 어떤 형태로 갈지 다시 이야기 할것 &ndash;&gt;
+                            </canvas>
+                        </div>-->
+                        <div class="graph">
+                            <canvas id="grade-trend"></canvas>
+                        </div>
+                        <div class="graph">
+                            <canvas id="etc"></canvas>
+                        </div>
+                    </div>
+                        <!--<table>
+                            <tr>
+                                <th>일시</th>
+                                <th>학습 명</th>
+                                <th>성적</th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>퀴즈 1</td>
+                                <td>7/10</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>2025-08-27</td>
+                                <td>퀴즈 2</td>
+                                <td>9/10</td>
+                            </tr>
+                            
+                            <tr>
+                                <td>2025-08-26</td>
+                                <td>퀴즈 3</td>
+                                <td>8/10</td>
+                            </tr>
+                        </table>-->
+                    <div id="quizContainer" class="quiz-logs-container">
+                        <!-- 응시한 퀴즈 결과 공간 -->
+                    </div>
+                </div>
+
+                <div id="myCardsSection" class="board">
+                    <h2>내 게시물</h2>
+                        <!--<table>
+                            <tr>
+                                <th>일시</th>
+                                <th>게시글 명</th>
+                                <th>추천</th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>1번 게시글</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>2번 게시글</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>3번 게시글</td>
+                                <td>9</td>
+                            </tr>
+                        </table>-->
+                        <div id="myCardGrid" class="card-list">
+                            <!-- 내 카드 공간 -->
+                        </div>
+                </div>
+
+                <div id="likeCardsSection" class="board">
+                    <h2>즐겨찾기</h2>
+                        <!--<table>
+                            <tr>
+                                <th>일시</th>
+                                <th>게시글 명</th>
+                                <th>추천</th>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>1번 게시글</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>2번 게시글</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>2025-08-28</td>
+                                <td>3번 게시글</td>
+                                <td>9</td>
+                            </tr>
+                    </table>-->
+                    <div id="likeCardGrid" class="card-list">
+                        <!-- 좋아요 카드 공간 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer -->
+    <div th:replace="~{footer::footer}"></div>
 </body>
 </html>

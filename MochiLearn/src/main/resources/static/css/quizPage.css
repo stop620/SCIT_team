@@ -1,0 +1,75 @@
+:root {
+    --mochi-pink: #FFB6C1;
+    --mochi-mint: #3ED6D0;
+    --mochi-blue: #32D9FF;
+    --mochi-gray-light: #F5F5F5;
+    --mochi-gray-dark: #333333;
+}
+
+.quizPageContainer{
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+    background-color: #fff;
+    justify-self: center;
+    margin: 2rem auto 13rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+}
+
+.containerWrapper{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+.quizContainer{
+    width: 100%;
+    display : grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    justify-content: space-between;
+    align-content: center;
+    margin-top: 20px;
+}
+
+.quizCard{
+    display: grid;
+    gap: 1rem;
+    border-radius: 10px;
+    /* border: solid 3px #000; */
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor:pointer;
+    height: 400px;
+    box-shadow: #33333333 0px 1px 3px, #33333333 0px 1px 2px;
+}
+
+.quizCard:hover {
+    background-color: rgba(50, 217, 255, 0.1); /* mochi-blue의 연한 버전 */
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(50, 217, 255, 0.3);
+}
+
+.quizCard img{
+    width: 250px;
+}
+
+.quizCard p {
+    font-size: 18px;
+}
+
+#quizCard1{
+    background-color : var(--mochi-blue);
+}
+
+#quizCard2{
+    background-color : var(--mochi-mint);
+}
+
+#quizCard3{
+    background-color : var(--mochi-pink);
+}

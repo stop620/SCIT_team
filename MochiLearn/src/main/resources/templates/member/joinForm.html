@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/joinForm.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+<head>
+	<meta charset="UTF-8">
+	<title>Mochi Learn 회원가입</title>
+	<!-- jQuery 파일 불러오기 -->
+	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+	<script th:src="@{/js/wordbook-popup.js}"></script>
+
+	<script>
+		$(document).ready(function() {
+			$('#jForm').on('submit', validation);
+		});
+
+		function validation(e) {
+			// 에러 메시지를 표시할 div 선택 (클래스 선택자 앞의 . 필요)
+			const errMsgDiv = $('.errorMsg');
+			const id = $('#userId').val();
+			const pw = $('#password').val();
+			const name = $('#name').val();
+
+			// 초기화
+			errMsgDiv.text('');
+
+			if (id.length < 3 || id.length > 20) {
+				errMsgDiv.text('ID는 3 ~ 20자로 입력하세요.');
+				$('#userId').focus();  // 해당 입력창으로 포커스 이동
+				e.preventDefault();
+				return;
+			}
+
+			if (pw.length < 3 || pw.length > 10) {
+				errMsgDiv.text('비밀번호는 3 ~ 10자로 입력하세요.');
+				$('#password').focus();
+				e.preventDefault();
+				return;
+			}
+
+			if (!name) {
+				errMsgDiv.text('이름을 입력하세요.');
+				$('#name').focus();
+				e.preventDefault();
+				return;
+			}
+
+			// 모든 검증 통과
+			errMsgDiv.text('회원가입이 가능합니다!');
+			errMsgDiv.css('color', 'green');
+		}
+	</script>
+</head>
+<div th:replace="~{navigation::navigation}"></div>
+
+<body>
+<h1>Mochi Learnへようこそ！</h1>
+<div class="formContainer">
+	<div class="sideContainer">
+		<div class="blank">
+		</div>
+		<div class="welcomeImg">
+			<a><img th:src="@{/img/mochi_write.png}"></a>
+		</div>
+	</div>
+	<form id="jForm" th:action="@{/member/join}" method="post">
+		<div class="elementContainer">
+			<label for="userId"></label>
+			<input type="text" name="userId" id="userId" placeholder="아이디를 입력해주세요.">
+		</div>
+		<div class="elementContainer">
+			<label for="password"></label>
+			<input type="password" name="password" id="password" placeholder="비밀번호를 입력해주세요.">
+		</div>
+		<div class="elementContainer">
+			<label for="password2"></label>
+			<input type="password" name="password2" id="password2" placeholder="비밀번호 확인">
+		</div>
+		<div class="elementContainer">
+			<label for="name"></label>
+			<input type="text" name="name" id="name" placeholder="이름을 입력해주세요.">
+		</div>
+		<div class="elementContainer">
+			<label for="nickname"></label>
+			<input name="nickname" id="nickname" placeholder="닉네임을 입력해주세요.">
+		</div>
+		<div class="buttonContainer">
+			<input type="submit" value="가입하기" onclick="validation()">
+			<!--<input type="button" value="테스트" onclick="validation()">-->
+		</div>
+	</form>
+	<div class="sideContainer">
+		<div class="errorMsg">계정에서 사용할 정보를 입력해주세요!</div>
+		<div class="welcomeImg">
+			<a><img th:src="@{/img/mochi_explain.png}"></a>
+		</div>
+	</div>
+</div>
+</body>
+</html>

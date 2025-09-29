@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MochiLearn - 日本語学習</title>
+        <!-- Inter Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+        <link rel="stylesheet" th:href="@{/css/index.css}">
+        <link rel="stylesheet" th:href="@{/css/common.css}">
+
+        <script th:src="@{/js/index.js}"></script>
+        <script th:src="@{/js/wordbook-popup.js}"></script>
+
+    </head>
+    <body>
+
+        <!-- Header Navigation Section -->
+        <div th:replace="~{navigation::navigation}"></div>
+
+        <!-- Hero Carousel Section -->
+        <section class="hero-section" id="heroSection">
+            <div class="carousel-container" id="carouselContainer">
+                <div class="carousel-inner" id="carouselInner">
+                    <!-- Slide 1: Original Mochi content -->
+                    <div class="carousel-slide container">
+                        <div class="slide-content">
+                            <!-- Text content -->
+                            <div class="hero-text">
+                                <h1 class="hero-title">
+                                    귀여운 모찌와<br>함께하는 일본어 학습!
+                                </h1>
+                                <p class="hero-subtitle">
+                                    짧은 영상과 실용적인 문장으로 즐겁게 배우는, <br>초보자도 쉽게 이용 가능한 일본어 학습 플랫폼입니다.
+                                </p>
+                                <a th:href="@{/page/best}" class="hero-cta">
+                                    무료로 시작하기
+                                </a>
+                            </div>
+                            <!-- Image placeholder -->
+                            <div class="hero-image-placeholder">
+                                <div class="placeholder-box">
+
+                                </div>
+                                <!--[스마트폰으로 영상을 보는 모찌 캐릭터 이미지]-->
+                                <img class="hero-image-item" th:src="@{/img/mochi1.png}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Video thumbnails -->
+                    <div class="carousel-slide container">
+                        <div class="slide-content">
+                            <!-- Text content -->
+                            <div class="hero-text">
+                                <h1 class="hero-title">
+                                    영상으로 쉽게<br>보고 듣는 일본어!
+                                </h1>
+                                <p class="hero-subtitle">
+                                    드라마, 애니메이션, 영화 등 다양한 콘텐츠로 살아있는 일본어를 경험하세요.
+                                </p>
+                                <a th:href="@{/page/best}" class="hero-cta">
+                                    무료로 시작하기
+                                </a>
+                            </div>
+                            <!-- Thumbnail placeholder -->
+                            <div class="hero-image-placeholder thumbnail-section">
+                                <div class="carousel-thumbnails">
+                                    <div class="thumbnail-item" id="thumbnail-item1">
+                                    <img th:src="@{/img/kiminonawa.jpg}" alt=""></div>
+                                    <div class="thumbnail-item" id="thumbnail-item2">
+                                    <img th:src="@{/img/nigehaji.webp}" alt=""></div>
+                                    <div class="thumbnail-item" id="thumbnail-item3">
+                                    <img th:src="@{/img/loveletter.webp}" alt=""></div>
+                                    <div class="thumbnail-item" id="thumbnail-item4">
+                                    <img th:src="@{/img/spyfamily.webp}" alt=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: Quiz section -->
+                    <div class="carousel-slide container">
+                        <div class="slide-content">
+                            <!-- Text content -->
+                            <div class="hero-text">
+                                <h1 class="hero-title">
+                                    재미있는 퀴즈로<br>실력 다지기!
+                                </h1>
+                                <p class="hero-subtitle">
+                                    배운 표현을 퀴즈로 복습하며, 나의 실력이 얼마나 늘었는지 바로 확인해 보세요.
+                                </p>
+                                <a th:href="@{/page/quiz}" class="hero-cta">
+                                    퀴즈 풀어보기
+                                </a>
+                            </div>
+                            <!-- Quiz image placeholder -->
+                            <div class="hero-image-placeholder">
+                                <div class="placeholder-box" style="background-color: var(--mochi-pink);">
+
+                                </div>
+                                <!--[퀴즈 아이콘이 있는 모찌 캐릭터 이미지]-->
+                                <img class="hero-image-item" th:src="@{/img/mochi2.png}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Navigation buttons-->
+                <div class="carousel-nav">
+                    <button class="nav-btn prev-btn">&#10094;</button>
+                    <button class="nav-btn next-btn">&#10095;</button>
+                </div>
+                <div class="carousel-indicators" id="carouselIndicators"></div>
+            </div>
+
+
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="features-title">MochiLearn의 특별한 기능</h2>
+                <div class="features-grid">
+                    <!-- Feature 1 -->
+                    <div class="feature-card">
+                        <div class="icon-container" style="background-color: var(--mochi-pink);">
+                            <!-- Icon placeholder -->
+                            <span>💡</span>
+                        </div>
+                        <h3 class="feature-title">영상 기반 학습</h3>
+                        <p class="feature-description">재미있는 일본어 영상으로 원어민 표현을 자연스럽게 익히세요.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <div class="icon-container" style="background-color: var(--mochi-mint);">
+                            <!-- Icon placeholder -->
+                            <span>🗣️</span>
+                        </div>
+                        <h3 class="feature-title">반복 연습 시스템</h3>
+                        <p class="feature-description">모르는 문장만 쏙쏙 골라 무한 반복으로 완벽하게 마스터하세요.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="feature-card">
+                        <div class="icon-container" style="background-color: var(--mochi-blue);">
+                            <!-- Icon placeholder -->
+                            <span>📝</span>
+                        </div>
+                        <h3 class="feature-title">문장 스크립트</h3>
+                        <p class="feature-description">모든 영상에 스크립트가 제공되어 문맥을 정확히 이해할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- footer -->
+        <div th:replace="~{footer::footer}"></div>
+    </body>
+</html>

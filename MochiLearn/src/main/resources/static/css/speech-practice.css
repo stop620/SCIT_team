@@ -1,0 +1,222 @@
+/* 점수별 색 팔레트 */
+:root {
+    --score-color-perfect: #32D9FF;
+    --score-color-excellent: #3ED6D0;
+    --score-color-good: #FFD700;
+    --score-color-fair: #FF8C00;
+    --score-color-poor: #FF4500;
+    --score-color-fail: #778899;
+}
+
+.practice-comment {
+    justify-self: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--mochi-gray-dark);
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* 듣기 버튼 */
+.play-script-btn {
+    background-color: var(--mochi-blue);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.play-script-btn:hover {
+    background-color: var(--mochi-mint);
+    transform: scale(1.1);
+}
+.play-script-btn:active {
+    transform: scale(0.8);
+}
+
+/* 마이크 버튼을 감싸는 컨테이너 */
+.mic-wrap {
+    justify-self: center;
+    position: relative;
+    width: 240px;
+    height: 60px;
+    border-radius: 30px;
+    overflow: visible;
+    margin: 0 auto;
+}
+
+/* 마이크 버튼 */
+.mic-btn {
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+    border: 0;
+    background: var(--mochi-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2), inset 0 -6px 18px rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+.mic-btn:hover {
+    background: var(--mochi-mint);
+    transform: scale(1.1);
+}
+.mic-btn:active {
+    transform: scale(.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 -3px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* 마이크 아이콘 (SVG) */
+.mic-icon {
+    width: 44px;
+    height: 44px;
+    color: var(--mochi-gray-light);
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+    transition: color .3s ease;
+}
+
+/* 소리 감지 시 생성되는 펄스 요소 */
+.pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 240px;
+    height: 60px;
+    border-radius: 30px;
+    pointer-events: none;
+    background: transparent;
+    border: 5px solid var(--mochi-mint);
+    opacity: 0;
+    animation: pulseWave 1s ease-out forwards;
+}
+@keyframes pulseWave {
+    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+}
+
+/* 작은 상태 점 (녹음중 표시) */
+.status-dot {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--mochi-pink);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: none;
+    transition: background-color .3s ease;
+    animation: dotPulse 1.5s infinite;
+}
+
+/* 'listening' 클래스가 추가되면 활성화 */
+.listening .status-dot { display: block; }
+.listening .mic-btn {
+    box-shadow:
+            0 0 10px var(--mochi-mint),
+            0 0 20px var(--mochi-mint),
+            0 0 30px var(--mochi-mint),
+            inset 0 -6px 18px rgba(255, 255, 255, 0.2);
+}
+
+/* 도움 텍스트 */
+.hint {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.9;
+    min-height: 20px;
+}
+
+.score-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--mochi-gray-light);
+    border-radius: 1rem;
+    min-width: 150px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.score-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.score-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #505d81;
+}
+
+.score-box.accuracy {
+    background-color: #e0f7f3;
+}
+
+.score-box.fluency {
+    background-color: #e0f2f7;
+}
+
+/* 막대 그래프 */
+.score-bar-wrap {
+    width: 100%;
+    height: 8px; /* 바 높이 조절 */
+    background-color: #ddd;
+    border-radius: 4px; /* 바 모서리 조절 */
+    overflow: hidden;
+}
+.score-bar {
+    height: 100%;
+    transition: width 1s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+/* 피드백 메세지 */
+.feedback-message-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #fff9f9;
+    border-left: 5px solid var(--mochi-pink);
+    border-radius: 0.5rem;
+    display: none; /* 초기에는 숨김 */
+    text-align: left;
+}
+.feedback-message-container h4 {
+    color: var(--mochi-pink);
+    margin-top: 0;
+}
+.feedback-message-container p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.score-and-feedback {
+    display: none;
+}
+
+@keyframes dotPulse {
+    0% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}

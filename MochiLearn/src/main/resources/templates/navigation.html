@@ -1,24 +1,75 @@
-<html xmlns:th="http://thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<header th:fragment="navigation">
-    <nav class="navbar">
-        <div class="navbar_logo">
-            <a th:href="@{/}">
-                動画べん
-                <img src="">
-            </a>
+
+<header th:fragment="navigation" class="main-header">
+
+
+    <nav class="container">
+        <!-- Logo -->
+        <a th:href="@{/}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <!-- Navigation links -->
+        <div class="nav-links">
+            <a th:href="@{/page/study}" class="nav-link">학습하기</a>
+            <a th:href="@{/page/quiz}" class="nav-link">퀴즈풀기</a>
+            <a class="nav-link" id="wordPageBtn">단어장</a>
+
+            <a sec:authorize="isAuthenticated()" th:href="@{/page/mypage}" class="nav-link">마이페이지</a>
+            <a sec:authorize="!isAuthenticated()" class="nav-link" th:href="@{/member/loginForm}">로그인</a>
+
+            <a href="" id="logout" class="nav-link" sec:authorize="isAuthenticated()">로그아웃</a>
+
+            <a th:href="@{/page/best}" class="cta-btn">시작하기</a>
         </div>
-        <ul class="navbar_menu">
-            <li><a th:href="@{/page/study}">학습</a></li>
-            <li><a th:href="@{/page/quiz}">퀴즈</a></li>
-            <li><a th:href="@{/page/word}">단어장</a></li>
-            <li><a th:href="@{/page/mypage}">마이페이지</a></li>
-        </ul>
-        <div class="navbar_btn">
-            <a href="#">로그인</a>
-            <button style="display:none">로그아웃</button>
-        </div>
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
     </nav>
+    <!-- 로그아웃용 토큰 히든인풋 -->
+    <input type="hidden" id="csrfHeader" th:value="${_csrf.headerName}" />
+    <input type="hidden" id="csrfToken" th:value="${_csrf.token}" />
+
+    <script>
+        const logoutButton = document.getElementById('logout');
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                console.log('logout');
+
+                const csrfHeader = document.getElementById('csrfHeader')?.value;
+                const csrfToken = document.getElementById('csrfToken')?.value;
+
+                try {
+                    const response = await fetch('/mochilearn/member/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            [csrfHeader]: csrfToken
+                        }
+                    });
+
+                    if (response.ok) {
+                        // 로그아웃 성공 시
+                        console.log('로그아웃 성공');
+                        if(location.pathname == '/mochilearn/page/mypage') {
+                            location.href = '/mochilearn/';
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        // 로그아웃 실패 시
+                        console.error('로그아웃 실패:', await response.text());
+                    }
+                } catch (error) {
+                    console.error('로그아웃 요청 중 오류 발생:', error);
+                }
+            });
+        }
+
+    </script>
 </header>
 </body>
 </html>

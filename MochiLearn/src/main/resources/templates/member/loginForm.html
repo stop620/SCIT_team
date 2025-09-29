@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- <link rel="stylesheet" href="css/main.css"> -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/joinForm.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+<script th:src="@{/js/wordbook-popup.js}"></script>
+<script th:src="@{/js/login.js}"></script>
+
+<head>
+	<meta charset="UTF-8">
+
+	<!-- 시큐리티 csrf 토큰 -->
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+	<title>로그인</title>
+	<!-- jQuery 파일 불러오기 -->
+	<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+</head>
+
+<div th:replace="~{navigation::navigation}"></div>
+
+<body>
+<section>
+	<div class="form-container">
+
+		<div class="header">
+			<div class="logo-container">
+				<img th:src="@{/img/mochi_write.png}">
+			</div>
+			<h1 id="form-title" class="form-title">로그인</h1>
+		</div>
+
+		<!-- 로그인 폼 -->
+		<form id="loginForm" class="form-section active" th:action="@{/member/login}" method="post">
+			<input type="text" name="id" id="loginId" class="form-input" placeholder="이메일">
+			<div id="login-id-error" class="error-message"></div>
+			<input type="password" name="password" id="loginPw" class="form-input" placeholder="비밀번호">
+			<div id="login-password-error" class="error-message"></div>
+
+			<div class="form-options">
+				<a href="#">비밀번호를 잊으셨나요?</a>
+			</div>
+			<!-- 리다이렉트용 히든 인풋 -->
+			<input type="hidden" name="redirect" th:value="${param.redirect}">
+			<!-- -->
+			<input type="submit" class="form-submit-btn" value="로그인">
+		</form>
+
+		<!-- 가입 폼 -->
+		<form id="joinForm" class="form-section" th:action="@{/member/join}" method="post">
+
+			<input type="text" name="userId" id="joinId" class="form-input" placeholder="이메일">
+			<div id="join-id-error" class="error-message"></div>
+
+			<input type="password" name="password" id="joinPw" class="form-input" placeholder="비밀번호">
+			<div id="join-password-error" class="error-message"></div>
+
+			<input type="password" name="password2" id="joinPw2" class="form-input" placeholder="비밀번호 확인">
+			<div id="join-password2-error" class="error-message"></div>
+
+			<input type="text" name="name" id="name" class="form-input" placeholder="이름">
+			<div id="join-name-error" class="error-message"></div>
+
+			<input name="nickname" id="nickname" class="form-input" placeholder="닉네임">
+			<div id="join-nickname-error" class="error-message"></div>
+
+			<input type="submit" class="form-submit-btn" value="가입하기">
+
+		</form>
+
+		<!-- 디바이더 -->
+		<div class="divider">
+			<hr>
+			<span>또는</span>
+			<hr>
+		</div>
+
+		<div class="social-login">
+			<!-- 구글로그인 -->
+			<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+			<div id="g_id_onload"
+				 data-client_id="985885360227-1cbr9mhq7gbga2psfao8a04eknurh5fn.apps.googleusercontent.com"
+				 data-ux_mode="popup"
+				 data-callback="handleCredentialResponse"> </div>
+
+			<div class="g_id_signin"
+				 data-type="standard"
+				 data-size="large"
+				 data-theme="outline"
+				 data-text="sign_in_with"
+				 data-shape="rectangular"
+				 data-logo_alignment="left">
+			</div>
+		</div>
+
+		<!-- 로그인/가입 토글 -->
+		<div class="toggle-link-container">
+			<span id="toggle-text">계정이 없으신가요?</span>
+			<a href="#" id="toggle-link">회원가입</a>
+		</div>
+
+	</div>
+</section>
+
+<!-- Footer -->
+<div th:replace="~{footer::footer}"></div>
+</body>
+</html>

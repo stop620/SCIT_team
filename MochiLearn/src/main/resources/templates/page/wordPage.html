@@ -1,13 +1,83 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/wordBook.css}">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+<script th:src="@{/js/wordPage.js}"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>word</title>
 </head>
 <body>
-    <div th:replace="~{navigation::navigation}"></div>
+    <div class="main-header">
+        <nav>
+            <a th:href="@{./word}" class="logo">
+                <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+            </a>
+            <span>단어장</span>
+            <div style="visibility: hidden;">
+                <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+            </div>
+        </nav>
+    </div>
 
-    word
+    <div class="container">
+        <div class="wordContainer">
+            <div class="addWordCard">
+                <h3>단어장 목록</h3>
+                <a th:href="@{/page/addWordCard}">단어장 추가</a>
+            </div>
+
+            <ul class="wordBookList">
+                <!-- <li>
+                    <div class="wordCardList">
+                        <a th:href="@{/page/wordCard2}">JLPT N2</a>
+                        <a class="wordCount">250 단어</a>
+                        <a class="deleteBook">
+                            <img th:src="@{/img/trash-bin.png}" class="deleteBtn">
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <div class="wordCardList">
+                        <a th:href="@{/page/wordCard2}">JLPT N2</a>
+                        <a class="wordCount">250</a>
+                        <a class="deleteBook">
+                            <img th:src="@{/img/trash-bin.png}" class="deleteBtn">
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <div class="wordCardList">
+                        <a th:href="@{/page/wordCard2}">JLPT N2</a>
+                        <a class="wordCount">250</a>
+                        <a class="deleteBook">
+                            <img th:src="@{/img/trash-bin.png}" class="deleteBtn">
+                        </a>
+                    </div>
+                </li> -->
+            </ul>
+            <!--<div class="wordList">
+                <div class="wordCard">
+                    <a th:href="@{/page/wordCard2}">JLPT N2</a>
+                </div>
+            </div>
+
+            <div class="wordList">
+                <div class="wordCard">
+                    <a th:href="@{/page/wordCard1}">JLPT N1</a>
+                </div>
+            </div> -->
+
+            <!--<div class="addWordList">
+                <div class="wordCard">
+                    <a th:href="@{/page/addWordCard}">단어장 추가</a>
+                </div>
+            </div>-->
+        </div>
+    </div>
+
 </body>
 </html>

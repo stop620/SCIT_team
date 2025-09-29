@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MochiLearn</title>
+
+    <!-- CSS 파일 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/writePage.css}">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script th:src="@{/js/writePage.js}"></script>
+    <script th:src="@{/js/wordbook-popup.js}"></script>
+    
+</head>
+
+<body>
+<div th:replace="~{navigation::navigation}"></div>
+
+<main>
+    <div class="main-grid">
+        <!-- 왼쪽 공간 - 제목, 영상, 자막, 태그 등 -->
+        <div class="left-column">
+            <!-- 제목 공간 -->
+            <div class="title-div">
+                <svg id="use-yt-title-btn" viewBox="0 -7 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" stroke="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>유튜브 제목 사용</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Color-" transform="translate(-200.000000, -368.000000)" fill="#3ED6D0"> <path d="M219.044,391.269916 L219.0425,377.687742 L232.0115,384.502244 L219.044,391.269916 Z M247.52,375.334163 C247.52,375.334163 247.0505,372.003199 245.612,370.536366 C243.7865,368.610299 241.7405,368.601235 240.803,368.489448 C234.086,368 224.0105,368 224.0105,368 L223.9895,368 C223.9895,368 213.914,368 207.197,368.489448 C206.258,368.601235 204.2135,368.610299 202.3865,370.536366 C200.948,372.003199 200.48,375.334163 200.48,375.334163 C200.48,375.334163 200,379.246723 200,383.157773 L200,386.82561 C200,390.73817 200.48,394.64922 200.48,394.64922 C200.48,394.64922 200.948,397.980184 202.3865,399.447016 C204.2135,401.373084 206.612,401.312658 207.68,401.513574 C211.52,401.885191 224,402 224,402 C224,402 234.086,401.984894 240.803,401.495446 C241.7405,401.382148 243.7865,401.373084 245.612,399.447016 C247.0505,397.980184 247.52,394.64922 247.52,394.64922 C247.52,394.64922 248,390.73817 248,386.82561 L248,383.157773 C248,379.246723 247.52,375.334163 247.52,375.334163 L247.52,375.334163 Z" id="Youtube"> </path> </g> </g> </g></svg>
+                <input
+                        id="title-input"
+                        type="text"
+                        class="input-field title-input"
+                        placeholder="학습 카드 제목을 입력하세요"/>
+
+            </div>
+            <!-- 유튜브 영상 로드 공간 -->
+            <div id="player-container" class="player-container hidden">
+                <div id="player"></div>
+            </div>
+            <!-- 유튜브 url 입력 공간 -->
+            <div>
+                <input
+                        id="url-input"
+                        type="text"
+                        class="input-field"
+                        placeholder="학습할 YouTube 영상 URL을 입력하세요."
+                />
+            </div>
+            <!-- 자막 공간 -->
+            <div id="transcript-container" class="card transcript-container hidden">
+                <div class="transcript-header">
+                    <button id="prev-btn" class="transcript-nav-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    </button>
+                    <div class="transcript-text">
+                        <p id="japanese-line">자막이 여기에 표시됩니다.</p>
+                        <p id="korean-line">구간을 추가하고 버튼을 눌러주세요.</p>
+                    </div>
+                    <button id="next-btn" class="transcript-nav-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </button>
+                </div>
+                <div id="transcript-index"></div>
+            </div>
+            <!-- 태그 공간 -->
+            <div class="card tag-section">
+                <div>
+                    <div class="level-tag-div">
+                        <h4 class="tag-title">난이도</h4>
+                        <svg fill="#333333" width="800px" height="800px" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                            <g id="SVGRepo_iconCarrier"> <path d="M224.00244,128a96,96,0,1,1-96-96A95.99983,95.99983,0,0,1,224.00244,128Z" opacity="0.2"/> <path d="M128.002,23.99963a104,104,0,1,0,104,104A104.11791,104.11791,0,0,0,128.002,23.99963Zm0,192a88,88,0,1,1,88-88A88.09957,88.09957,0,0,1,128.002,215.99963Zm16-40a8.00039,8.00039,0,0,1-8,8h-8a8.00039,8.00039,0,0,1-8-8v-48a8,8,0,0,1,0-16h8a8.00039,8.00039,0,0,1,8,8v48A8.00039,8.00039,0,0,1,144.002,175.99963ZM114.00244,84a12,12,0,1,1,12,12A12,12,0,0,1,114.00244,84Z"/> </g>
+                        </svg>
+                        <div id="tooltip" class="tooltip">
+                            학습 구간을 추가하면 자동으로 선택됩니다.<br>수동으로 변경할 수 있습니다.
+                        </div>
+                    </div>
+                    <div id="difficulty-tags" class="tag-group">
+                        <button class="tag-button">초급</button>
+                        <button class="tag-button">중급</button>
+                        <button class="tag-button">고급</button>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="tag-title">장르</h4>
+                    <div id="genre-tags" class="tag-group">
+                        <button class="tag-button">드라마</button>
+                        <button class="tag-button">애니</button>
+                        <button class="tag-button">영화</button>
+                        <button class="tag-button">J-POP</button>
+                        <button class="tag-button">일상회화</button>
+                        <button class="tag-button">비즈니스</button>
+                        <button class="tag-button">로맨스</button>
+                        <button class="tag-button">코믹</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 저장버튼 -->
+            <div>
+                <button id="save-card-btn" class="button">
+                    학습 카드 저장하기
+                </button>
+            </div>
+        </div>
+        <!-- 우측 공간 - 구간 추가 관련 -->
+        <div class="right-column">
+            <div class="sticky">
+                <div class="card">
+                    <h3 class="card-title">학습 구간 추가</h3>
+                    <div class="time-input-group">
+                        <input
+                                id="start-input"
+                                type="text"
+                                class="time-input"
+                                placeholder="00:00"
+                        />
+                        <span>-</span>
+                        <input
+                                id="end-input"
+                                type="text"
+                                class="time-input"
+                                placeholder="00:10"
+                        />
+                    </div>
+                    <button id="add-timeline-btn" class="button">
+                        <span>구간 추가</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="timeline-header">
+                        <h3 class="card-title">학습 구간 목록</h3>
+                        <span id="selected-section-display"></span>
+                    </div>
+                    <div id="timeline-buttons-container">
+                        <!-- 학습 구간 추가시 이곳에 버튼이 생성됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

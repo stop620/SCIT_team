@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" th:href="@{/css/common.css}">
+<link rel="stylesheet" th:href="@{/css/wordCard.css}">
+<script th:src="@{/js/wordCardPage.js}"></script>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-jp.min.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordCardPage</title>
+</head>
+<body>
+<div class="main-header">
+    <nav>
+        <a th:href="@{./word}" class="logo">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </a>
+        <span>단어장</span>
+        <div style="visibility: hidden;">
+            <img th:src="@{/img/logo.png}" alt="MochiLearn Logo" class="logo-image">
+        </div>
+    </nav>
+</div>
+    <div class="container">
+        <div class="containerHeader">
+            <h3 class="wordBook-title" th:text="${book.title}"></h3>
+            <p class="wordBook-content" th:text="${book.contents}"></p>
+        </div>
+
+        <div class="wordPageContent" th:each="word : ${wordList}">
+
+            <div class="wordHeader">
+                <div class="select-word">
+                    <span th:text="${word.selectWord}"></span>
+                </div>
+                <div th:data-bookId="${book.id}" th:data-wordId="${word.id}">
+                    <input class="delete-word-btn" type="button" value="x">
+                </div>
+            </div>
+            <div class="wordDetails">
+                <div class="word-label">표기</div><div class="word-content" th:text="${#strings.listJoin(word.kanji, ', ')}"></div>
+                <div class="word-label">읽기</div><div class="word-content" th:text="${#strings.listJoin(word.kana, ', ')}"></div>
+                <div class="word-label">품사</div><div class="word-content" th:text="${#strings.listJoin(word.partOfSpeech, ', ')}"></div>
+                <div class="word-label">뜻</div><div class="word-content" th:text="${#strings.listJoin(word.gloss, ', ')}"></div>
+                <div class="word-label">예문</div>
+                <div class="word-content">
+                    <p th:text="${word.examples[0]}"></p>
+                    <p class="kr-example" th:text="${word.examples[1]}"></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
