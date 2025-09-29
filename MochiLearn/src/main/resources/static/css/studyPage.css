@@ -71,14 +71,9 @@ body {
     margin: 0 auto;
 }
 
-#addCard a {
-    text-decoration: none;
-    width: 100%;
-    max-width: 200px;
-}
-
 #addCardBtn {
     width: 100%;
+    max-width: 200px;
     background-color: var(--mochi-mint);
     color: white;
     padding: 0.2rem 1rem;

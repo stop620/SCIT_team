@@ -10,6 +10,28 @@ $(document).ready(function() {
     let tagFilterEnd = false;
     let currentTagFilterTags = [];
 
+    let isLoggedIn = false;
+
+    $.get('/mochilearn/api/user/session')
+        .done(function(userData) {
+            isLoggedIn = !!(userData && userData.loggedIn);
+        })
+        .fail(function() {
+            isLoggedIn = false;
+        });
+
+    $('#addCardBtn').click(function() {
+        if (!isLoggedIn) {
+            if (confirm('로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                window.location.href = '/mochilearn/member/loginForm?redirect=' + encodeURIComponent(window.location.href);
+
+            }
+            return;
+        } else {
+            window.location.href = './write';
+        }
+    });
+
     // 모달 열기
     $('#tagBtn').click(function() {
         $('#tagModal').fadeIn(200).css('display', 'flex');
