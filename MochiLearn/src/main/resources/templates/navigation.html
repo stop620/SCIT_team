@@ -19,7 +19,7 @@
             <a sec:authorize="isAuthenticated()" th:href="@{/page/mypage}" class="nav-link">마이페이지</a>
             <a sec:authorize="!isAuthenticated()" class="nav-link" th:href="@{/member/loginForm}">로그인</a>
 
-            <a href="#" id="logout" class="nav-link" sec:authorize="isAuthenticated()">로그아웃</a>
+            <a href="" id="logout" class="nav-link" sec:authorize="isAuthenticated()">로그아웃</a>
 
             <a th:href="@{/page/best}" class="cta-btn">시작하기</a>
         </div>
@@ -54,7 +54,11 @@
                     if (response.ok) {
                         // 로그아웃 성공 시
                         console.log('로그아웃 성공');
-                        location.reload();
+                        if(location.pathname == '/mochilearn/page/mypage') {
+                            location.href = '/mochilearn/';
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         // 로그아웃 실패 시
                         console.error('로그아웃 실패:', await response.text());

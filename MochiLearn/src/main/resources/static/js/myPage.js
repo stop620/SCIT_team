@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded',()=>{
             if(data.loggedIn) {
                 sessionStorage.setItem("member", JSON.stringify(data.member));
                 console.log(data.member);
+                console.log(window.location.pathname);
             } else {
-                console.log('로그인 안됨')
+                window.location.href = '/mochilearn/';
             }
             const member = sessionStorage.getItem("member");
             const id = JSON.parse(member).id;

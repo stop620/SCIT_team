@@ -97,7 +97,8 @@ public class WebSecurityConfig {
         return http.build();
     }
 
-    // 로그인 성공시 이전 페이지로 리디렉션하는 핸들러
+/*   폼 로그인에서 사용(현재는 api 로그인 처리로 미사용)
+ // 로그인 성공시 이전 페이지로 리디렉션하는 핸들러
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         SimpleUrlAuthenticationSuccessHandler successHandler = new SimpleUrlAuthenticationSuccessHandler();
@@ -115,7 +116,7 @@ public class WebSecurityConfig {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"status\":\"ok\"}");
         };
-    }
+    }*/
 
     @Bean
     BCryptPasswordEncoder getPasswordEncoder() {
