@@ -125,8 +125,11 @@ main {
 }
 .transcript-text {
     text-align: center;
+    max-width: 80%;
+
 }
 #japanese-line {
+    justify-self: center;
     font-size: 1.25rem; /* text-xl */
     color: #1F2937; /* text-gray-800 */
 }
